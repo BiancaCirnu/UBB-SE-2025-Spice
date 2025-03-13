@@ -1,1 +1,1 @@
-# UBB-SE-2025-TeamName
+# UBB-SE-2025-Profile
