@@ -18,6 +18,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using SteamProfile.Views;
 
 namespace SteamProfile
 {
@@ -27,7 +28,6 @@ namespace SteamProfile
         public static readonly FeaturesService FeaturesService;
         public static readonly CollectionsService CollectionsService;
         public static readonly WalletService WalletService;
-        public static readonly AuthenticationService AuthenticationService;
         public static readonly UserService UserService;
 
         static App()
@@ -44,9 +44,10 @@ namespace SteamProfile
             FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
-            AuthenticationService = new AuthenticationService(usersRepository);
-            UserService = new UserService(usersRepository);
+            UserService = new UserService(usersRepository); ;
         }
+
+        private Window m_window;
 
         public App()
         {
@@ -58,7 +59,5 @@ namespace SteamProfile
             m_window = new MainWindow();
             m_window.Activate();
         }
-
-        private Window? m_window;
     }
 }

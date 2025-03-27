@@ -39,5 +39,10 @@ namespace SteamProfile.Services
         {
             _usersRepository.DeleteUser(userId);
         }
+
+        public User? Login(string username, string password)
+        {
+            return _usersRepository.Login(username, password);
+        }
     }
 }

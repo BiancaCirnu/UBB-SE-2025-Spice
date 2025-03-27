@@ -58,11 +58,9 @@ namespace SteamProfile.Repositories
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@user_id", user.UserId),
-                    new SqlParameter("@email", (object?)user.Email ?? DBNull.Value),
-                    new SqlParameter("@username", (object?)user.Username ?? DBNull.Value),
-                    new SqlParameter("@profile_picture", (object?)user.ProfilePicture ?? DBNull.Value),
-                    new SqlParameter("@description", (object?)user.Description ?? DBNull.Value),
-                    new SqlParameter("@developer", (object?)user.IsDeveloper ?? DBNull.Value)
+                    new SqlParameter("@email", user.Email),
+                    new SqlParameter("@username", user.Username),
+                    new SqlParameter("@developer", user.IsDeveloper)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("UpdateUser", parameters);
@@ -87,9 +85,9 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@username", user.Username),
                     new SqlParameter("@email", user.Email),
-                    new SqlParameter("@password", user.Password),
-                    new SqlParameter("@description", (object?)user.Description ?? DBNull.Value),
+                    new SqlParameter("@hashed_password", user.Password),
                     new SqlParameter("@developer", user.IsDeveloper),
+                    new SqlParameter("@created_at", user.CreatedAt)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("CreateUser", parameters);
@@ -112,7 +110,7 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", userId)
+                    new SqlParameter("@user_Id", userId)
                 };
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
@@ -120,6 +118,40 @@ namespace SteamProfile.Repositories
             catch (DatabaseOperationException ex)
             {
                 throw new RepositoryException($"Failed to delete user with ID {userId}.", ex);
+            }
+        }
+
+        public User? Login(string username, string password)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@Username", username),
+                    new SqlParameter("@Password", password)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("UserLogin", parameters);
+                if (dataTable.Rows.Count > 0)
+                {
+                    var row = dataTable.Rows[0];
+                    var user = MapDataRowToUser(row);
+                    
+                    // Get session ID from the result
+                    var sessionId = row["session_id"] as Guid?;
+                    if (sessionId.HasValue)
+                    {
+                        // Update the UserSession singleton with the new session
+                        UserSession.Instance.UpdateSession(sessionId.Value, user);
+                    }
+
+                    return user;
+                }
+                return null;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException("Failed to login user.", ex);
             }
         }
 
@@ -137,8 +169,6 @@ namespace SteamProfile.Repositories
                 UserId = Convert.ToInt32(row["user_id"]),
                 Email = row["email"].ToString() ?? string.Empty,
                 Username = row["username"].ToString() ?? string.Empty,
-                ProfilePicture = row["profile_picture"] as string,
-                Description = row["description"] as string,
                 IsDeveloper = Convert.ToBoolean(row["developer"]),
                 CreatedAt = Convert.ToDateTime(row["created_at"]),
                 LastLogin = row["last_login"] as DateTime?

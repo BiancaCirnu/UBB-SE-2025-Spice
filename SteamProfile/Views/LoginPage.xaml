@@ -6,10 +6,37 @@
     xmlns:local="using:SteamProfile.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Grid>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    Spacing="20"
+                    Padding="40"
+                    MaxWidth="400">
+            
+            <TextBlock Text="Welcome Back!"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       HorizontalAlignment="Center"/>
 
+            <TextBox PlaceholderText="Username"
+                     Text="{Binding Username, Mode=TwoWay}"/>
+
+            <PasswordBox PlaceholderText="Password"
+                        Password="{Binding Password, Mode=TwoWay}"/>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="Red"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"/>
+
+            <Button Content="Login"
+                    Command="{Binding LoginCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"/>
+
+            <Button Content="Don't have an account? Register"
+                    Command="{Binding NavigateToRegisterCommand}"
+                    Style="{ThemeResource TextBlockButtonStyle}"/>
+        </StackPanel>
     </Grid>
 </Page>

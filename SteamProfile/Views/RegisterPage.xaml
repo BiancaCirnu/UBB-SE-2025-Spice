@@ -9,7 +9,41 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    Spacing="20"
+                    Padding="40"
+                    MaxWidth="400">
+            
+            <TextBlock Text="Create Account"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       HorizontalAlignment="Center"/>
 
+            <TextBox PlaceholderText="Username"
+                     Text="{Binding Username, Mode=TwoWay}"/>
+
+            <TextBox PlaceholderText="Email"
+                     Text="{Binding Email, Mode=TwoWay}"/>
+
+            <PasswordBox PlaceholderText="Password"
+                        Password="{Binding Password, Mode=TwoWay}"/>
+
+            <PasswordBox PlaceholderText="Confirm Password"
+                        Password="{Binding ConfirmPassword, Mode=TwoWay}"/>
+
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="Red"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"/>
+
+            <Button Content="Register"
+                    Command="{Binding RegisterCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"/>
+
+            <Button Content="Already have an account? Login"
+                    Command="{Binding NavigateToLoginCommand}"
+                    Style="{ThemeResource TextBlockButtonStyle}"/>
+        </StackPanel>
     </Grid>
 </Page>

@@ -3,12 +3,11 @@ AS
 BEGIN
     SELECT 
         user_id,
-        email,
         username,
-        profile_picture,
-        description,
+        email,
         developer,
         created_at,
         last_login
     FROM Users
+    ORDER BY username;
 END 

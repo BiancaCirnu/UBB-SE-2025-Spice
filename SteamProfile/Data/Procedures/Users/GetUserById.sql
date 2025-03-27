@@ -4,13 +4,11 @@ AS
 BEGIN
     SELECT 
         user_id,
-        email,
         username,
-        profile_picture,
-        description,
+        email,
         developer,
         created_at,
         last_login
     FROM Users
-    WHERE user_id = @userId
+    WHERE user_id = @userId;
 END 
