@@ -2,12 +2,11 @@ CREATE PROCEDURE CreateUser
     @username NVARCHAR(50),
     @email NVARCHAR(100),
     @hashed_password NVARCHAR(255),
-    @developer BIT,
-    @created_at DATETIME
+    @developer BIT
 AS
 BEGIN
-    INSERT INTO Users (username, email, hashed_password, developer, created_at, last_login)
-    VALUES (@username, @email, @hashed_password, @developer, @created_at, NULL);
+    INSERT INTO Users (username, email, hashed_password, developer)
+    VALUES (@username, @email, @hashed_password, @developer);
 
     SELECT 
         user_id,

@@ -6,6 +6,7 @@ using SteamProfile.Services;
 using SteamProfile.Views;
 using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SteamProfile.ViewModels
 {
@@ -55,6 +56,12 @@ namespace SteamProfile.ViewModels
                     return;
                 }
 
+                if (!IsPasswordValid(Password))
+                {
+                    ErrorMessage = "Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character (@$!%*?&).";
+                    return;
+                }
+
                 var user = new User
                 {
                     Username = Username,
@@ -83,6 +90,21 @@ namespace SteamProfile.ViewModels
         private void NavigateToLogin()
         {
             _frame.Navigate(typeof(LoginPage));
+        }
+
+        private bool IsPasswordValid(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
+            {
+                return false;
+            }
+
+            bool hasUpperCase = password.Any(char.IsUpper);
+            bool hasLowerCase = password.Any(char.IsLower);
+            bool hasDigit = password.Any(char.IsDigit);
+            bool hasSpecialChar = password.Any(ch => "@$!%*?&".Contains(ch));
+
+            return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
         }
     }
 } 

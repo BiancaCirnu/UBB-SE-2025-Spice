@@ -86,7 +86,6 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@email", user.Email),
                     new SqlParameter("@hashed_password", user.Password),
                     new SqlParameter("@developer", user.IsDeveloper),
-                    new SqlParameter("@created_at", user.CreatedAt)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("CreateUser", parameters);
@@ -99,6 +98,8 @@ namespace SteamProfile.Repositories
             }
             catch (DatabaseOperationException ex)
             {
+                // Log the exception details for debugging
+                Console.WriteLine($"Error creating user: {ex.Message}");
                 throw new RepositoryException("Failed to create user.", ex);
             }
         }
@@ -141,7 +142,7 @@ namespace SteamProfile.Repositories
             }
             catch (DatabaseOperationException ex)
             {
-                throw new RepositoryException("Failed to login user.", ex);
+                throw new RepositoryException("Failed to verify user credentials.", ex);
             }
         }
 

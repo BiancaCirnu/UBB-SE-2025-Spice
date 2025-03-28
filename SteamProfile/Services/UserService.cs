@@ -32,8 +32,10 @@ namespace SteamProfile.Services
         {
             // Hash the password before passing it to the repository
             user.Password = PasswordHasher.HashPassword(user.Password);
+
             // Check if user already exists
             var errorType = _usersRepository.CheckUserExists(user.Email, user.Username);
+
             if (!string.IsNullOrEmpty(errorType))
             {
                 switch (errorType)
