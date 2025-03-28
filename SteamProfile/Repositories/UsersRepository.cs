@@ -121,21 +121,21 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public User? VerifyCredentials(string emailOrUsername, string hashedPassword)
+        public User? VerifyCredentials(string emailOrUsername)
         {
             try
             {
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@EmailOrUsername", emailOrUsername),
-                    new SqlParameter("@Password", hashedPassword)
                 };
 
-                var dataTable = _dataLink.ExecuteReader("UserLogin", parameters);
+                var dataTable = _dataLink.ExecuteReader("GetUserByEmailOrUsername", parameters);
                 
                 if (dataTable.Rows.Count > 0)
                 {
-                    return MapDataRowToUser(dataTable.Rows[0]);
+                    var user = MapDataRowToUserWithPassword(dataTable.Rows[0]);
+                    return user;
                 }
                 
                 return null;
@@ -194,6 +194,31 @@ namespace SteamProfile.Repositories
                 CreatedAt = row["created_at"] != DBNull.Value ? Convert.ToDateTime(row["created_at"]) : DateTime.MinValue,
                 LastLogin = row["last_login"] != DBNull.Value ? row["last_login"] as DateTime? : null
             };
+        }
+
+        private static User? MapDataRowToUserWithPassword(DataRow row)
+        {
+            if (row["user_id"] == DBNull.Value || 
+                row["email"] == DBNull.Value || 
+                row["username"] == DBNull.Value || 
+                row["hashed_password"] == DBNull.Value)
+            {
+                return null;
+            }
+
+            var user = new User
+            {
+                UserId = Convert.ToInt32(row["user_id"]),
+                Email = row["email"].ToString(),
+                Username = row["username"].ToString(),
+                IsDeveloper = row["developer"] != DBNull.Value ? Convert.ToBoolean(row["developer"]) : false,
+                CreatedAt = row["created_at"] != DBNull.Value ? Convert.ToDateTime(row["created_at"]) : DateTime.MinValue,
+                LastLogin = row["last_login"] != DBNull.Value ? row["last_login"] as DateTime? : null,
+                Password = row["hashed_password"].ToString()
+            };
+
+
+            return user;
         }
     }
 

@@ -5,16 +5,19 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @HashedPassword NVARCHAR(100);
+    DECLARE @HashedPassword NVARCHAR(255);
     DECLARE @UserId INT;
 
-    -- Get the hashed password for the user
+    -- Get the user details using the new procedure
+    EXEC GetUserByEmailOrUsername @EmailOrUsername;
+
+    -- Check if the user exists and get the hashed password
     SELECT @HashedPassword = hashed_password, @UserId = user_id
     FROM Users
     WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
 
     -- Check if the user exists and the password matches
-    IF @UserId IS NOT NULL AND @HashedPassword = @Password
+    IF @UserId IS NOT NULL AND BCrypt.Net.BCrypt.Verify(@Password, @HashedPassword)
     BEGIN
         -- Return user data
         SELECT user_id, username, email, developer, created_at, last_login

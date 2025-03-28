@@ -65,11 +65,13 @@ namespace SteamProfile.Services
         public User? Login(string emailOrUsername, string password)
         {
             // Hash the password before passing it to the repository
-            var hashedPassword = PasswordHasher.HashPassword(password);
-            var user = _usersRepository.VerifyCredentials(emailOrUsername, hashedPassword);
+            var user = _usersRepository.VerifyCredentials(emailOrUsername);
             if (user != null)
             {
-                _sessionService.CreateNewSession(user);
+                if (PasswordHasher.VerifyPassword(password, user.Password))  // check the password against the hashed password!!
+                    _sessionService.CreateNewSession(user);
+                else
+                    return null;
             }
             return user;
         }
