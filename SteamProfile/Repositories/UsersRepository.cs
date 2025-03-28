@@ -123,6 +123,84 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public User? GetUserByEmail(string email)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("GetUserByEmail", parameters);
+                return dataTable.Rows.Count > 0 ? MapDataRowToUser(dataTable.Rows[0]) : null;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to retrieve user with email {email}.", ex);
+            }
+        }
+
+        public void StoreResetCode(int userId, string resetCode)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@userId", userId),
+                    new SqlParameter("@resetCode", resetCode),
+                    new SqlParameter("@expirationTime", DateTime.UtcNow.AddHours(1))
+                };
+
+                _dataLink.ExecuteNonQuery("StorePasswordResetCode", parameters);
+                Console.WriteLine(parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to store reset code for user {userId}.", ex);
+            }
+        }
+
+        public bool VerifyResetCode(string email, string resetCode)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email),
+                    new SqlParameter("@resetCode", resetCode)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("VerifyResetCode", parameters);
+                Console.WriteLine(result);
+                return result == 1;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException("Failed to verify reset code.", ex);
+            }
+        }
+
+        public bool ResetPassword(string email, string resetCode, string hashedPassword)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email),
+                    new SqlParameter("@resetCode", resetCode),
+                    new SqlParameter("@newPassword", hashedPassword)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("ResetPassword", parameters);
+                return result == 1;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException("Failed to reset password.", ex);
+            }
+        }
+
         private static List<User> MapDataTableToUsers(DataTable dataTable)
         {
             return dataTable.AsEnumerable()

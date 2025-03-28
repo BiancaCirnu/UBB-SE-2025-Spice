@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Shapes;
 using SteamProfile.Data;
 using SteamProfile.Repositories;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -53,12 +54,17 @@ namespace SteamProfile
             this.InitializeComponent();
         }
 
+        public Window MainWindow { get; set; }
+
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
-            m_window.Activate();
+            MainWindow = new MainWindow();
+            MainWindow.Activate();
+            
+            var rootFrame = new Frame();
+            MainWindow.Content = rootFrame;
+            
+            rootFrame.Navigate(typeof(LoginPage));
         }
-
-        private Window? m_window;
     }
 }
