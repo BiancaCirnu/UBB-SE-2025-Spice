@@ -28,7 +28,7 @@ namespace SteamProfile.Models
             }
         }
 
-        public Guid? SessionId { get; private set; }
+        public Guid? CurrentSessionId { get; private set; }
         public User? CurrentUser { get; private set; }
         public DateTime? SessionExpiresAt { get; private set; }
 
@@ -36,7 +36,7 @@ namespace SteamProfile.Models
         {
             lock (_lock)
             {
-                SessionId = sessionId;
+                CurrentSessionId = sessionId;
                 CurrentUser = user;
                 SessionExpiresAt = DateTime.Now.AddHours(24); // 24-hour session
             }
@@ -46,7 +46,7 @@ namespace SteamProfile.Models
         {
             lock (_lock)
             {
-                SessionId = null;
+                CurrentSessionId = null;
                 CurrentUser = null;
                 SessionExpiresAt = null;
             }
@@ -56,7 +56,7 @@ namespace SteamProfile.Models
         {
             lock (_lock)
             {
-                return SessionId.HasValue && 
+                return CurrentSessionId.HasValue && 
                        CurrentUser != null && 
                        SessionExpiresAt.HasValue && 
                        DateTime.Now < SessionExpiresAt.Value;

@@ -19,7 +19,7 @@
                        Style="{ThemeResource TitleLargeTextBlockStyle}"
                        HorizontalAlignment="Center"/>
 
-            <TextBox PlaceholderText="Username"
+            <TextBox PlaceholderText="Username or Email"
                      Text="{Binding Username, Mode=TwoWay}"/>
 
             <PasswordBox PlaceholderText="Password"

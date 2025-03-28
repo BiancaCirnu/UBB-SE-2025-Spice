@@ -28,7 +28,6 @@ namespace SteamProfile.Repositories
             }
             catch (DatabaseOperationException ex)
             {
-                // Log the error or handle it appropriately
                 throw new RepositoryException("Failed to retrieve users from the database.", ex);
             }
         }
@@ -39,7 +38,7 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", userId)
+                    new SqlParameter("@user_id", userId)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("GetUserById", parameters);
@@ -121,37 +120,51 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public User? Login(string username, string password)
+        public User? VerifyCredentials(string emailOrUsername, string hashedPassword)
         {
             try
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@Username", username),
-                    new SqlParameter("@Password", password)
+                    new SqlParameter("@EmailOrUsername", emailOrUsername),
+                    new SqlParameter("@Password", hashedPassword)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("UserLogin", parameters);
+                
                 if (dataTable.Rows.Count > 0)
                 {
-                    var row = dataTable.Rows[0];
-                    var user = MapDataRowToUser(row);
-                    
-                    // Get session ID from the result
-                    var sessionId = row["session_id"] as Guid?;
-                    if (sessionId.HasValue)
-                    {
-                        // Update the UserSession singleton with the new session
-                        UserSession.Instance.UpdateSession(sessionId.Value, user);
-                    }
-
-                    return user;
+                    return MapDataRowToUser(dataTable.Rows[0]);
                 }
+                
                 return null;
             }
             catch (DatabaseOperationException ex)
             {
                 throw new RepositoryException("Failed to login user.", ex);
+            }
+        }
+
+        public string CheckUserExists(string email, string username)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email),
+                    new SqlParameter("@username", username)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("CheckUserExists", parameters);
+                if (dataTable.Rows.Count > 0)
+                {
+                    return dataTable.Rows[0]["ErrorType"]?.ToString();
+                }
+                return null;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException("Failed to check if user exists.", ex);
             }
         }
 
@@ -162,16 +175,23 @@ namespace SteamProfile.Repositories
                 .ToList();
         }
 
-        private static User MapDataRowToUser(DataRow row)
+        private static User? MapDataRowToUser(DataRow row)
         {
+            if (row["user_id"] == DBNull.Value || 
+                row["email"] == DBNull.Value || 
+                row["username"] == DBNull.Value)
+            {
+                return null;
+            }
+
             return new User
             {
                 UserId = Convert.ToInt32(row["user_id"]),
-                Email = row["email"].ToString() ?? string.Empty,
-                Username = row["username"].ToString() ?? string.Empty,
-                IsDeveloper = Convert.ToBoolean(row["developer"]),
-                CreatedAt = Convert.ToDateTime(row["created_at"]),
-                LastLogin = row["last_login"] as DateTime?
+                Email = row["email"].ToString(),
+                Username = row["username"].ToString(),
+                IsDeveloper = row["developer"] != DBNull.Value ? Convert.ToBoolean(row["developer"]) : false,
+                CreatedAt = row["created_at"] != DBNull.Value ? Convert.ToDateTime(row["created_at"]) : DateTime.MinValue,
+                LastLogin = row["last_login"] != DBNull.Value ? row["last_login"] as DateTime? : null
             };
         }
     }

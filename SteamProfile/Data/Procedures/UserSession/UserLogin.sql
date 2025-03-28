@@ -1,41 +1,24 @@
 CREATE PROCEDURE UserLogin
-    @Username NVARCHAR(50),
+    @EmailOrUsername NVARCHAR(100),
     @Password NVARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    DECLARE @HashedPassword NVARCHAR(100);
     DECLARE @UserId INT;
-    DECLARE @SessionId UNIQUEIDENTIFIER;
 
-    -- Check if user exists and password matches
-    SELECT @UserId = user_id
+    -- Get the hashed password for the user
+    SELECT @HashedPassword = hashed_password, @UserId = user_id
     FROM Users
-    WHERE username = @Username AND password = @Password;
+    WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
 
-    IF @UserId IS NOT NULL
+    -- Check if the user exists and the password matches
+    IF @UserId IS NOT NULL AND @HashedPassword = @Password
     BEGIN
-        -- Create new session
-        SET @SessionId = NEWID();
-        
-        INSERT INTO UserSessions (session_id, user_id, created_at, expires_at)
-        VALUES (@SessionId, @UserId, GETDATE(), DATEADD(HOUR, 24, GETDATE()));
-
-        -- Return user data and session ID
-        SELECT 
-            u.user_id,
-            u.username,
-            u.email,
-            u.developer,
-            u.created_at,
-            u.last_login,
-            @SessionId AS session_id
-        FROM Users u
-        WHERE u.user_id = @UserId;
-
-        -- Update last login
-        UPDATE Users
-        SET last_login = GETDATE()
+        -- Return user data
+        SELECT user_id, username, email, developer, created_at, last_login
+        FROM Users
         WHERE user_id = @UserId;
     END
     ELSE
@@ -46,7 +29,6 @@ BEGIN
                NULL AS email,
                NULL AS developer,
                NULL AS created_at,
-               NULL AS last_login,
-               NULL AS session_id;
+               NULL AS last_login;
     END
 END 

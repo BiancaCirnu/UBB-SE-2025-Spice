@@ -59,7 +59,7 @@ namespace SteamProfile.ViewModels
                 {
                     Username = Username,
                     Email = Email,
-                    Password = Password //this should be hashed
+                    Password = Password
                 };
 
                 var createdUser = _userService.CreateUser(user);

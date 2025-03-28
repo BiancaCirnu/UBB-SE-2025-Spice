@@ -1,11 +1,18 @@
 CREATE PROCEDURE LoginUser
-    @email_or_username NVARCHAR(100)
+    @EmailOrUsername NVARCHAR(100),
+    @Password NVARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
 
     -- Get user data including password hash
-    SELECT user_id, email, username, hashed_password, developer
+    SELECT user_id,
+        username,
+        email,
+        hashed_password,
+        developer,
+        created_at,
+        last_login
     FROM Users
-    WHERE email = @email_or_username OR username = @email_or_username;
-END;
+    WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
+END 
