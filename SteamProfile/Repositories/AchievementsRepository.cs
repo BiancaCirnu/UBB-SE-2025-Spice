@@ -118,6 +118,8 @@ namespace SteamProfile.Repositories
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Exception: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while retrieving achievement data.", ex);
             }
         }
@@ -151,10 +153,12 @@ namespace SteamProfile.Repositories
                 foreach (var achievement in allAchievements)
                 {
                     var isUnlocked = IsAchievementUnlocked(userId, achievement.AchievementId);
+                    var unlockedData = GetUnlockedDataForAchievement(userId, achievement.AchievementId);
                     achievementsWithStatus.Add(new AchievementWithStatus
                     {
                         Achievement = achievement,
                         IsUnlocked = isUnlocked,
+                        UnlockedDate = unlockedData?.UnlockDate
                     });
                 }
 
@@ -162,6 +166,12 @@ namespace SteamProfile.Repositories
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
                 throw new RepositoryException("Error retrieving achievements with status for user.", ex);
             }
         }
@@ -188,9 +198,9 @@ namespace SteamProfile.Repositories
         {
             return new AchievementUnlockedData
             {
-                AchievementName = row["achievement_name"].ToString() ?? string.Empty,
-                AchievementDescription = row["description"].ToString() ?? string.Empty,
-                UnlockDate = Convert.ToDateTime(row["unlocked_at"])
+                AchievementName = row["AchievementName"].ToString() ?? string.Empty,
+                AchievementDescription = row["AchievementDescription"].ToString() ?? string.Empty,
+                UnlockDate = row["UnlockDate"] != DBNull.Value ? Convert.ToDateTime(row["UnlockDate"]) : (DateTime?)null
             };
         }
     }

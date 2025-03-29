@@ -59,12 +59,12 @@
                                 <Grid>
                                     <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
-                                    <!-- Use ToolTipService.ToolTip instead of Border.ToolTip -->
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
                                                 <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
                                             </StackPanel>
                                         </ToolTip>
                                     </ToolTipService.ToolTip>
@@ -90,12 +90,12 @@
                                 <Grid>
                                     <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
-                                    <!-- Use ToolTipService.ToolTip instead of Border.ToolTip -->
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
                                                 <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
                                             </StackPanel>
                                         </ToolTip>
                                     </ToolTipService.ToolTip>
@@ -121,12 +121,12 @@
                                 <Grid>
                                     <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
-                                    <!-- Use ToolTipService.ToolTip instead of Border.ToolTip -->
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
                                                 <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
                                             </StackPanel>
                                         </ToolTip>
                                     </ToolTipService.ToolTip>

@@ -10,6 +10,6 @@ namespace SteamProfile.Models
     {
         public string AchievementName { get; set; } = string.Empty;
         public string AchievementDescription { get; set; } = string.Empty;
-        public DateTime UnlockDate { get; set; }
+        public DateTime? UnlockDate { get; set; }
     }
 }
