@@ -55,11 +55,24 @@ CREATE TABLE Features (
 -- Collections Table
 CREATE TABLE Collections (
     collection_id INT PRIMARY KEY identity(1,1),
-    name NVARCHAR(100) NOT NULL,
-    picture NVARCHAR(255) CHECK (picture LIKE '%.svg' OR picture LIKE '%.png' OR picture LIKE '%.jpg'),
-    description NVARCHAR(100),
-    is_public BIT DEFAULT 1
+    user_id INT NOT NULL,
+    name NVARCHAR(100) NOT NULL CHECK (LEN(name) >= 1 AND LEN(name) <= 100),
+    cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
+    is_public BIT DEFAULT 1,
+    created_at DATE DEFAULT CAST(GETDATE() AS DATE),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllCollections
+AS
+BEGIN
+    SELECT collection_id, user_id, name, cover_picture, is_public, created_at
+    FROM Collections
+    ORDER BY name;
+END
+GO
 
 -- Wallet Table
 CREATE TABLE Wallet (
@@ -79,14 +92,46 @@ CREATE TABLE User_Wallet (
     FOREIGN KEY (wallet_id) REFERENCES Wallet(wallet_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- OwnedGames Table(mock table, should check OwnedGames team)
+CREATE TABLE OwnedGames (
+    game_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    title NVARCHAR(100) NOT NULL CHECK (LEN(title) >= 1 AND LEN(title) <= 100),
+    description NVARCHAR(MAX),
+    cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllOwnedGames
+AS
+BEGIN
+    SELECT game_id, user_id, title, description, cover_picture
+    FROM OwnedGames
+    ORDER BY title;
+END
+GO
+
 -- OwnedGames_Collection Table
 CREATE TABLE OwnedGames_Collection (
     collection_id INT NOT NULL,
     game_id INT NOT NULL,
-    date_added DATETIME DEFAULT GETDATE(),
     PRIMARY KEY (collection_id, game_id),
-    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllOwnedGamesInCollection
+AS
+BEGIN
+    SELECT collection_id, game_id
+    FROM OwnedGames_Collection
+    ORDER BY collection_id;
+END
+GO
 
 -- User_Achievement Table
 CREATE TABLE User_Achievement (
@@ -123,3 +168,120 @@ INSERT INTO Users (email, username, password_hash, profile_picture, description,
 select * from Users;
 
 SELECT COUNT(*) FROM Users;
+
+-- Mock data for OwnedGames table
+
+-- SHOOTERS (game_id 1–3)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'Call of Duty: MWIII', 'First-person military shooter', 'codmw3.jpg'),
+(1, 'Overwatch 2', 'Team-based hero shooter', 'overwatch2.png'),
+(2, 'Counter-Strike 2', 'Tactical shooter', 'cs2.jpg');
+
+-- SPORTS (game_id 4–6)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'FIFA 25', 'Football simulation', 'fifa25.png'),
+(2, 'NBA 2K25', 'Basketball simulation', 'nba2k25.jpg'),
+(2, 'Tony Hawk Pro Skater', 'Skateboarding sports game', 'thps.png');
+
+-- CHILL (game_id 7)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(3, 'Stardew Valley', 'Relaxing farming game', 'stardewvalley.jpg');
+
+-- PETS (game_id 8–10)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'The Sims 4: Cats & Dogs', 'Life sim with pets', 'sims4pets.png'),
+(2, 'Nintendogs', 'Pet care simulation', 'nintendogs.jpg'),
+(3, 'Pet Hotel', 'Manage a hotel for pets', 'pethotel.png');
+
+-- X-MAS (game_id 11)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(3, 'Christmas Wonderland', 'Festive hidden object game', 'xmas.jpg');
+
+select * from OwnedGames;
+
+SELECT COUNT(*) FROM OwnedGames;
+
+-- Assume collection_id 1–6
+INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
+VALUES
+(1, 'All Owned Games', 'allgames.jpg', 1, '2022-02-21'),
+(1, 'Shooters', 'shooters.png', 1, '2025-03-21'),
+(2, 'Sports', 'sports.png', 1, '2023-03-21'),
+(2, 'Chill Games', 'chill.png', 1, '2024-03-21'),
+(3, 'Pets', 'pets.png', 0, '2025-01-21'),
+(3, 'X-Mas', 'xmas.png', 0, '2025-02-21');
+
+select * from Collections;
+
+SELECT COUNT(*) FROM Collections;
+
+
+-- All games (collection_id = 1)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+SELECT 1, game_id FROM OwnedGames;
+
+-- Shooters (collection_id = 2)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (2, 1), (2, 2), (2, 3);
+
+-- Sports (collection_id = 3)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (3, 4), (3, 5), (3, 6);
+
+-- Chill (collection_id = 4)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (4, 7);
+
+-- Pets (collection_id = 5)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (5, 8), (5, 9), (5, 10);
+
+-- X-Mas (collection_id = 6)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (6, 11);
+
+-- Add stored procedures
+:r Data\Procedures\Collections\GetPublicCollectionsForUser.sql
+GO
+
+:r Data\Procedures\Collections\GetPrivateCollectionsForUser.sql
+GO
+
+:r Data\Procedures\Collections\GetAllCollectionsForUser.sql
+GO
+
+:r Data\Procedures\Collections\MakeCollectionPrivate.sql
+GO
+
+:r Data\Procedures\Collections\MakeCollectionPublic.sql
+GO
+
+:r Data\Procedures\Collections\DeleteCollection.sql
+GO
+
+:r Data\Procedures\Collections\CreateCollection.sql
+GO
+
+:r Data\Procedures\Collections\UpdateCollection.sql
+GO
+
+:r Data\Procedures\OwnedGames\GetAllOwnedGames.sql
+GO
+
+:r Data\Procedures\OwnedGames\GetOwnedGameById.sql
+GO
+
+:r Data\Procedures\OwnedGames\AddGameToCollection.sql
+GO
+
+:r Data\Procedures\OwnedGames\RemoveGameFromCollection.sql
+GO
+
+:r Data\Procedures\OwnedGames\GetGamesInCollection.sql
+GO
+

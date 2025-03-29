@@ -34,9 +34,6 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -117,7 +114,13 @@
     <Folder Include="Data\Procedures\Achievements\" />
     <Folder Include="Data\Procedures\Features\" />
     <Folder Include="Data\Procedures\Collections\" />
+    <Folder Include="Data\Procedures\NewFolder\" />
     <Folder Include="Data\Procedures\Users\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!--
