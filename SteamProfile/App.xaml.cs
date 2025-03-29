@@ -30,6 +30,7 @@ namespace SteamProfile
         public static readonly WalletService WalletService;
         public static readonly AuthenticationService AuthenticationService;
         public static readonly UserService UserService;
+        public static IPasswordResetService PasswordResetService { get; private set; }
 
         static App()
         {
@@ -41,12 +42,17 @@ namespace SteamProfile
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
 
+            // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
             FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
             UserService = new UserService(usersRepository);
+
+            // Initialize password reset service
+            var passwordResetRepo = new PasswordResetRepository(dataLink);
+            PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
         }
 
         public App()

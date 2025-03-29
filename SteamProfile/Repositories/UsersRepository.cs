@@ -141,63 +141,15 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public void StoreResetCode(int userId, string resetCode)
+        public void CleanupExpiredResetCodes()
         {
             try
             {
-                var parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@userId", userId),
-                    new SqlParameter("@resetCode", resetCode),
-                    new SqlParameter("@expirationTime", DateTime.UtcNow.AddHours(1))
-                };
-
-                _dataLink.ExecuteNonQuery("StorePasswordResetCode", parameters);
-                Console.WriteLine(parameters);
+                _dataLink.ExecuteNonQuery("CleanupResetCodes");
             }
             catch (DatabaseOperationException ex)
             {
-                throw new RepositoryException($"Failed to store reset code for user {userId}.", ex);
-            }
-        }
-
-        public bool VerifyResetCode(string email, string resetCode)
-        {
-            try
-            {
-                var parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@email", email),
-                    new SqlParameter("@resetCode", resetCode)
-                };
-
-                var result = _dataLink.ExecuteScalar<int>("VerifyResetCode", parameters);
-                Console.WriteLine(result);
-                return result == 1;
-            }
-            catch (DatabaseOperationException ex)
-            {
-                throw new RepositoryException("Failed to verify reset code.", ex);
-            }
-        }
-
-        public bool ResetPassword(string email, string resetCode, string hashedPassword)
-        {
-            try
-            {
-                var parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@email", email),
-                    new SqlParameter("@resetCode", resetCode),
-                    new SqlParameter("@newPassword", hashedPassword)
-                };
-
-                var result = _dataLink.ExecuteScalar<int>("ResetPassword", parameters);
-                return result == 1;
-            }
-            catch (DatabaseOperationException ex)
-            {
-                throw new RepositoryException("Failed to reset password.", ex);
+                throw new RepositoryException("Failed to cleanup expired reset codes.", ex);
             }
         }
 

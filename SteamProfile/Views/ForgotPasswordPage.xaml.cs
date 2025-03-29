@@ -22,7 +22,7 @@ namespace SteamProfile.Views
         public ForgotPasswordPage()
         {
             this.InitializeComponent();
-            _viewModel = new ForgotPasswordViewModel(App.UserService);
+            _viewModel = new ForgotPasswordViewModel(App.PasswordResetService);
             this.DataContext = _viewModel;
         }
     }

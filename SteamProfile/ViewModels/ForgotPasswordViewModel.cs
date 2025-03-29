@@ -18,7 +18,8 @@ namespace SteamProfile.ViewModels
 {
     public class ForgotPasswordViewModel : INotifyPropertyChanged
     {
-        private readonly UserService _userService;
+        private readonly IPasswordResetService _passwordResetService;
+        private readonly string _resetCodesPath;
         private string _email = string.Empty;
         private string _resetCode = string.Empty;
         private string _newPassword = string.Empty;
@@ -125,34 +126,76 @@ namespace SteamProfile.ViewModels
         public ICommand VerifyCodeCommand { get; }
         public ICommand ResetPasswordCommand { get; }
 
-        public ForgotPasswordViewModel(UserService userService)
+        public ForgotPasswordViewModel(IPasswordResetService passwordResetService)
         {
-            _userService = userService;
+            _passwordResetService = passwordResetService;
+            _resetCodesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ResetCodes");
+            Directory.CreateDirectory(_resetCodesPath);
             _statusColor = new SolidColorBrush(Colors.Black);
-            SendResetCodeCommand = new RelayCommand(SendResetCode);
-            VerifyCodeCommand = new RelayCommand(VerifyCode);
-            ResetPasswordCommand = new RelayCommand(ResetPassword);
+
+            SendResetCodeCommand = new RelayCommand(() => SendResetCode(Email));
+            VerifyCodeCommand = new RelayCommand(ExecuteVerifyCode);
+            ResetPasswordCommand = new RelayCommand(ExecuteResetPassword);
         }
 
-        private void SendResetCode()
+        public void SendResetCode(string email)
         {
             try
             {
-                var resetCode = _userService.GeneratePasswordResetCode(Email);
+                // Cleanup expired codes first
+                _passwordResetService.CleanupExpiredCodes();
+
+                var resetCode = _passwordResetService.GenerateResetCode(email);
                 if (resetCode != null)
                 {
-                    string filePath = Path.Combine(Path.GetTempPath(), "reset_code.txt");
-                    File.WriteAllText(filePath, $"Your password reset code is: {resetCode}");
+                    string fileName = $"reset_code_{DateTime.Now:yyyyMMddHHmmss}.txt";
+                    string filePath = Path.Combine(_resetCodesPath, fileName);
+                    
+                    File.WriteAllText(filePath, 
+                        $"Reset Code for {email}:\n{resetCode}\n\nThis code will expire in 15 minutes.");
+
                     System.Diagnostics.Process.Start("notepad.exe", filePath);
                     
+                    // Delete the file after a delay
+                    Task.Delay(TimeSpan.FromMinutes(15)).ContinueWith(_ =>
+                    {
+                        try
+                        {
+                            if (File.Exists(filePath))
+                            {
+                                File.Delete(filePath);
+                            }
+                        }
+                        catch { /* Ignore deletion errors */ }
+                    });
+
                     ShowEmailSection = false;
                     ShowCodeSection = true;
                     StatusMessage = "Reset code has been generated and opened in a text file.";
                     StatusColor = new SolidColorBrush(Colors.Green);
                 }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "An error occurred. Please try again later.";
+                StatusColor = new SolidColorBrush(Colors.Red);
+            }
+        }
+
+        private void ExecuteVerifyCode()
+        {
+            try
+            {
+                if (_passwordResetService.VerifyResetCode(Email, ResetCode))
+                {
+                    ShowCodeSection = false;
+                    ShowPasswordSection = true;
+                    StatusMessage = "Code verified successfully. Please enter your new password.";
+                    StatusColor = new SolidColorBrush(Colors.Green);
+                }
                 else
                 {
-                    StatusMessage = "Email not found in our records.";
+                    StatusMessage = "Invalid or expired code.";
                     StatusColor = new SolidColorBrush(Colors.Red);
                 }
             }
@@ -163,20 +206,40 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        private void VerifyCode()
+        private void ExecuteResetPassword()
         {
             try
             {
-                if (_userService.VerifyResetCode(Email, ResetCode))
+                // First validate the passwords match
+                if (NewPassword != ConfirmPassword)
                 {
-                    ShowCodeSection = false;
-                    ShowPasswordSection = true;
-                    StatusMessage = "Code verified successfully. Please enter your new password.";
+                    StatusMessage = "Passwords do not match.";
+                    StatusColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+                // Then validate password requirements
+                var (isValid, errorMessage) = ValidatePassword(NewPassword);
+                if (!isValid)
+                {
+                    StatusMessage = errorMessage;
+                    StatusColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
+                // If validation passes, attempt to reset the password
+                if (_passwordResetService.VerifyResetCode(Email, ResetCode))
+                {
+                    _passwordResetService.ResetPassword(Email, ResetCode, NewPassword);
+                    _passwordResetService.CleanupExpiredCodes();
+                    
+                    StatusMessage = "Password reset successful. You can now login with your new password.";
                     StatusColor = new SolidColorBrush(Colors.Green);
+
                 }
                 else
                 {
-                    StatusMessage = "Invalid or expired code.";
+                    StatusMessage = "Invalid or expired reset code.";
                     StatusColor = new SolidColorBrush(Colors.Red);
                 }
             }
@@ -208,43 +271,6 @@ namespace SteamProfile.ViewModels
                 return (false, "Password must contain at least one special character.");
 
             return (true, string.Empty);
-        }
-
-        private void ResetPassword()
-        {
-            try
-            {
-                if (NewPassword != ConfirmPassword)
-                {
-                    StatusMessage = "Passwords do not match.";
-                    StatusColor = new SolidColorBrush(Colors.Red);
-                    return;
-                }
-
-                var (isValid, errorMessage) = ValidatePassword(NewPassword);
-                if (!isValid)
-                {
-                    StatusMessage = errorMessage;
-                    StatusColor = new SolidColorBrush(Colors.Red);
-                    return;
-                }
-
-                if (_userService.ResetPassword(Email, ResetCode, NewPassword))
-                {
-                    StatusMessage = "Password reset successful. You can now login with your new password.";
-                    StatusColor = new SolidColorBrush(Colors.Green);
-                }
-                else
-                {
-                    StatusMessage = "Failed to reset password. Please try again.";
-                    StatusColor = new SolidColorBrush(Colors.Red);
-                }
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = "An error occurred. Please try again later.";
-                StatusColor = new SolidColorBrush(Colors.Red);
-            }
         }
 
         private void OnPropertyChanged(string propertyName)
