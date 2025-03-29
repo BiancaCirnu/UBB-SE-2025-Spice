@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS Friendships;
 
 
 -- User Table
@@ -283,5 +284,59 @@ GO
 GO
 
 :r Data\Procedures\OwnedGames\GetGamesInCollection.sql
+GO
+
+-- Create Friendships table
+CREATE TABLE Friendships (
+    friendship_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    friend_id INT NOT NULL,
+    CONSTRAINT FK_Friendships_User FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    CONSTRAINT FK_Friendships_Friend FOREIGN KEY (friend_id) REFERENCES Users(user_id),
+    CONSTRAINT UQ_Friendship UNIQUE (user_id, friend_id),
+    CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
+);
+
+-- Add indexes for better query performance
+CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
+CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
+
+-- Add some mock data for testing
+INSERT INTO Friendships (user_id, friend_id)
+VALUES 
+    (1, 2),
+    (1, 3),
+    (2, 3),
+    (2, 4);
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllFriendships
+AS
+BEGIN
+    SELECT 
+        f.friendship_id,
+        f.user_id,
+        u1.username as user_username,
+        f.friend_id,
+        u2.username as friend_username
+    FROM Friendships f
+    JOIN Users u1 ON f.user_id = u1.user_id
+    JOIN Users u2 ON f.friend_id = u2.user_id
+    ORDER BY f.user_id, f.friend_id;
+END
+GO
+
+-- Add the stored procedures
+:r Data\Procedures\Friendships\GetFriendsForUser.sql
+GO
+
+:r Data\Procedures\Friendships\GetFriendshipCountForUser.sql
+GO
+
+:r Data\Procedures\Friendships\AddFriend.sql
+GO
+
+:r Data\Procedures\Friendships\RemoveFriend.sql
 GO
 
