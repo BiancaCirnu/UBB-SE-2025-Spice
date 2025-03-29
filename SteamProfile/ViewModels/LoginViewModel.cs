@@ -45,8 +45,8 @@ namespace SteamProfile.ViewModels
                 var user = _userService.Login(Username, Password);
                 if (user != null)
                 {
-                    // Navigate to main page after successful login
-                    _frame.Navigate(typeof(UsersPage));
+                    // Navigate to profile page after successful login
+                    _frame.Navigate(typeof(ProfilePage));
                 }
                 else
                 {
