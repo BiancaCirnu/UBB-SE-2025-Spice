@@ -77,6 +77,33 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public (int UserId, DateTime CreatedAt, DateTime ExpiresAt)? GetSessionById(Guid sessionId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@session_id", sessionId)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("GetSessionById", parameters);
+                if (dataTable.Rows.Count > 0)
+                {
+                    var row = dataTable.Rows[0];
+                    return (
+                        UserId: Convert.ToInt32(row["user_id"]),
+                        CreatedAt: Convert.ToDateTime(row["created_at"]),
+                        ExpiresAt: Convert.ToDateTime(row["expires_at"])
+                    );
+                }
+                return null; // Return null if no session found
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to get session {sessionId}.", ex);
+            }
+        }
+
         private static User MapDataRowToUser(DataRow row)
         {
             return new User

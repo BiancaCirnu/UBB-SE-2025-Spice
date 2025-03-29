@@ -168,6 +168,23 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public void UpdateLastLogin(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId)
+                };
+
+                _dataLink.ExecuteNonQuery("UpdateLastLogin", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to update last login for user ID {userId}.", ex);
+            }
+        }
+
         private static List<User> MapDataTableToUsers(DataTable dataTable)
         {
             return dataTable.AsEnumerable()

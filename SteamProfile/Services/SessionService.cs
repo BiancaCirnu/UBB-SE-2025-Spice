@@ -18,7 +18,14 @@ namespace SteamProfile.Services
         public void CreateNewSession(User user)
         {
             var sessionId = _sessionRepository.CreateSession(user.UserId);
-            _userSession.UpdateSession(sessionId, user);
+            
+            // Retrieve the session details to update the current instance
+            var sessionDetails = _sessionRepository.GetSessionById(sessionId);
+            if (sessionDetails.HasValue)
+            {
+                var (userId, createdAt, expiresAt) = sessionDetails.Value;
+                _userSession.UpdateSession(sessionId, userId, createdAt, expiresAt);
+            }
         }
 
         public void EndSession()

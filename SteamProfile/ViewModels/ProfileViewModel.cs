@@ -8,20 +8,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SteamProfile.Views;
+using Microsoft.UI.Xaml;
 
 namespace SteamProfile.ViewModels
 {
     public partial class ProfileViewModel : ObservableObject
     {
         private readonly UserService _userService;
-        // .. add all other needed services
+        private readonly Frame _frame;
 
         [ObservableProperty]
-        private User currentUser; // Property to hold the current user
+        private User currentUser;
 
-        public ProfileViewModel(UserService userService)
+        public ProfileViewModel(UserService userService, Frame frame)
         {
             _userService = userService;
+            _frame = frame;
             LoadUserProfile();
         }
 
@@ -34,7 +37,7 @@ namespace SteamProfile.ViewModels
         private void Logout()
         {
             _userService.Logout();
-            // Logic to navigate back to the login page can be handled in the view or through a navigation service
+            _frame.Navigate(typeof(LoginPage)); // Navigate back to the login page
         }
     }
 }

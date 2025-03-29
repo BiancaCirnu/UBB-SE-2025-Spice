@@ -72,7 +72,12 @@ namespace SteamProfile.Services
             if (user != null)
             {
                 if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
+                { 
                     _sessionService.CreateNewSession(user);
+
+                    // update last login time for user
+                    _usersRepository.UpdateLastLogin(user.UserId);
+                }
                 else
                     return null;
             }
