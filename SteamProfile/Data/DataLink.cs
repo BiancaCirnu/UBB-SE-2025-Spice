@@ -29,14 +29,15 @@ namespace SteamProfile.Data
 
                 string? localDataSource = config["LocalDataSource"];
                 string? initialCatalog = config["InitialCatalog"];
+                string? userId = config["UserId"];
+                string? password = config["Password"];
 
                 if (string.IsNullOrWhiteSpace(localDataSource) || string.IsNullOrWhiteSpace(initialCatalog))
                 {
                     throw new ConfigurationErrorsException("Database connection settings are missing in appsettings.json");
                 }
 
-                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
-                
+                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};TrustServerCertificate=True;";
                 // Test the connection immediately
                 using var testConnection = new SqlConnection(connectionString);
                 testConnection.Open();
