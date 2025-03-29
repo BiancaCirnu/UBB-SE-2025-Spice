@@ -28,27 +28,31 @@ namespace SteamProfile.Services
             return _usersRepository.GetUserById(userId);
         }
 
-        public User CreateUser(User user)
+        public void ValidateUserAndEmail(string email, string username)
         {
-            // Hash the password before passing it to the repository
-            user.Password = PasswordHasher.HashPassword(user.Password);
-
             // Check if user already exists
-            var errorType = _usersRepository.CheckUserExists(user.Email, user.Username);
+            var errorType = _usersRepository.CheckUserExists(email, username);
 
             if (!string.IsNullOrEmpty(errorType))
             {
                 switch (errorType)
                 {
                     case "EMAIL_EXISTS":
-                        throw new EmailAlreadyExistsException(user.Email);
+                        throw new EmailAlreadyExistsException(email);
                     case "USERNAME_EXISTS":
-                        throw new UsernameAlreadyTakenException(user.Username);
+                        throw new UsernameAlreadyTakenException(username);
                     default:
                         throw new UserValidationException($"Unknown validation error: {errorType}");
                 }
             }
+        }
 
+        public User CreateUser(User user)
+        {
+            ValidateUserAndEmail(user.Email, user.Username);
+
+            // Hash the password before passing it to the repository
+            user.Password = PasswordHasher.HashPassword(user.Password);
             return _usersRepository.CreateUser(user);
         }
 
@@ -64,11 +68,10 @@ namespace SteamProfile.Services
 
         public User? Login(string emailOrUsername, string password)
         {
-            // Hash the password before passing it to the repository
             var user = _usersRepository.VerifyCredentials(emailOrUsername);
             if (user != null)
             {
-                if (PasswordHasher.VerifyPassword(password, user.Password))  // check the password against the hashed password!!
+                if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
                     _sessionService.CreateNewSession(user);
                 else
                     return null;

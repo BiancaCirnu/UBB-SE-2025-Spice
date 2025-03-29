@@ -98,7 +98,6 @@ namespace SteamProfile.Repositories
             }
             catch (DatabaseOperationException ex)
             {
-                // Log the exception details for debugging
                 Console.WriteLine($"Error creating user: {ex.Message}");
                 throw new RepositoryException("Failed to create user.", ex);
             }
@@ -216,7 +215,6 @@ namespace SteamProfile.Repositories
                 LastLogin = row["last_login"] != DBNull.Value ? row["last_login"] as DateTime? : null,
                 Password = row["hashed_password"].ToString()
             };
-
 
             return user;
         }
