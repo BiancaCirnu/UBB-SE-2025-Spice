@@ -32,6 +32,10 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private string errorMessage;
 
+        // New property for developer status
+        [ObservableProperty]
+        private bool isDeveloper;
+
         public RegisterViewModel(Frame frame)
         {
             _userService = App.UserService;
@@ -79,7 +83,8 @@ namespace SteamProfile.ViewModels
                 {
                     Username = Username,
                     Email = Email,
-                    Password = Password
+                    Password = Password,
+                    IsDeveloper = IsDeveloper
                 };
 
                 var createdUser = _userService.CreateUser(user);

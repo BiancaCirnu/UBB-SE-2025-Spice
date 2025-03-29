@@ -64,5 +64,11 @@ namespace SteamProfile.ViewModels
         {
             _frame.Navigate(typeof(RegisterPage));
         }
+
+        [RelayCommand]
+        private void NavigateToForgotPassword()
+        {
+            _frame.Navigate(typeof(ForgotPasswordPage));
+        }
     }
 }

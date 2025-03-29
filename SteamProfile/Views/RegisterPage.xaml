@@ -12,13 +12,14 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel VerticalAlignment="Center" 
                     HorizontalAlignment="Center" 
-                    Spacing="20"
+                    Spacing="10"
                     Padding="40"
-                    MaxWidth="400">
+                    MaxWidth="800">
             
-            <TextBlock Text="Create Account"
+            <TextBlock Text="Create an Account"
                        Style="{ThemeResource TitleLargeTextBlockStyle}"
-                       HorizontalAlignment="Center"/>
+                       HorizontalAlignment="Center"
+                       Padding="0,0,0,20"/>
 
             <TextBox PlaceholderText="Username"
                      Text="{Binding Username, Mode=TwoWay}"/>
@@ -31,6 +32,9 @@
 
             <PasswordBox PlaceholderText="Confirm Password"
                         Password="{Binding ConfirmPassword, Mode=TwoWay}"/>
+                        
+            <CheckBox Content="Are you registering as a developer?"
+                IsChecked="{Binding IsDeveloper, Mode=TwoWay}"/>
 
             <TextBlock Text="{Binding ErrorMessage}"
                        Foreground="Red"
@@ -39,11 +43,14 @@
 
             <Button Content="Register"
                     Command="{Binding RegisterCommand}"
-                    Style="{ThemeResource AccentButtonStyle}"/>
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Width="200"/>
 
-            <Button Content="Already have an account? Login"
+            <Button Content="Already have an account? Login!"
                     Command="{Binding NavigateToLoginCommand}"
-                    Style="{ThemeResource TextBlockButtonStyle}"/>
+                    Style="{ThemeResource TextBlockButtonStyle}"
+                    HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Page>
