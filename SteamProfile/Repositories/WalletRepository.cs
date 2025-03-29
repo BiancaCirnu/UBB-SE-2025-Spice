@@ -14,7 +14,7 @@ namespace SteamProfile.Repositories
         public WalletRepository(DataLink datalink)
         {
             _dataLink = datalink;
-
         }
+
     }
 }

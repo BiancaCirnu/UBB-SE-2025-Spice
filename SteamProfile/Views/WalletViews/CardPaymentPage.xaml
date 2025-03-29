@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="SteamProfile.Views.WalletViews.CardPaymentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SteamProfile.Views.WalletViews"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+            <TextBlock Text="Sum: " x:Name="AmountTextBlock"/>
+            <TextBlock Text="Name:" FontWeight="Bold" FontSize="15"/>
+            <TextBox PlaceholderText="Card owner" x:Name="OwnerNameTextBox" TextChanged="ValidName"/>
+            <TextBlock Text="Card number:" FontWeight="Bold" FontSize="15"/>
+            <TextBox PlaceholderText="Card number" x:Name="CardNumberTextBox"  TextChanged="ValidNumber"/>
+            <TextBlock Text="CVV:" FontWeight="Bold" FontSize="15"/>
+            <TextBox PlaceholderText="CVV" x:Name="CVVTextBox"  TextChanged="ValidCVV"/>
+            <TextBlock Text="Expiration date:" FontWeight="Bold" FontSize="15"/>
+            <TextBox PlaceholderText="MM/YY" x:Name="ExpirationDateTextBox" TextChanged="ValidDate"/>
+            <TextBlock x:Name="ErrorMessage" Text="Please enter valid data" Foreground="Red"/>
+            <TextBlock x:Name="SuccessfullPayment" Text="Payment was performed successfully" Foreground="Green"/>
+            <Button Content="Add money to account" Click="AddMoneyToAccount"/>
+            <Button Content="Cancel" Click="CancelPayment"/>
+        </StackPanel>
+    </Grid>
+</Page>

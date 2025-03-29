@@ -8,5 +8,13 @@ namespace SteamProfile.Models
 {
     internal class Wallet
     {
+        public int WalletId {  get; set; }
+        public int UserId {  get; set; }
+        public int balance {  get; set; }
+
+        public int points { get; set; }
+    
+       
     }
+
 }

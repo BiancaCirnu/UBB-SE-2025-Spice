@@ -31,6 +31,11 @@
                 <NavigationViewItem Icon="Library" Content="Collections" Tag="collections"/>
                 <NavigationViewItem Icon="Setting" Content="Features" Tag="features"/>
                 <NavigationViewItem Icon="Contact2" Content="Friends" Tag="friends"/>
+                <NavigationViewItem Content="Wallet" Tag="wallet">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8C7;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Icon="Setting" Content="Configurations" Tag="configurations"/>
             </NavigationView.MenuItems>
         </NavigationView>

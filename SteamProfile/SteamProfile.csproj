@@ -24,6 +24,10 @@
     <None Remove="Views\ProfilePage.xaml" />
     <None Remove="Views\RegisterPage.xaml" />
     <None Remove="Views\WalletPage.xaml" />
+    <None Remove="Views\WalletViews\AddMoneyPage.xaml" />
+    <None Remove="Views\WalletViews\AddPointsPage.xaml" />
+    <None Remove="Views\WalletViews\CardPaymentPage.xaml" />
+    <None Remove="Views\WalletViews\PaypalPaymentPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -118,6 +122,26 @@
     <Folder Include="Data\Procedures\Features\" />
     <Folder Include="Data\Procedures\Collections\" />
     <Folder Include="Data\Procedures\Users\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\WalletViews\PaypalPaymentPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\WalletViews\CardPaymentPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\WalletViews\AddPointsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\WalletViews\AddMoneyPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

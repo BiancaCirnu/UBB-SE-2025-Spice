@@ -15,7 +15,7 @@ CREATE TABLE Users (
     user_id INT PRIMARY KEY identity(1,1),
     email NVARCHAR(255) UNIQUE NOT NULL CHECK (email LIKE '%@%._%'),
     username NVARCHAR(100) UNIQUE NOT NULL,
-    password_hash NVARCHAR(255) NOT NULL,
+    password NVARCHAR(255) NOT NULL,
     profile_picture NVARCHAR(255) CHECK (profile_picture LIKE '%.svg' OR profile_picture LIKE '%.png' OR profile_picture LIKE '%.jpg'),
     description NVARCHAR(1000),
     developer BIT DEFAULT 0,
@@ -65,8 +65,6 @@ CREATE TABLE Collections (
 CREATE TABLE Wallet (
     wallet_id INT PRIMARY KEY identity(1,1),
     points INT NOT NULL DEFAULT 0,
-    achievement_points INT NOT NULL DEFAULT 0,
-    game_points INT NOT NULL DEFAULT 0,
     money_for_games DECIMAL(10,2) NOT NULL DEFAULT 0.00
 );
 
@@ -108,7 +106,7 @@ CREATE TABLE Feature_User (
     FOREIGN KEY (feature_id) REFERENCES Features(feature_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-INSERT INTO Users (email, username, password_hash, profile_picture, description, developer, last_login) VALUES
+INSERT INTO Users (email, username, password, profile_picture, description, developer, last_login) VALUES
 ('alice@example.com', 'AliceGamer', 'hashed_password_1', 'alice.png', 'Passionate gamer and developer.', 1, '2025-03-20 14:25:00'),
 ('bob@example.com', 'BobTheBuilder', 'hashed_password_2', 'bob.jpg', 'Strategy game enthusiast.', 0, '2025-03-21 10:12:00'),
 ('charlie@example.com', 'CharlieX', 'hashed_password_3', 'charlie.svg', 'Loves open-world RPGs.', 0, '2025-03-22 18:45:00'),

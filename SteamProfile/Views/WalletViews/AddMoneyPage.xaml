@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="SteamProfile.Views.WalletViews.AddMoneyPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SteamProfile.Views.WalletViews"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
+            <TextBlock Text="Add money" FontWeight="Bold" FontSize="30"/>
+            <TextBlock Text="Input the sum you want to add" FontSize="20"/>
+            <TextBox x:Name="sumToBeAddedTextBox" TextChanged="sumToBeAddedTextBox_TextChanged" PlaceholderText="Add sum in dolars"/>
+            <TextBlock x:Name="InvalidInput_ErrorMessage" Foreground="DarkRed" FontSize="15"  Text="Introduced value must be a integer and at most 500$.\nPlease don't introduce any spaces or special characters."/>
+            <Button x:Name="UsePaypalButton" Content="Use PayPal" Height="40" Click="UseCardForPayment"/>
+            <Button x:Name="UseCardButton" Content="Use Credit/Debit Card" Height="40"/>
+        </StackPanel>
+    </Grid>
+</Page>
