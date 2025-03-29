@@ -4,6 +4,8 @@ using SteamProfile.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using BCrypt.Net;
 
 namespace SteamProfile.Services
 {
@@ -26,6 +28,11 @@ namespace SteamProfile.Services
         public User GetUserById(int userId)
         {
             return _usersRepository.GetUserById(userId);
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            return _usersRepository.GetUserByEmail(email);
         }
 
         public void ValidateUserAndEmail(string email, string username)

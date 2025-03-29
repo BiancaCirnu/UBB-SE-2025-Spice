@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Shapes;
 using SteamProfile.Data;
 using SteamProfile.Repositories;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -29,6 +30,7 @@ namespace SteamProfile
         public static readonly CollectionsService CollectionsService;
         public static readonly WalletService WalletService;
         public static readonly UserService UserService;
+        public static IPasswordResetService PasswordResetService { get; private set; }
         public static readonly SessionService SessionService;
 
         static App()
@@ -41,13 +43,16 @@ namespace SteamProfile
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
             var sessionRepository = new SessionRepository(dataLink);
+            var passwordResetRepo = new PasswordResetRepository(dataLink);
 
+            // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
             FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
             SessionService = new SessionService(sessionRepository);
             UserService = new UserService(usersRepository, SessionService);
+            PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);     
         }
 
         private Window m_window;
@@ -56,6 +61,8 @@ namespace SteamProfile
         {
             this.InitializeComponent();
         }
+
+        public Window MainWindow { get; set; }
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {

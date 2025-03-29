@@ -31,5 +31,10 @@ namespace SteamProfile.Views
             ViewModel = new LoginViewModel(this.Frame);
             this.DataContext = ViewModel;
         }
+
+        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ForgotPasswordPage));
+        }
     }
 }

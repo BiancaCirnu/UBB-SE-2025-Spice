@@ -64,6 +64,8 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+	<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\CollectionsPage.xaml">

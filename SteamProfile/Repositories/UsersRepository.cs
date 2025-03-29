@@ -145,6 +145,36 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public User? GetUserByEmail(string email)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("GetUserByEmail", parameters);
+                return dataTable.Rows.Count > 0 ? MapDataRowToUser(dataTable.Rows[0]) : null;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to retrieve user with email {email}.", ex);
+            }
+        }
+
+        public void CleanupExpiredResetCodes()
+        {
+            try
+            {
+                _dataLink.ExecuteNonQuery("CleanupResetCodes");
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException("Failed to cleanup expired reset codes.", ex);
+            }
+        }
+
         public string CheckUserExists(string email, string username)
         {
             try
