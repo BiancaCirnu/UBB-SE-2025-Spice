@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:SteamProfile.ViewModels"
+    xmlns:controls="using:SteamProfile.Views.Controls"
     mc:Ignorable="d"
     Background="#1A1A1A">
 
@@ -27,93 +28,74 @@
 
         <!-- Left Sidebar -->
         <Grid Grid.Column="0" Background="#2D2D2D">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Profile Info -->
+                <RowDefinition Height="*"/> <!-- Achievements -->
+            </Grid.RowDefinitions>
+
             <!-- Profile Info -->
-            <StackPanel>
-                <!-- Profile Picture and Basic Info -->
-                <Grid Height="300" Background="#333333">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
-                        <PersonPicture Width="150" Height="150"/>
-                        <TextBlock Text="{x:Bind ViewModel.Username, Mode=OneWay}"
-                                 Foreground="White"
-                                 FontSize="24"
-                                 HorizontalAlignment="Center"/>
-                        <Button Style="{StaticResource TransparentButton}"
-                                Padding="0"
-                                Command="{x:Bind ViewModel.ShowFriendsCommand}">
-                            <Border Background="#E6D5B8" 
-                                    Padding="15,5" 
-                                    CornerRadius="5">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="No. friends: "
-                                             FontSize="14"/>
-                                    <TextBlock Text="{x:Bind ViewModel.FriendCount, Mode=OneWay}"
-                                             FontSize="14"/>
-                                </StackPanel>
-                            </Border>
-                        </Button>
-                    </StackPanel>
+            <controls:ProfileInfoControl Grid.Row="0" ViewModel="{x:Bind ViewModel, Mode=OneWay}"/>
+
+            <!-- Achievement Icons -->
+            <Grid Grid.Row="1" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header with Show All button -->
+                <Grid Grid.Row="0" Margin="0,20,0,10">
+                    <TextBlock Text="Achievements" 
+                             Foreground="White" 
+                             FontSize="20" 
+                             VerticalAlignment="Center"/>
+                    <Button Content="Show all" 
+                            Style="{StaticResource TransparentButton}"
+                            Foreground="White"
+                            Command="{x:Bind ViewModel.ShowAllAchievementsCommand}"
+                            HorizontalAlignment="Right"/>
                 </Grid>
 
-                <!-- Bio Section -->
-                <Grid Height="100" Background="#404040">
-                    <StackPanel Margin="20,10">
-                        <TextBlock Text="Bio"
-                                 Foreground="White"
-                                 FontSize="20"/>
-                        <TextBlock Text="{x:Bind ViewModel.Bio, Mode=OneWay}"
-                                 Foreground="White"
-                                 FontSize="14"
-                                 TextWrapping="Wrap"
-                                 Margin="0,5,0,0"/>
-                    </StackPanel>
-                </Grid>
+                <!-- Achievement Icons Grid -->
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="60"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Achievement Icons -->
-                <Grid>
-                    <Grid Margin="20">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Header with Show All button -->
-                        <Grid Grid.Row="0" Margin="0,0,0,10">
-                            <TextBlock Text="Achievements" 
-                                     Foreground="White" 
-                                     FontSize="20" 
-                                     VerticalAlignment="Center"/>
-                            <Button Content="Show all" 
-                                    Style="{StaticResource TransparentButton}"
-                                    Foreground="White"
-                                    Command="{x:Bind ViewModel.ShowAllAchievementsCommand}"
-                                    HorizontalAlignment="Right"/>
-                        </Grid>
-
-                        <!-- Achievement Icons Grid -->
-                        <Grid Grid.Row="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Ellipse Grid.Row="0" Grid.Column="0" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="0" Grid.Column="1" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="1" Grid.Column="0" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="1" Grid.Column="1" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="2" Grid.Column="0" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="2" Grid.Column="1" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="3" Grid.Column="0" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                            <Ellipse Grid.Row="3" Grid.Column="1" Fill="#666666" Width="60" Height="60" Margin="5"/>
-                        </Grid>
+                    <!-- Achievement Icons -->
+                    <Grid Grid.Row="0" Grid.Column="0" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasGameplayAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCollectionAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="1" Grid.Column="0" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasSocialAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="1" Grid.Column="1" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasMarketAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.Column="0" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCustomizationAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="2" Grid.Column="1" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCommunityAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="3" Grid.Column="0" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasEventAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
+                    </Grid>
+                    <Grid Grid.Row="3" Grid.Column="1" Margin="5">
+                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasSpecialAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
                     </Grid>
                 </Grid>
-            </StackPanel>
+            </Grid>
         </Grid>
 
         <!-- Main Content -->

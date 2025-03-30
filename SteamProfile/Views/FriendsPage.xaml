@@ -6,10 +6,91 @@
     xmlns:local="using:SteamProfile.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:SteamProfile.ViewModels"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="#1A1A1A">
 
-    <Grid>
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- Header -->
+        <Grid Grid.Row="0" Background="#2D2D2D" Padding="20">
+            <TextBlock Text="Friends" 
+                      Foreground="White" 
+                      FontSize="24" 
+                      VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Friends List -->
+        <Grid Grid.Row="1" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Loading and Error States -->
+            <StackPanel Grid.Row="0" Spacing="10">
+                <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                          Foreground="Red"
+                          TextWrapping="Wrap"
+                          Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringToVisibilityConverter}}"/>
+                
+                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <!-- Friends List -->
+            <ListView Grid.Row="1" 
+                      ItemsSource="{x:Bind ViewModel.Friends, Mode=OneWay}"
+                      Background="Transparent"
+                      SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:FriendViewModel">
+                        <Grid Padding="10" Background="#2D2D2D" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Friend Profile Picture -->
+                            <PersonPicture Grid.Column="0"
+                                         Width="50"
+                                         Height="50"
+                                         DisplayName="{x:Bind Username, Mode=OneWay}"
+                                         ProfilePicture="{x:Bind ProfilePicture, Mode=OneWay}"/>
+
+                            <!-- Friend Info -->
+                            <StackPanel Grid.Column="1" 
+                                      Margin="15,0,0,0" 
+                                      VerticalAlignment="Center">
+                                <TextBlock Text="{x:Bind Username, Mode=OneWay}"
+                                         Foreground="White"
+                                         FontSize="16"/>
+                                <TextBlock Text="{x:Bind Status, Mode=OneWay}"
+                                         Foreground="#CCCCCC"
+                                         FontSize="14"/>
+                            </StackPanel>
+
+                            <!-- Actions -->
+                            <StackPanel Grid.Column="2" 
+                                      Orientation="Horizontal" 
+                                      Spacing="10"
+                                      VerticalAlignment="Center">
+                                <Button Content="View Profile"
+                                        Command="{Binding DataContext.ViewProfileCommand}"
+                                        CommandParameter="{x:Bind FriendId}"/>
+                                <Button Content="Remove Friend"
+                                        Command="{Binding DataContext.RemoveFriendCommand}"
+                                        CommandParameter="{x:Bind FriendId}"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </Grid>
 </Page>

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
 using SteamProfile.Models;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -15,6 +16,7 @@ namespace SteamProfile.ViewModels
     {
         private static ProfileViewModel _instance;
         private readonly UserService _userService;
+        private readonly FriendsService _friendsService;
         private readonly DispatcherQueue _dispatcherQueue;
 
         [ObservableProperty]
@@ -48,7 +50,34 @@ namespace SteamProfile.ViewModels
         private string _errorMessage = string.Empty;
 
         [ObservableProperty]
-        private bool _isOwner = true;
+        private bool _isOwner = false;
+
+        [ObservableProperty]
+        private int _userId;
+
+        [ObservableProperty]
+        private bool _hasGameplayAchievement;
+
+        [ObservableProperty]
+        private bool _hasCollectionAchievement;
+
+        [ObservableProperty]
+        private bool _hasSocialAchievement;
+
+        [ObservableProperty]
+        private bool _hasMarketAchievement;
+
+        [ObservableProperty]
+        private bool _hasCustomizationAchievement;
+
+        [ObservableProperty]
+        private bool _hasCommunityAchievement;
+
+        [ObservableProperty]
+        private bool _hasEventAchievement;
+
+        [ObservableProperty]
+        private bool _hasSpecialAchievement;
 
         public static ProfileViewModel Instance
         {
@@ -62,18 +91,19 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        public static void Initialize(UserService userService, DispatcherQueue dispatcherQueue)
+        public static void Initialize(UserService userService, FriendsService friendsService, DispatcherQueue dispatcherQueue)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, dispatcherQueue);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue);
         }
 
-        private ProfileViewModel(UserService userService, DispatcherQueue dispatcherQueue)
+        private ProfileViewModel(UserService userService, FriendsService friendsService, DispatcherQueue dispatcherQueue)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
         }
 
@@ -91,6 +121,7 @@ namespace SteamProfile.ViewModels
                 {
                     if (currentUser != null)
                     {
+                        UserId = currentUser.UserId;
                         Username = currentUser.Username;
                         Bio = currentUser.Description ?? string.Empty;
                         ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
@@ -98,8 +129,20 @@ namespace SteamProfile.ViewModels
                         // Set IsOwner based on whether the viewed profile is the current user's profile
                         IsOwner = true; // TODO: Compare with logged-in user ID when implementing profile viewing
 
+                        // Load friend count
+                        _ = LoadFriendCountAsync();
+
+                        // Set some test achievement values
+                        HasGameplayAchievement = true;
+                        HasCollectionAchievement = false;
+                        HasSocialAchievement = true;
+                        HasMarketAchievement = false;
+                        HasCustomizationAchievement = true;
+                        HasCommunityAchievement = false;
+                        HasEventAchievement = true;
+                        HasSpecialAchievement = false;
+
                         // TODO: Load these from their respective services
-                        FriendCount = 0;
                         Money = 0;
                         Points = 0;
                         CoverPhoto = "default_cover.png";
@@ -123,6 +166,23 @@ namespace SteamProfile.ViewModels
                     ErrorMessage = "Failed to load profile data. Please try again later.";
                     IsLoading = false;
                 });
+            }
+        }
+
+        private async Task LoadFriendCountAsync()
+        {
+            try
+            {
+                var count = await _friendsService.GetFriendshipCount(UserId.ToString());
+                await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading friend count: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
         }
 
@@ -163,8 +223,7 @@ namespace SteamProfile.ViewModels
         [RelayCommand]
         private void ShowFriends()
         {
-            // Navigate to Friends page
-            NavigationService.Instance.Navigate(typeof(Views.FriendsPage));
+            NavigationService.Instance.Navigate(typeof(Views.FriendsPage), UserId);
         }
     }
 

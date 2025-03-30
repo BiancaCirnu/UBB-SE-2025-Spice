@@ -14,6 +14,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using SteamProfile.Models;
 using SteamProfile.Views;
+using SteamProfile.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,6 +29,9 @@ namespace SteamProfile
         public MainWindow()
         {
             this.InitializeComponent();
+
+            // Initialize NavigationService with the ContentFrame
+            NavigationService.Instance.Initialize(ContentFrame);
 
             // Set the initial page to UsersPage
             ContentFrame.Navigate(typeof(UsersPage));

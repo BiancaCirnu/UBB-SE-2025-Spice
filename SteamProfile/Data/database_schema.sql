@@ -3,12 +3,24 @@ DROP TABLE IF EXISTS Feature_User;
 DROP TABLE IF EXISTS User_Achievement;
 DROP TABLE IF EXISTS OwnedGames_Collection;
 DROP TABLE IF EXISTS User_Wallet;
+DROP TABLE IF EXISTS Friendships;
 DROP TABLE IF EXISTS Wallet;
 DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
 DROP TABLE IF EXISTS Users;
 
+-- Drop stored procedures
+DROP PROCEDURE IF EXISTS GetAllUsers;
+DROP PROCEDURE IF EXISTS GetUserById;
+DROP PROCEDURE IF EXISTS GetUserFriends;
+DROP PROCEDURE IF EXISTS AddFriend;
+DROP PROCEDURE IF EXISTS RemoveFriend;
+DROP PROCEDURE IF EXISTS CheckFriendship;
+DROP PROCEDURE IF EXISTS GetFriendCount;
+DROP PROCEDURE IF EXISTS GetAllFriendships;
+DROP PROCEDURE IF EXISTS GetFriendshipsForUser;
+DROP PROCEDURE IF EXISTS GetFriendshipCountForUser;
 
 -- User Table
 CREATE TABLE Users (
@@ -31,6 +43,110 @@ BEGIN
     SELECT user_id, email, username, profile_picture, description, developer, created_at, last_login
     FROM Users
     ORDER BY username;
+END
+GO
+
+-- Create GetUserById stored procedure
+GO
+CREATE OR ALTER PROCEDURE GetUserById
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        user_id,
+        email,
+        username,
+        password_hash,
+        profile_picture,
+        description,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @user_id;
+END
+GO
+
+-- Create GetUserFriends stored procedure
+GO
+CREATE OR ALTER PROCEDURE GetUserFriends
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        f.friend_id,
+        u.username,
+        u.email,
+        u.profile_picture,
+        u.description,
+        u.developer,
+        u.created_at,
+        u.last_login
+    FROM Friendships f
+    JOIN Users u ON f.friend_id = u.user_id
+    WHERE f.user_id = @user_id
+    ORDER BY u.username;
+END
+GO
+
+-- Create AddFriend stored procedure
+GO
+CREATE OR ALTER PROCEDURE AddFriend
+    @user_id INT,
+    @friend_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO Friendships (user_id, friend_id)
+    VALUES (@user_id, @friend_id);
+END
+GO
+
+-- Create RemoveFriend stored procedure
+GO
+CREATE OR ALTER PROCEDURE RemoveFriend
+    @user_id INT,
+    @friend_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM Friendships
+    WHERE user_id = @user_id AND friend_id = @friend_id;
+END
+GO
+
+-- Create CheckFriendship stored procedure
+GO
+CREATE OR ALTER PROCEDURE CheckFriendship
+    @user_id INT,
+    @friend_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) as friendship_count
+    FROM Friendships
+    WHERE user_id = @user_id AND friend_id = @friend_id;
+END
+GO
+
+-- Create GetFriendCount stored procedure
+GO
+CREATE OR ALTER PROCEDURE GetFriendCount
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) as friend_count
+    FROM Friendships
+    WHERE user_id = @user_id;
 END
 GO
 
@@ -123,3 +239,99 @@ INSERT INTO Users (email, username, password_hash, profile_picture, description,
 select * from Users;
 
 SELECT COUNT(*) FROM Users;
+
+-- Create Friendships table
+CREATE TABLE Friendships (
+    friendship_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    friend_id INT NOT NULL,
+    CONSTRAINT FK_Friendships_User FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    CONSTRAINT FK_Friendships_Friend FOREIGN KEY (friend_id) REFERENCES Users(user_id),
+    CONSTRAINT UQ_Friendship UNIQUE (user_id, friend_id),
+    CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
+);
+
+-- Add indexes for better query performance
+CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
+CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
+
+-- Add some mock data for testing
+INSERT INTO Friendships (user_id, friend_id)
+VALUES 
+    (1, 2),
+    (1, 3),
+    (2, 3),
+    (2, 4);
+GO
+
+CREATE OR ALTER PROCEDURE GetAllFriendships
+AS
+BEGIN
+    SELECT 
+        f.friendship_id,
+        f.user_id,
+        u1.username as user_username,
+        f.friend_id,
+        u2.username as friend_username
+    FROM Friendships f
+    JOIN Users u1 ON f.user_id = u1.user_id
+    JOIN Users u2 ON f.friend_id = u2.user_id
+    ORDER BY f.user_id, f.friend_id;
+END
+GO
+
+GO
+CREATE OR ALTER PROCEDURE GetAllUsers
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        user_id,
+        email,
+        username,
+        password_hash,
+        profile_picture,
+        description,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    ORDER BY username;
+END
+
+-- Create GetFriendshipsForUser stored procedure
+GO
+CREATE OR ALTER PROCEDURE GetFriendshipsForUser
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        f.friendship_id,
+        f.user_id,
+        f.friend_id,
+        u.username as friend_username,
+        u.profile_picture as friend_profile_picture
+    FROM Friendships f
+    JOIN Users u ON f.friend_id = u.user_id
+    WHERE f.user_id = @user_id
+    ORDER BY u.username;
+END
+GO
+
+-- Create GetFriendshipCountForUser stored procedure
+GO
+CREATE OR ALTER PROCEDURE GetFriendshipCountForUser
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT COUNT(*) as friend_count
+    FROM Friendships
+    WHERE user_id = @user_id;
+END
+GO
+

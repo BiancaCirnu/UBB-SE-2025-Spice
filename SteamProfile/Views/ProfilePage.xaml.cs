@@ -14,6 +14,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using System.Diagnostics;
+using SteamProfile.Data;
+using SteamProfile.Repositories;
+using SteamProfile.Services;
 
 namespace SteamProfile.Views
 {
@@ -28,7 +31,10 @@ namespace SteamProfile.Views
                 InitializeComponent();
 
                 // Initialize the ViewModel with the UI thread's dispatcher
-                ProfileViewModel.Initialize(App.UserService, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
+                var dataLink = DataLink.Instance;
+                var friendshipsRepository = new FriendshipsRepository(dataLink);
+                var friendsService = new FriendsService(friendshipsRepository);
+                ProfileViewModel.Initialize(App.UserService, friendsService, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
                 ViewModel = ProfileViewModel.Instance;
 
                 // Load the profile data

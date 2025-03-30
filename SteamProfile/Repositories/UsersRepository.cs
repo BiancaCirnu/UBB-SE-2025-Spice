@@ -27,7 +27,7 @@ namespace SteamProfile.Repositories
                 var dataTable = _dataLink.ExecuteReader("GetAllUsers");
                 return MapDataTableToUsers(dataTable);
             }
-            catch (DatabaseOperationException ex)
+            catch (Data.DatabaseOperationException ex)
             {
                 // Log the error or handle it appropriately
                 throw new RepositoryException("Failed to retrieve users from the database.", ex);
@@ -40,13 +40,13 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", userId)
+                    new SqlParameter("@user_id", userId)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("GetUserById", parameters);
                 return dataTable.Rows.Count > 0 ? MapDataRowToUser(dataTable.Rows[0]) : null;
             }
-            catch (DatabaseOperationException ex)
+            catch (Data.DatabaseOperationException ex)
             {
                 throw new RepositoryException($"Failed to retrieve user with ID {userId} from the database.", ex);
             }
@@ -74,7 +74,7 @@ namespace SteamProfile.Repositories
 
                 return MapDataRowToUser(dataTable.Rows[0]);
             }
-            catch (DatabaseOperationException ex)
+            catch (Data.DatabaseOperationException ex)
             {
                 throw new RepositoryException($"Failed to update user with ID {user.UserId}.", ex);
             }
@@ -101,7 +101,7 @@ namespace SteamProfile.Repositories
 
                 return MapDataRowToUser(dataTable.Rows[0]);
             }
-            catch (DatabaseOperationException ex)
+            catch (Data.DatabaseOperationException ex)
             {
                 throw new RepositoryException("Failed to create user.", ex);
             }
@@ -118,7 +118,7 @@ namespace SteamProfile.Repositories
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
             }
-            catch (DatabaseOperationException ex)
+            catch (Data.DatabaseOperationException ex)
             {
                 throw new RepositoryException($"Failed to delete user with ID {userId}.", ex);
             }

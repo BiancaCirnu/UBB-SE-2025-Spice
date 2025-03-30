@@ -15,12 +15,13 @@
 
             <!-- Converters -->
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-            <converters:BoolToInverseVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
             <converters:StringFormatConverter x:Key="StringFormatConverter"/>
             <converters:BoolToGridColumnConverter x:Key="BoolToGridColumnConverter"/>
             <converters:BoolToNextGridColumnConverter x:Key="BoolToNextGridColumnConverter"/>
             <converters:BoolToLastGridColumnConverter x:Key="BoolToLastGridColumnConverter"/>
-
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
