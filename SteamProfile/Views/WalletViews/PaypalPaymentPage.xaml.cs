@@ -31,7 +31,7 @@ namespace SteamProfile.Views.WalletViews
 
         private void EmailTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Validation is automatically triggered by the property setter
+            ViewModel.ValidateEmail(EmailTextBox.Text);
         }
 
         private void PasswordText_PasswordChanged(object sender, RoutedEventArgs e)

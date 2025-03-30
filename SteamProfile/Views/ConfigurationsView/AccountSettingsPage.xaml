@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="SteamProfile.Views.ConfigurationsViews.AccountSettingsPage"
+    x:Class="SteamProfile.Views.ConfigurationsView.AccountSettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SteamProfile.Views.ConfigurationsViews"
+    xmlns:local="using:SteamProfile.Views.ConfigurationsView"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -16,26 +16,34 @@
             <!-- Modify Email Section -->
             <TextBlock Text="Modify Email" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox Width="250" PlaceholderText="New email" />
+                <TextBox x:Name="EmailText" Width="250" PlaceholderText="New email" TextChanged="ValidEmail"
+                        Text="{x:Bind ViewModel.Email, Mode=TwoWay}"/>
                 <Button Content="Update" Width="100" Click="UpdateEmail_Click"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid email address" Foreground="Red" x:Name="EmailErrorMessage" Visibility="Collapsed"/>
-            
+            <TextBlock Text="Insert a valid email address" Foreground="Red"
+                    Visibility="{x:Bind ViewModel.EmailErrorMessageVisibility, Mode=OneWay}"/>
+
             <!-- Modify Username Section -->
             <TextBlock Text="Modify Username" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox Width="250" PlaceholderText="New username" />
+                <TextBox x:Name="UsernameText" Width="250" PlaceholderText="New username" TextChanged="ValidUsername"
+                                                 Text="{x:Bind ViewModel.Username, Mode=TwoWay}"/>
+
                 <Button Content="Update" Width="100"  Click="UpdateUsername_Click"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid username" Foreground="Red" x:Name="UsernameErrorMessage" Visibility="Collapsed"/>
+            <TextBlock Text="Insert a valid username" Foreground="Red"
+           Visibility="{x:Bind ViewModel.UsernameErrorMessageVisibility, Mode=OneWay}"/>
 
             <!-- Modify Password Section -->
             <TextBlock Text="Modify Password" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <PasswordBox Width="250" PlaceholderText="New password" />
+                <PasswordBox x:Name="PasswordText" Width="250" PlaceholderText="New password" PasswordChanged="ValidPassword"
+                                                     Password="{x:Bind ViewModel.Password, Mode=TwoWay}"/>
+
                 <Button Content="Update" Width="100" Click="UpdatePassword_Click"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid password" Foreground="Red" x:Name="PasswordErrorMessage" Visibility="Collapsed"/>
+            <TextBlock Text="Insert a valid password" Foreground="Red"
+           Visibility="{x:Bind ViewModel.PasswordErrorMessageVisibility, Mode=OneWay}"/>
 
             <!-- Action Buttons -->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="20" >

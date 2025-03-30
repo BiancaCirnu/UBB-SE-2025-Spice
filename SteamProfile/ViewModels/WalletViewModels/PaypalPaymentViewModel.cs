@@ -46,7 +46,7 @@ namespace SteamProfile.ViewModels
                 if (_email != value)
                 {
                     _email = value;
-                    ValidateEmail();
+                    ValidateEmail(_email);
                     OnPropertyChanged();
                 }
             }
@@ -157,9 +157,9 @@ namespace SteamProfile.ViewModels
 
         // Validation Methods
 
-        public void ValidateEmail()
+        public void ValidateEmail(string email)
         {
-            if (string.IsNullOrEmpty(Email))
+            if (string.IsNullOrEmpty(email))
             {
                 IsEmailValid = false;
                 return;

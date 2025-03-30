@@ -39,5 +39,30 @@ namespace SteamProfile.Services
         {
             _usersRepository.DeleteUser(userId);
         }
+
+        internal void UpdatePassword(string newPassword)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void Logout()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void DeleteAccount()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void UpdateEmail(string newEmail)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void UpdateUsername(string newUsername)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
