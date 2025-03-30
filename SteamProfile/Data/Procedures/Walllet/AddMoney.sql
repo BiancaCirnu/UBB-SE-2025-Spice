@@ -1,4 +1,4 @@
-create or alter procedure AddMoney @amount int, @userId int as
+create or alter procedure AddMoney @amount decimal, @userId int as
 begin 
 	update wallet  
 	set balance = balance + @amount

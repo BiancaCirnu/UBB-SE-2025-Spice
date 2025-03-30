@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="SteamProfile.Views.WalletViews.AddMoneyPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,17 +5,36 @@
     xmlns:local="using:SteamProfile.Views.WalletViews"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Grid>
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="20">
-            <TextBlock Text="Add money" FontWeight="Bold" FontSize="30"/>
-            <TextBlock Text="Input the sum you want to add" FontSize="20"/>
-            <TextBox x:Name="sumToBeAddedTextBox" TextChanged="sumToBeAddedTextBox_TextChanged" PlaceholderText="Add sum in dolars"/>
-            <TextBlock x:Name="InvalidInput_ErrorMessage" Foreground="DarkRed" FontSize="15"  Text="Introduced value must be a integer and at most 500$.\nPlease don't introduce any spaces or special characters."/>
-            <Button x:Name="UsePaypalButton" Content="Use PayPal" Height="40" Click="UseCardForPayment"/>
-            <Button x:Name="UseCardButton" Content="Use Credit/Debit Card" Height="40"/>
+    <Grid Padding="20">
+        <StackPanel Spacing="20">
+            <TextBlock Text="Add Money to Wallet" Style="{StaticResource TitleTextBlockStyle}"/>
+
+            <TextBox x:Name="sumToBeAddedTextBox" 
+                     Header="Amount to add (max 500):" 
+                     PlaceholderText="Enter amount" 
+                     Text="{x:Bind ViewModel.AmountToAdd, Mode=TwoWay}"
+                     TextChanged="sumToBeAddedTextBox_TextChanged"/>
+
+            <TextBlock x:Name="InvalidInput_ErrorMessage" 
+                       Text="Invalid input! Please enter a valid amount (1-500)." 
+                       Foreground="Red"
+                       Visibility="{x:Bind ViewModel.ErrorMessageVisibility, Mode=OneWay}"/>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button x:Name="UseCardButton" 
+                        Content="Use Card" 
+                        Click="UseCardForPayment"
+                        IsEnabled="{x:Bind ViewModel.PaymentButtonsEnabled, Mode=OneWay}"/>
+
+                <Button x:Name="UsePaypalButton" 
+                        Content="Use PayPal" 
+                        Click="UsePaypalForPayment"
+                        IsEnabled="{x:Bind ViewModel.PaymentButtonsEnabled, Mode=OneWay}"/>
+
+                <Button Content="Cancel" Click="Cancel"/>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Page>

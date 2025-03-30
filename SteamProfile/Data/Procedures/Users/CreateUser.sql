@@ -42,7 +42,6 @@ BEGIN
         GETDATE()
     )
 
-    insert into wallet()
 
     -- Return the newly created user
     SELECT 

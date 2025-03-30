@@ -1,31 +1,68 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SteamProfile.Repositories;
+using SteamProfile.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace SteamProfile.Views.WalletViews
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class AddPointsPage : Page
     {
+        private AddPointsViewModel _viewModel;
+
         public AddPointsPage()
         {
             this.InitializeComponent();
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            // Check if navigation parameters contain the WalletViewModel
+            if (e.Parameter is WalletViewModel walletViewModel)
+            {
+                // Create repository
+                var repository = new PointsOffersRepository();
+
+                // Create the ViewModel with navigation frame
+                _viewModel = new AddPointsViewModel(walletViewModel, repository, this.Frame);
+
+                // Set the DataContext
+                this.DataContext = _viewModel;
+            }
+            else
+            {
+                // Handle error - no wallet view model provided
+                ShowErrorAndGoBack("Navigation error: Wallet data not found.");
+            }
+        }
+
+        private async void ShowErrorAndGoBack(string message)
+        {
+            ContentDialog dialog = new ContentDialog
+            {
+                Title = "Error",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+
+            await dialog.ShowAsync();
+
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
+        }
+
+        private void CancelAddPoints(object sender, RoutedEventArgs e)
+        {
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
         }
     }
 }

@@ -1,31 +1,55 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using System;
+using SteamProfile.Models;
+using SteamProfile.ViewModels;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace SteamProfile.Views.WalletViews
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// Payment page for PayPal transactions
     /// </summary>
     public sealed partial class PaypalPaymentPage : Page
     {
+        public PaypalPaymentViewModel ViewModel { get; } = new PaypalPaymentViewModel();
+
         public PaypalPaymentPage()
         {
             this.InitializeComponent();
+            this.DataContext = ViewModel;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter is Dictionary<string, object> parameters)
+            {
+                ViewModel.Initialize(parameters);
+            }
+        }
+
+        private void EmailTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Validation is automatically triggered by the property setter
+        }
+
+        private void PasswordText_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ValidatePassword(PasswordText.Password);
+        }
+
+        private async void AddMoneyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (await ViewModel.ProcessPaymentAsync())
+            {
+                Frame.GoBack();
+            }
+        }
+
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.GoBack();
         }
     }
 }

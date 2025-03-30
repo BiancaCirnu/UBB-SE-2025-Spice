@@ -58,7 +58,7 @@ BEGIN
         wallet_id INT IDENTITY(1,1) PRIMARY KEY,
         user_id INT NOT NULL UNIQUE,
         balance DECIMAL(10,2) NOT NULL DEFAULT 0,
-        points DECIMAL(10,2) NOT NULL DEFAULT 0,
+        points int NOT NULL DEFAULT 0,
         FOREIGN KEY (user_id) REFERENCES Users(user_id)
     );
 END

@@ -38,12 +38,12 @@ namespace SteamProfile
             var featuresRepository = new FeaturesRepository(dataLink);
             var usersRepository = new UsersRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
-            var walletRepository = new WalletRepository(dataLink);
+            var walletRepository = new WalletRepository(dataLink, 1);
 
             AchievementsService = new AchievementsService(achievementsRepository);
             FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
-            WalletService = new WalletService(walletRepository);
+            WalletService = new WalletService(walletRepository, 1);
             AuthenticationService = new AuthenticationService(usersRepository);
             UserService = new UserService(usersRepository);
         }

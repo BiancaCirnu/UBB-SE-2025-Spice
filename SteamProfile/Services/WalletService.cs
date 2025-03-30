@@ -1,4 +1,5 @@
-﻿using SteamProfile.Repositories;
+﻿using SteamProfile.Models;
+using SteamProfile.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,38 @@ namespace SteamProfile.Services
     public class WalletService
     {
         private readonly WalletRepository _walletRepository;
-        public WalletService(WalletRepository walletRepository)
+        private readonly int _userId;
+
+        public WalletService(WalletRepository walletRepository, int userId)
         {
             _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
+            _userId = userId;
+        }
+
+        internal void AddMoney(decimal amount)
+        {
+            _walletRepository.AddMoneyToWallet(amount);
+        }
+
+        internal void AddPoints(int points)
+        {
+            _walletRepository.AddPointsToWallet(points);
+        }
+
+        internal decimal GetBalance()
+        {
+            return _walletRepository.GetMoneyFromWallet();
+        }
+
+        internal int GetPoints()
+        {
+           return (_walletRepository.GetPointsFromWallet());
+        }
+
+        
+        internal void PurchasePoints(PointsOffer offer)
+        {
+            _walletRepository.PurchasePoints(offer);
         }
     }
 }
