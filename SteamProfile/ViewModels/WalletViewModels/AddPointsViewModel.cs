@@ -86,6 +86,9 @@ namespace SteamProfile.ViewModels
                     // Update the local UserPoints to reflect the wallet points
                     UserPoints = _walletViewModel.Points;
 
+                    // Force refresh wallet data
+                    _walletViewModel.RefreshWalletData();
+
                     // Show success message
                     await ShowSuccessMessageAsync(offer);
 
@@ -151,6 +154,19 @@ namespace SteamProfile.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void WalletViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(WalletViewModel.Points))
+            {
+                UserPoints = _walletViewModel.Points;
+            }
+        }
+
+        public void Dispose()
+        {
+            _walletViewModel.PropertyChanged -= WalletViewModel_PropertyChanged;
         }
     }
 }

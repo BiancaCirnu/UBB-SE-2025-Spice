@@ -39,9 +39,15 @@ namespace SteamProfile.Services
            return (_walletRepository.GetPointsFromWallet());
         }
 
-        
-        internal void PurchasePoints(PointsOffer offer)
+
+        public void PurchasePoints(PointsOffer offer)
         {
+            if (offer == null)
+                throw new ArgumentNullException(nameof(offer));
+
+            // Check if user has enough balance
+            if (GetBalance() < offer.Price)
+                throw new InvalidOperationException("Insufficient funds");
             _walletRepository.PurchasePoints(offer);
         }
     }

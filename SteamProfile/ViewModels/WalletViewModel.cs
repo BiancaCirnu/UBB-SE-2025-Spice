@@ -67,7 +67,6 @@ namespace SteamProfile.ViewModels
 
         public void RefreshWalletData()
         {
-            // Get the latest wallet data from the service
             Balance = _walletService.GetBalance();
             Points = _walletService.GetPoints();
         }
@@ -86,19 +85,23 @@ namespace SteamProfile.ViewModels
             if (offer == null)
                 return false;
 
-            // Add logic here to handle the purchase of points with offer
-            // For example, deduct money based on offer price and add points
+            // Check if user has enough balance to purchase the points
             if (Balance >= offer.Price)
             {
-                // Deduct money
-                _walletService.AddMoney(-offer.Price);
+                try
+                {
+                    // Use the service to handle the purchase transaction
+                    _walletService.PurchasePoints(offer);
 
-                // Add points
-                _walletService.AddPoints(offer.Points);
-
-                // Refresh wallet data
-                RefreshWalletData();
-                return true;
+                    // Refresh wallet data after purchase
+                    RefreshWalletData();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    // Return false if any exception occurs during the purchase
+                    return false;
+                }
             }
 
             return false;

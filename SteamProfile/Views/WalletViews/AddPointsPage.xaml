@@ -7,7 +7,7 @@
     <Grid>
         <StackPanel Padding="20" Spacing="15">
             <TextBlock Text="Select a Points Package" FontSize="26" FontWeight="Bold" Margin="0,0,0,10"/>
-            <ListView ItemsSource="{Binding PointsOffers}" SelectionMode="None">
+            <ListView x:Name="PointsListView" ItemsSource="{Binding PointsOffers}" SelectionMode="None">
                 <ListView.Header>
                     <Border BorderThickness="1" BorderBrush="Gray" Padding="10" Margin="5">
                         <Grid VerticalAlignment="Center">
@@ -20,11 +20,16 @@
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="local:PointsOffer">
                         <Border BorderThickness="1" BorderBrush="Gray" Padding="10" Margin="5" CornerRadius="8">
-                            <Grid  VerticalAlignment="Center">
+                            <Grid VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
                                 <TextBlock Text="{x:Bind Points}" FontSize="18" FontWeight="Medium" Grid.Column="0" VerticalAlignment="Center"/>
                                 <TextBlock Text="{x:Bind Price}" FontSize="18" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                <Button Content="Buy" Command="{Binding ElementName=PageRoot, Path=DataContext.PurchasePointsCommand}" 
-                                        CommandParameter="{x:Bind}" Grid.Column="2" Margin="5" Padding="8" HorizontalAlignment="Right"/>
+                                <Button Content="Buy" Command="{Binding DataContext.PurchasePointsCommand, ElementName=PointsListView}" 
+            CommandParameter="{x:Bind}" Grid.Column="2" Margin="5" Padding="8" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

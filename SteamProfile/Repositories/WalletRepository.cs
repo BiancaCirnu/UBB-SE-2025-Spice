@@ -30,7 +30,6 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@wallet_id", _walletId)
                 };
-
                 var dataTable = _dataLink.ExecuteReader("GetWalletById", parameters);
                 return MapDataRowToUser(dataTable.Rows[0]);
             }
@@ -61,7 +60,8 @@ namespace SteamProfile.Repositories
             _dataLink.ExecuteReader("AddMoney", parameters);
         }
 
-        public void AddPointsToWallet(int amount) {
+        public void AddPointsToWallet(int amount)
+        {
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@amount",  amount),
@@ -70,8 +70,9 @@ namespace SteamProfile.Repositories
             _dataLink.ExecuteReader("AddPoints", parameters);
         }
 
-        public decimal GetMoneyFromWallet() {
-            return GetWallet().balance; 
+        public decimal GetMoneyFromWallet()
+        {
+            return GetWallet().balance;
         }
 
         public int GetPointsFromWallet()
@@ -82,13 +83,12 @@ namespace SteamProfile.Repositories
         public void PurchasePoints(PointsOffer offer)
         {
             SqlParameter[] parameters = new SqlParameter[]
-           {
-               new SqlParameter("@price", offer.Price),
-               new SqlParameter("@@numberOfPoints", offer.Points),
-               new SqlParameter("@userId", _walletId)
-           };
+            {
+                new SqlParameter("@price", offer.Price),
+                new SqlParameter("@numberOfPoints", offer.Points), // Fixed parameter name from @@numberOfPoints to @points
+                new SqlParameter("@userId", _walletId)
+            };
             _dataLink.ExecuteReader("BuyPoints", parameters);
-
         }
 
     }
