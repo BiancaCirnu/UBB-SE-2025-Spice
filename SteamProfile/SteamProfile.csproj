@@ -25,6 +25,8 @@
     <None Remove="Views\AchievementsPage.xaml" />
     <None Remove="Views\CollectionsPage.xaml" />
     <None Remove="Views\ConfigurationsPage.xaml" />
+    <None Remove="Views\ConfigurationsViews\AccountSettingsPage.xaml" />
+    <None Remove="Views\ConfigurationsViews\ModifyProfilePage.xaml" />
     <None Remove="Views\FeaturesPage.xaml" />
     <None Remove="Views\ForgotPasswordPage.xaml" />
     <None Remove="Views\FriendsPage.xaml" />
@@ -127,6 +129,16 @@
     <Folder Include="Data\Procedures\Features\" />
     <Folder Include="Data\Procedures\Collections\" />
     <Folder Include="Data\Procedures\Users\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\ConfigurationsViews\ModifyProfilePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\ConfigurationsViews\AccountSettingsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\WalletViews\PaypalPaymentPage.xaml">

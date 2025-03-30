@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using SteamProfile.ViewModels;
+using SteamProfile.Views.ConfigurationsViews;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,6 +26,18 @@ namespace SteamProfile.Views
             this.InitializeComponent();
             _viewModel = new ConfigurationsViewModel(App.UserService);
             this.DataContext = _viewModel;
+        }
+        private void AccountSettings_Click (object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(AccountSettingsPage), _viewModel);
+        }
+        private void ModifyProfile_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ModifyProfilePage), _viewModel);
+        }
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.GoBack();
         }
     }
 }
