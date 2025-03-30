@@ -28,6 +28,7 @@ namespace SteamProfile
         public MainWindow()
         {
             this.InitializeComponent();
+            Title = "SteamProfile";
             
             // Set the initial page to UsersPage
             ContentFrame.Navigate(typeof(UsersPage));
@@ -38,22 +39,33 @@ namespace SteamProfile
 
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.SelectedItem is NavigationViewItem selectedItem)
+            if (args.SelectedItemContainer != null)
             {
-                Type pageType = selectedItem.Tag?.ToString() switch
+                string tag = args.SelectedItemContainer.Tag.ToString();
+                switch (tag)
                 {
-                    "users" => typeof(UsersPage),
-                    "profile" => typeof(ProfilePage),
-                    "achievements" => typeof(AchievementsPage),
-                    "collections" => typeof(CollectionsPage),
-                    "features" => typeof(FeaturesPage),
-                    "wallet" => typeof(WalletPage),
-                    "friends" => typeof(FriendsPage),
-                    "configurations" => typeof(ConfigurationsPage),
-                    _ => typeof(UsersPage)
-                };
-
-                ContentFrame.Navigate(pageType);
+                    case "users":
+                        ContentFrame.Navigate(typeof(UsersPage));
+                        break;
+                    case "profile":
+                        ContentFrame.Navigate(typeof(ProfilePage));
+                        break;
+                    case "achievements":
+                        ContentFrame.Navigate(typeof(AchievementsPage));
+                        break;
+                    case "collections":
+                        ContentFrame.Navigate(typeof(CollectionsPage));
+                        break;
+                    case "features":
+                        ContentFrame.Navigate(typeof(FeaturesPage));
+                        break;
+                    case "friends":
+                        ContentFrame.Navigate(typeof(FriendsPage));
+                        break;
+                    case "configurations":
+                        ContentFrame.Navigate(typeof(ConfigurationsPage));
+                        break;
+                }
             }
         }
     }

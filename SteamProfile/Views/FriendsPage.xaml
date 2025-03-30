@@ -6,10 +6,102 @@
     xmlns:local="using:SteamProfile.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:SteamProfile.Models" xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- Title -->
+        <TextBlock Text="FRIENDS" 
+                  FontSize="30" 
+                  FontWeight="Bold" 
+                  TextAlignment="Center"
+                  Margin="20"/>
+
+        <!-- Scrollable Content -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Vertical" 
+                        HorizontalAlignment="Center"
+                        Padding="20">
+                <!-- Friends List -->
+                <TextBlock Text="MY FRIENDS" 
+                          FontSize="20" 
+                          FontWeight="Bold" 
+                          Margin="0,0,0,20"/>
+
+                <ItemsControl ItemsSource="{Binding Friendships}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:WrapPanel Orientation="Horizontal" MaxWidth="680"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:Friendship">
+                            <Border Width="200" 
+                                    Height="200" 
+                                    CornerRadius="10" 
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    Margin="10">
+                                <Grid Padding="16">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Style="{StaticResource TransparentButtonStyle}"
+                                            Click="ViewProfile_Click"
+                                            CommandParameter="{Binding FriendId}">
+                                        <StackPanel Grid.Row="0" Spacing="8">
+                                            <Ellipse Width="80" Height="80">
+                                                <Ellipse.Fill>
+                                                    <ImageBrush ImageSource="{Binding FriendProfilePicture}"/>
+                                                </Ellipse.Fill>
+                                            </Ellipse>
+                                            <TextBlock Text="{Binding FriendUsername}"
+                                                     FontSize="24" 
+                                                     FontWeight="Bold"
+                                                     TextAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <StackPanel Grid.Row="1" 
+                                              VerticalAlignment="Bottom"
+                                              Spacing="8">
+                                        <Button Content="Remove Friend"
+                                                Click="RemoveFriend_Click"
+                                                CommandParameter="{Binding FriendshipId}"
+                                                Style="{StaticResource AccentButtonStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Indicator -->
+        <ProgressRing Grid.Row="1"
+                      IsActive="{Binding IsLoading}"
+                      Width="50" 
+                      Height="50"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+
+        <!-- Error Message -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
     </Grid>
 </Page>

@@ -14,6 +14,9 @@ namespace SteamProfile.Models
         [Required]
         public int FriendId { get; set; }
 
+        public string FriendUsername { get; set; }
+        public string FriendProfilePicture { get; set; }
+
         public void Validate()
         {
             if (UserId <= 0)

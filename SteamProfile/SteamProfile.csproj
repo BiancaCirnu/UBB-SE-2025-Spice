@@ -13,6 +13,13 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Data\Procedures\NewFolder\**" />
+	  <EmbeddedResource Remove="Data\Procedures\NewFolder\**" />
+	  <None Remove="Data\Procedures\NewFolder\**" />
+	  <Page Remove="Data\Procedures\NewFolder\**" />
+	</ItemGroup>
   <ItemGroup>
     <None Remove="Views\AchievementsPage.xaml" />
     <None Remove="Views\CollectionsPage.xaml" />
@@ -114,7 +121,6 @@
     <Folder Include="Data\Procedures\Achievements\" />
     <Folder Include="Data\Procedures\Features\" />
     <Folder Include="Data\Procedures\Collections\" />
-    <Folder Include="Data\Procedures\NewFolder\" />
     <Folder Include="Data\Procedures\Users\" />
   </ItemGroup>
   <ItemGroup>
@@ -139,4 +145,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Data\Procedures\NewFolder\**" />
+  </ItemGroup>
 </Project>

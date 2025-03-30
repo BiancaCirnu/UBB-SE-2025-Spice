@@ -2,11 +2,11 @@
 using SteamProfile.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace SteamProfile.Services
 {
-    public class FriendsService : IFriendsService
+    public class FriendsService
     {
         private readonly FriendshipsRepository _friendshipsRepository;
 
@@ -15,83 +15,47 @@ namespace SteamProfile.Services
             _friendshipsRepository = friendshipsRepository ?? throw new ArgumentNullException(nameof(friendshipsRepository));
         }
 
-        public async Task<List<Friendship>> GetFriendsListForUser(string userId)
+        public List<Friendship> GetAllFriendships(int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (!int.TryParse(userId, out int parsedUserId))
-                throw new ArgumentException("Invalid user ID format.", nameof(userId));
-
-            return await Task.Run(() => _friendshipsRepository.GetFriendshipsForUser(parsedUserId));
+            try
+            {
+                return _friendshipsRepository.GetAllFriendships(userId);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error retrieving friendships for user.", ex);
+            }
         }
 
-        public async Task AddFriendToUser(string userId, string friendId)
+        public void RemoveFriend(int friendshipId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (string.IsNullOrEmpty(friendId))
-                throw new ArgumentException("Friend ID cannot be null or empty.", nameof(friendId));
-
-            if (!int.TryParse(userId, out int parsedUserId))
-                throw new ArgumentException("Invalid user ID format.", nameof(userId));
-
-            if (!int.TryParse(friendId, out int parsedFriendId))
-                throw new ArgumentException("Invalid friend ID format.", nameof(friendId));
-
-            await Task.Run(() => _friendshipsRepository.AddFriend(parsedUserId, parsedFriendId));
+            try
+            {
+                _friendshipsRepository.RemoveFriendship(friendshipId);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error removing friend.", ex);
+            }
         }
 
-        public async Task RemoveFriendFromUser(string userId, string friendId)
+        public int GetFriendshipCount(int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (string.IsNullOrEmpty(friendId))
-                throw new ArgumentException("Friend ID cannot be null or empty.", nameof(friendId));
-
-            if (!int.TryParse(userId, out int parsedUserId))
-                throw new ArgumentException("Invalid user ID format.", nameof(userId));
-
-            if (!int.TryParse(friendId, out int parsedFriendId))
-                throw new ArgumentException("Invalid friend ID format.", nameof(friendId));
-
-            // Get the friendship ID
-            var friendships = await Task.Run(() => _friendshipsRepository.GetFriendshipsForUser(parsedUserId));
-            var friendship = friendships.FirstOrDefault(f => f.FriendId == parsedFriendId);
-            
-            if (friendship == null)
-                throw new InvalidOperationException($"Friendship between user {userId} and friend {friendId} not found.");
-
-            await Task.Run(() => _friendshipsRepository.RemoveFriend(friendship.FriendshipId));
+            try
+            {
+                return _friendshipsRepository.GetFriendshipCount(userId);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error retrieving friendship count.", ex);
+            }
         }
 
-        public async Task<int> GetFriendshipCount(string userId)
+        public class ServiceException : Exception
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (!int.TryParse(userId, out int parsedUserId))
-                throw new ArgumentException("Invalid user ID format.", nameof(userId));
-
-            return await Task.Run(() => _friendshipsRepository.GetFriendshipCount(parsedUserId));
-        }
-
-        // IFriendsService implementation
-        public async Task<List<Friendship>> GetFriendsList(string userId)
-        {
-            return await GetFriendsListForUser(userId);
-        }
-
-        public async Task AddFriend(string userId, string friendId)
-        {
-            await AddFriendToUser(userId, friendId);
-        }
-
-        public async Task RemoveFriend(string userId, string friendId)
-        {
-            await RemoveFriendFromUser(userId, friendId);
+            public ServiceException(string message) : base(message) { }
+            public ServiceException(string message, Exception innerException)
+                : base(message, innerException) { }
         }
     }
 }

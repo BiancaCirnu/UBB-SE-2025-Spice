@@ -6,7 +6,7 @@ BEGIN
         collection_id,
         user_id,
         name,
-        picture as cover_picture,
+        cover_picture,
         is_public,
         created_at
     FROM Collections

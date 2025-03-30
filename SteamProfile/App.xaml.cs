@@ -29,6 +29,7 @@ namespace SteamProfile
         public static readonly WalletService WalletService;
         public static readonly AuthenticationService AuthenticationService;
         public static readonly UserService UserService;
+        public static readonly FriendsService FriendsService;
 
         static App()
         {
@@ -39,6 +40,7 @@ namespace SteamProfile
             var usersRepository = new UsersRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
+            var friendshipsRepository = new FriendshipsRepository(dataLink);
 
             AchievementsService = new AchievementsService(achievementsRepository);
             FeaturesService = new FeaturesService(featuresRepository);
@@ -46,6 +48,7 @@ namespace SteamProfile
             WalletService = new WalletService(walletRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
             UserService = new UserService(usersRepository);
+            FriendsService = new FriendsService(friendshipsRepository);
         }
 
         public App()

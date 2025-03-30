@@ -198,7 +198,7 @@ VALUES
 (2, 'Nintendogs', 'Pet care simulation', 'nintendogs.jpg'),
 (3, 'Pet Hotel', 'Manage a hotel for pets', 'pethotel.png');
 
--- X-MAS (game_id 11)
+-- X-Mas (game_id 11)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
 (3, 'Christmas Wonderland', 'Festive hidden object game', 'xmas.jpg');
@@ -212,10 +212,10 @@ INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
 VALUES
 (1, 'All Owned Games', 'allgames.jpg', 1, '2022-02-21'),
 (1, 'Shooters', 'shooters.png', 1, '2025-03-21'),
-(2, 'Sports', 'sports.png', 1, '2023-03-21'),
-(2, 'Chill Games', 'chill.png', 1, '2024-03-21'),
-(3, 'Pets', 'pets.png', 0, '2025-01-21'),
-(3, 'X-Mas', 'xmas.png', 0, '2025-02-21');
+(1, 'Sports', 'sports.png', 1, '2023-03-21'),
+(1, 'Chill Games', 'chill.png', 1, '2024-03-21'),
+(1, 'Pets', 'pets.png', 0, '2025-01-21'),
+(1, 'X-Mas', 'xmas.png', 0, '2025-02-21');
 
 select * from Collections;
 
@@ -246,46 +246,6 @@ VALUES (5, 8), (5, 9), (5, 10);
 INSERT INTO OwnedGames_Collection (collection_id, game_id)
 VALUES (6, 11);
 
--- Add stored procedures
-:r Data\Procedures\Collections\GetPublicCollectionsForUser.sql
-GO
-
-:r Data\Procedures\Collections\GetPrivateCollectionsForUser.sql
-GO
-
-:r Data\Procedures\Collections\GetAllCollectionsForUser.sql
-GO
-
-:r Data\Procedures\Collections\MakeCollectionPrivate.sql
-GO
-
-:r Data\Procedures\Collections\MakeCollectionPublic.sql
-GO
-
-:r Data\Procedures\Collections\DeleteCollection.sql
-GO
-
-:r Data\Procedures\Collections\CreateCollection.sql
-GO
-
-:r Data\Procedures\Collections\UpdateCollection.sql
-GO
-
-:r Data\Procedures\OwnedGames\GetAllOwnedGames.sql
-GO
-
-:r Data\Procedures\OwnedGames\GetOwnedGameById.sql
-GO
-
-:r Data\Procedures\OwnedGames\AddGameToCollection.sql
-GO
-
-:r Data\Procedures\OwnedGames\RemoveGameFromCollection.sql
-GO
-
-:r Data\Procedures\OwnedGames\GetGamesInCollection.sql
-GO
-
 -- Create Friendships table
 CREATE TABLE Friendships (
     friendship_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -306,8 +266,8 @@ INSERT INTO Friendships (user_id, friend_id)
 VALUES 
     (1, 2),
     (1, 3),
-    (2, 3),
-    (2, 4);
+    (1, 4),
+    (1, 5);
 
 GO
 
@@ -325,18 +285,5 @@ BEGIN
     JOIN Users u2 ON f.friend_id = u2.user_id
     ORDER BY f.user_id, f.friend_id;
 END
-GO
-
--- Add the stored procedures
-:r Data\Procedures\Friendships\GetFriendsForUser.sql
-GO
-
-:r Data\Procedures\Friendships\GetFriendshipCountForUser.sql
-GO
-
-:r Data\Procedures\Friendships\AddFriend.sql
-GO
-
-:r Data\Procedures\Friendships\RemoveFriend.sql
 GO
 

@@ -26,16 +26,16 @@ namespace SteamProfile.Models
         [Required]
         public DateOnly CreatedAt { get; set; }
 
-        public List<OwnedGame> OwnedGames { get; set; } = new List<OwnedGame>();
+        public List<OwnedGame> Games { get; set; } = new List<OwnedGame>();
 
         public void AddGame(OwnedGame game)
         {
             if (game == null)
                 throw new ArgumentNullException(nameof(game));
 
-            if (!OwnedGames.Any(g => g.GameId == game.GameId))
+            if (!Games.Any(g => g.GameId == game.GameId))
             {
-                OwnedGames.Add(game);
+                Games.Add(game);
             }
         }
 
@@ -44,7 +44,7 @@ namespace SteamProfile.Models
             if (game == null)
                 throw new ArgumentNullException(nameof(game));
 
-            OwnedGames.RemoveAll(g => g.GameId == game.GameId);
+            Games.RemoveAll(g => g.GameId == game.GameId);
         }
 
         public void UpdateFrom(Collection other)

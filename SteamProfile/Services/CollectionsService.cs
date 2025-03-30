@@ -2,92 +2,195 @@
 using SteamProfile.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Linq;
 
 namespace SteamProfile.Services
 {
     public class CollectionsService
     {
         private readonly CollectionsRepository _collectionsRepository;
+        private readonly OwnedGamesService _ownedGamesService;
+
+        public CollectionsService(CollectionsRepository collectionsRepository, OwnedGamesService ownedGamesService)
+        {
+            _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
+            _ownedGamesService = ownedGamesService ?? throw new ArgumentNullException(nameof(ownedGamesService));
+        }
 
         public CollectionsService(CollectionsRepository collectionsRepository)
         {
-            _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
+            _collectionsRepository = collectionsRepository;
         }
 
-        public async Task<List<Collection>> GetPublicCollectionsForUser(string userId)
+        public List<Collection> GetAllCollections(int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            return await Task.Run(() => _collectionsRepository.FetchPublicCollectionsForUser(userId));
+            try
+            {
+                Debug.WriteLine($"Service: Getting all collections for user {userId}");
+                var collections = _collectionsRepository.GetAllCollections(userId);
+                Debug.WriteLine($"Service: Retrieved {collections?.Count ?? 0} collections from repository");
+                return collections;
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Service: Repository error getting collections: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("Failed to retrieve collections from database", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Service: Unexpected error getting collections: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("An unexpected error occurred while retrieving collections", ex);
+            }
         }
 
-        public async Task<List<Collection>> GetPrivateCollectionsForUser(string userId)
+        public Collection GetCollectionById(int collectionId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
+            try
+            {
+                Debug.WriteLine($"Getting collection {collectionId}");
+                var collection = _collectionsRepository.GetCollectionById(collectionId);
+                if (collection == null)
+                {
+                    Debug.WriteLine($"No collection found with ID {collectionId}");
+                    return null;
+                }
 
-            return await Task.Run(() => _collectionsRepository.FetchPrivateCollectionsForUser(userId));
+                // Load games for the collection
+                collection.Games = _collectionsRepository.GetGamesInCollection(collectionId);
+                Debug.WriteLine($"Successfully retrieved collection {collectionId} with {collection.Games.Count} games");
+                return collection;
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Repository error: {ex.Message}");
+                throw new ServiceException("Failed to retrieve collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw new ServiceException("An unexpected error occurred while retrieving collection.", ex);
+            }
         }
 
-        public async Task<List<Collection>> GetAllCollectionsForUser(string userId)
+        public List<OwnedGame> GetGamesInCollection(int collectionId, int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            return await Task.Run(() => _collectionsRepository.FetchAllCollectionsForUser(userId));
+            try
+            {
+                Debug.WriteLine($"Getting games in collection {collectionId} for user {userId}");
+                var games = _collectionsRepository.GetGamesInCollection(collectionId);
+                
+                // Verify that each game belongs to the user
+                var userGames = _ownedGamesService.GetAllOwnedGames(userId);
+                var validGames = games.Where(g => userGames.Any(ug => ug.GameId == g.GameId)).ToList();
+                
+                Debug.WriteLine($"Successfully retrieved {validGames.Count} valid games from collection {collectionId}");
+                return validGames;
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Repository error: {ex.Message}");
+                throw new ServiceException("Failed to retrieve games in collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw new ServiceException("An unexpected error occurred while retrieving games in collection.", ex);
+            }
         }
 
-        public async Task SaveCollection(string userId, Collection collection)
+        public void AddGameToCollection(int collectionId, int gameId, int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
+            try
+            {
+                Debug.WriteLine($"Adding game {gameId} to collection {collectionId} for user {userId}");
+                
+                // Verify that the game belongs to the user
+                var game = _ownedGamesService.GetOwnedGameById(gameId, userId);
+                if (game == null)
+                {
+                    throw new ServiceException($"Game {gameId} does not belong to user {userId}");
+                }
 
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
-
-            // Validate the collection
-            collection.Validate();
-
-            // Ensure the collection belongs to the user
-            if (collection.CollectionId != 0 && collection.UserId.ToString() != userId)
-                throw new InvalidOperationException("Cannot save a collection that belongs to another user.");
-
-            await Task.Run(() => _collectionsRepository.SaveCollection(userId, collection));
+                _collectionsRepository.AddGameToCollection(collectionId, gameId);
+                Debug.WriteLine($"Successfully added game {gameId} to collection {collectionId}");
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Repository error: {ex.Message}");
+                throw new ServiceException("Failed to add game to collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw new ServiceException("An unexpected error occurred while adding game to collection.", ex);
+            }
         }
 
-        public async Task RemoveCollectionForUser(string userId, string collectionId)
+        public void RemoveGameFromCollection(int collectionId, int gameId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (string.IsNullOrEmpty(collectionId))
-                throw new ArgumentException("Collection ID cannot be null or empty.", nameof(collectionId));
-
-            await Task.Run(() => _collectionsRepository.RemoveCollectionForUser(userId, collectionId));
+            try
+            {
+                Debug.WriteLine($"Removing game {gameId} from collection {collectionId}");
+                _collectionsRepository.RemoveGameFromCollection(collectionId, gameId);
+                Debug.WriteLine($"Successfully removed game {gameId} from collection {collectionId}");
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Repository error: {ex.Message}");
+                throw new ServiceException("Failed to remove game from collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected error: {ex.Message}");
+                throw new ServiceException("An unexpected error occurred while removing game from collection.", ex);
+            }
         }
 
-        public async Task MakeCollectionPrivateForUser(string userId, string collectionId)
+        public void DeleteCollection(int collectionId, int userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
-
-            if (string.IsNullOrEmpty(collectionId))
-                throw new ArgumentException("Collection ID cannot be null or empty.", nameof(collectionId));
-
-            await Task.Run(() => _collectionsRepository.MakeCollectionPrivateForUser(userId, collectionId));
+            try
+            {
+                Debug.WriteLine($"Service: Deleting collection {collectionId} for user {userId}");
+                _collectionsRepository.DeleteCollection(collectionId, userId);
+                Debug.WriteLine("Service: Collection deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Service: Error deleting collection: {ex.Message}");
+                throw new Exception("Failed to delete collection", ex);
+            }
         }
 
-        public async Task MakeCollectionPublicForUser(string userId, string collectionId)
+        public void CreateCollection(int userId, string name, string coverPicture, bool isPublic, DateOnly createdAt)
         {
-            if (string.IsNullOrEmpty(userId))
-                throw new ArgumentException("User ID cannot be null or empty.", nameof(userId));
+            try
+            {
+                Debug.WriteLine($"Service: Creating collection for user {userId}");
+                _collectionsRepository.CreateCollection(userId, name, coverPicture, isPublic, createdAt);
+                Debug.WriteLine("Service: Collection created successfully");
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Service: Repository error creating collection: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("Failed to create collection in database", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Service: Unexpected error creating collection: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("An unexpected error occurred while creating collection", ex);
+            }
+        }
 
-            if (string.IsNullOrEmpty(collectionId))
-                throw new ArgumentException("Collection ID cannot be null or empty.", nameof(collectionId));
-
-            await Task.Run(() => _collectionsRepository.MakeCollectionPublicForUser(userId, collectionId));
+        public class ServiceException : Exception
+        {
+            public ServiceException(string message) : base(message) { }
+            public ServiceException(string message, Exception innerException)
+                : base(message, innerException) { }
         }
     }
 }
