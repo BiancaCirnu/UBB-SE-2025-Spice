@@ -8,34 +8,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
-    Title="SteamProfile - Users">
+    Title="SteamProfile">
 
-    <Grid Padding="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <TextBlock 
-            Text="Users List" 
-            Style="{StaticResource TitleTextBlockStyle}"
-            Margin="0,0,0,20"/>
+        <!-- Navigation Menu -->
+        <NavigationView
+            x:Name="NavView"
+            Grid.Column="0"
+            PaneDisplayMode="Left"
+            IsSettingsVisible="False"
+            IsBackButtonVisible="Collapsed"
+            SelectionChanged="NavView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="People" Content="Users" Tag="users"/>
+                <NavigationViewItem Icon="Contact" Content="Profile" Tag="profile"/>
+                <NavigationViewItem Icon="Favorite" Content="Achievements" Tag="achievements"/>
+                <NavigationViewItem Icon="Library" Content="Collections" Tag="collections"/>
+                <NavigationViewItem Icon="Setting" Content="Features" Tag="features"/>
+                <NavigationViewItem Icon="Contact2" Content="Friends" Tag="friends"/>
+                <NavigationViewItem Icon="Setting" Content="Configurations" Tag="configurations"/>
+            </NavigationView.MenuItems>
+        </NavigationView>
 
-        <controls:DataGrid 
-            x:Name="UsersGrid"
-            Grid.Row="1"
-            AutoGenerateColumns="False"
-            IsReadOnly="True"
-            GridLinesVisibility="Horizontal"
-            HorizontalGridLinesBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-            AlternatingRowBackground="{ThemeResource SystemControlBackgroundListLowBrush}">
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="*"/>
-                <controls:DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                <controls:DataGridTextColumn Header="Developer" Binding="{Binding IsDeveloper}" Width="Auto"/>
-                <controls:DataGridTextColumn Header="Created" Binding="{Binding CreatedAt}" Width="Auto"/>
-                <controls:DataGridTextColumn Header="Last Login" Binding="{Binding LastLogin}" Width="Auto"/>
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
+        <!-- Content Frame -->
+        <Frame
+            x:Name="ContentFrame"
+            Grid.Column="1"/>
     </Grid>
 </Window>

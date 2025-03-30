@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using SteamProfile.Models;
+using SteamProfile.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -27,20 +28,32 @@ namespace SteamProfile
         public MainWindow()
         {
             this.InitializeComponent();
-            LoadUsers();
+
+            // Set the initial page to UsersPage
+            ContentFrame.Navigate(typeof(UsersPage));
+
+            // Set the initial selected item in the navigation menu
+            NavView.SelectedItem = NavView.MenuItems[0];
         }
 
-        private void LoadUsers()
+        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            try
+            if (args.SelectedItem is NavigationViewItem selectedItem)
             {
-                var users = App.UserService.GetAllUsers();
-                UsersGrid.ItemsSource = users;
-            }
-            catch (Exception ex)
-            {
-                // In a production app, you would want to show this error in a more user-friendly way
-                System.Diagnostics.Debug.WriteLine($"Error loading users: {ex.Message}");
+                Type pageType = selectedItem.Tag?.ToString() switch
+                {
+                    "users" => typeof(UsersPage),
+                    "profile" => typeof(ProfilePage),
+                    "achievements" => typeof(AchievementsPage),
+                    "collections" => typeof(CollectionsPage),
+                    "features" => typeof(FeaturesPage),
+                    "wallet" => typeof(WalletPage),
+                    "friends" => typeof(FriendsPage),
+                    "configurations" => typeof(ConfigurationsPage),
+                    _ => typeof(UsersPage)
+                };
+
+                ContentFrame.Navigate(pageType);
             }
         }
     }

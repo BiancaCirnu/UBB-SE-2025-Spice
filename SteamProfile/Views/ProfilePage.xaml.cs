@@ -13,17 +13,58 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using System.Diagnostics;
 
 namespace SteamProfile.Views
 {
     public sealed partial class ProfilePage : Page
     {
-        private readonly ProfileViewModel _viewModel;
+        public ProfileViewModel ViewModel { get; }
+
         public ProfilePage()
         {
-            this.InitializeComponent();
-            _viewModel = new ProfileViewModel(App.UserService);
-            this.DataContext = _viewModel;
+            try
+            {
+                InitializeComponent();
+
+                // Initialize the ViewModel with the UI thread's dispatcher
+                ProfileViewModel.Initialize(App.UserService, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
+                ViewModel = ProfileViewModel.Instance;
+
+                // Load the profile data
+                _ = ViewModel.LoadProfileAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing ProfilePage: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+
+                // Show error dialog to user
+                ShowErrorDialog("Failed to initialize profile. Please try again later.");
+            }
+        }
+
+        private async void ShowErrorDialog(string message)
+        {
+            try
+            {
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await errorDialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error showing dialog: {ex.Message}");
+            }
         }
     }
 }
