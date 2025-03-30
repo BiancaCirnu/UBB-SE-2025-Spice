@@ -23,6 +23,7 @@ namespace SteamProfile.Views
     public sealed partial class ProfilePage : Page
     {
         public ProfileViewModel ViewModel { get; }
+        private bool _isOwnProfile;
 
         public ProfilePage()
         {
@@ -37,8 +38,11 @@ namespace SteamProfile.Views
                 ProfileViewModel.Initialize(App.UserService, friendsService, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
                 ViewModel = ProfileViewModel.Instance;
 
+                // By default, assume we're viewing someone else's profile
+                _isOwnProfile = true;
+
                 // Load the profile data
-                _ = ViewModel.LoadProfileAsync();
+                _ = ViewModel.LoadProfileAsync(_isOwnProfile);
             }
             catch (Exception ex)
             {
@@ -50,6 +54,19 @@ namespace SteamProfile.Views
 
                 // Show error dialog to user
                 ShowErrorDialog("Failed to initialize profile. Please try again later.");
+            }
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            // If we receive a parameter, it indicates whose profile we're viewing
+            if (e.Parameter != null)
+            {
+                // If the parameter is true, it means we're viewing our own profile
+                _isOwnProfile = (bool)e.Parameter;
+                _ = ViewModel.LoadProfileAsync(_isOwnProfile);
             }
         }
 

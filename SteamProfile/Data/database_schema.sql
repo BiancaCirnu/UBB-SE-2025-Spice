@@ -335,3 +335,71 @@ BEGIN
 END
 GO
 
+-- Insert Frames
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Golden Frame', 1000, 'A luxurious golden frame for your profile picture', 'frame', 'golden_frame.png'),
+('Rainbow Frame', 800, 'A colorful rainbow frame that changes colors', 'frame', 'rainbow_frame.png'),
+('Neon Frame', 500, 'A bright neon frame that glows', 'frame', 'neon_frame.png'),
+('Ice Frame', 300, 'A cool ice-themed frame', 'frame', 'ice_frame.png');
+
+-- Insert Emojis
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Happy Sun', 100, 'A bright and cheerful sun emoji', 'emoji', 'happy_sun.png'),
+('Cool Cat', 150, 'A cat wearing sunglasses', 'emoji', 'cool_cat.png'),
+('Gaming Pro', 200, 'A gaming-themed emoji', 'emoji', 'gaming_pro.png'),
+('Party Time', 120, 'A party celebration emoji', 'emoji', 'party.png');
+
+-- Insert Pets
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Dragon Pet', 2000, 'A cute baby dragon that follows your cursor', 'pet', 'dragon_pet.png'),
+('Pixel Cat', 1500, 'A retro-style pixel cat companion', 'pet', 'pixel_cat.png'),
+('Robot Buddy', 1800, 'A helpful robot assistant', 'pet', 'robot_buddy.png'),
+('Magic Phoenix', 2500, 'A majestic phoenix that leaves fire trails', 'pet', 'phoenix.png');
+
+-- Insert Hats
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Crown', 1000, 'A royal crown for your profile picture', 'hat', 'crown.png'),
+('Wizard Hat', 800, 'A magical wizard hat with stars', 'hat', 'wizard_hat.png'),
+('Pirate Hat', 600, 'An adventurous pirate hat', 'hat', 'pirate_hat.png'),
+('Top Hat', 400, 'A classy top hat', 'hat', 'top_hat.png');
+
+-- Associate features with users (assuming user IDs 1-3 exist)
+-- User 1's equipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(1, 1, 1),  -- Golden Frame equipped
+(1, 5, 1),  -- Happy Sun emoji equipped
+(1, 9, 1),  -- Dragon Pet equipped
+(1, 13, 1); -- Crown equipped
+
+-- User 1's unequipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(1, 2, 0),  -- Rainbow Frame owned but not equipped
+(1, 6, 0),  -- Cool Cat emoji owned but not equipped
+(1, 10, 0); -- Pixel Cat owned but not equipped
+
+-- User 2's equipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(2, 3, 1),  -- Neon Frame equipped
+(2, 7, 1),  -- Gaming Pro emoji equipped
+(2, 11, 1), -- Robot Buddy equipped
+(2, 14, 1); -- Wizard Hat equipped
+
+-- User 2's unequipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(2, 4, 0),  -- Ice Frame owned but not equipped
+(2, 8, 0),  -- Party Time emoji owned but not equipped
+(2, 12, 0); -- Magic Phoenix owned but not equipped
+
+-- User 3's equipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(3, 2, 1),  -- Rainbow Frame equipped
+(3, 6, 1),  -- Cool Cat emoji equipped
+(3, 10, 1), -- Pixel Cat equipped
+(3, 15, 1); -- Pirate Hat equipped
+
+-- User 3's unequipped items
+INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
+(3, 1, 0),  -- Golden Frame owned but not equipped
+(3, 5, 0),  -- Happy Sun emoji owned but not equipped
+(3, 9, 0);  -- Dragon Pet owned but not equipped
+

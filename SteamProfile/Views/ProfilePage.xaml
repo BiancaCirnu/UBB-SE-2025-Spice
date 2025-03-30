@@ -33,8 +33,91 @@
                 <RowDefinition Height="*"/> <!-- Achievements -->
             </Grid.RowDefinitions>
 
-            <!-- Profile Info -->
-            <controls:ProfileInfoControl Grid.Row="0" ViewModel="{x:Bind ViewModel, Mode=OneWay}"/>
+            <!-- Profile Info Section -->
+            <Grid Grid.Row="0">
+                <!-- Profile Picture and Basic Info -->
+                <Grid Height="300" Background="#333333">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Profile Picture Row -->
+                        <RowDefinition Height="Auto"/> <!-- Username and Friends Row -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Profile Picture Row -->
+                    <StackPanel Grid.Row="0" 
+                              Orientation="Horizontal" 
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Margin="0,20,0,10">
+                        <!-- Pet Feature -->
+                        <Grid Width="100" Height="100" Margin="0,0,20,0"
+                              VerticalAlignment="Center">
+                            <Image Source="{x:Bind ViewModel.EquippedPet, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
+                                   Width="100" Height="100"
+                                   Stretch="Uniform"/>
+                        </Grid>
+
+                        <!-- Profile Picture with Frame and Hat -->
+                        <Grid Width="150" Height="150">
+                            <!-- Frame would go here -->
+                            <PersonPicture Width="150" Height="150"/>
+                            <!-- Hat would be positioned at the top of the PersonPicture -->
+                            <Image Source="{x:Bind ViewModel.EquippedHat, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
+                                   Width="60" Height="60"
+                                   VerticalAlignment="Top"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,-20,0,0"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Username and Friends Row -->
+                    <StackPanel Grid.Row="1" 
+                              HorizontalAlignment="Center"
+                              Spacing="10"
+                              Margin="0,0,0,20">
+                        <!-- Username with Emoji -->
+                        <StackPanel Orientation="Horizontal" 
+                                  HorizontalAlignment="Center"
+                                  Spacing="10">
+                            <TextBlock Text="{x:Bind ViewModel.Username, Mode=OneWay}"
+                                     Foreground="White"
+                                     FontSize="24"/>
+                            <Image Source="{x:Bind ViewModel.EquippedEmoji, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
+                                   Width="30" Height="30"/>
+                        </StackPanel>
+
+                        <!-- Friends Count -->
+                        <Button Style="{StaticResource TransparentButton}"
+                                Padding="0"
+                                Command="{x:Bind ViewModel.ShowFriendsCommand, Mode=OneWay}"
+                                HorizontalAlignment="Center">
+                            <Border Background="#E6D5B8" 
+                                    Padding="15,5" 
+                                    CornerRadius="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="No. friends: "
+                                             FontSize="14"/>
+                                    <TextBlock Text="{x:Bind ViewModel.FriendCount, Mode=OneWay}"
+                                             FontSize="14"/>
+                                </StackPanel>
+                            </Border>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Bio Section -->
+                <Grid Height="100" Background="#404040" Margin="0,300,0,0">
+                    <StackPanel Margin="20,10">
+                        <TextBlock Text="Bio"
+                                 Foreground="White"
+                                 FontSize="20"/>
+                        <TextBlock Text="{x:Bind ViewModel.Bio, Mode=OneWay}"
+                                 Foreground="White"
+                                 FontSize="14"
+                                 TextWrapping="Wrap"
+                                 Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
 
             <!-- Achievement Icons -->
             <Grid Grid.Row="1" Margin="20">

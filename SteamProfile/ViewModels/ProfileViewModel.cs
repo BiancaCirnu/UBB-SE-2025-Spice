@@ -50,7 +50,7 @@ namespace SteamProfile.ViewModels
         private string _errorMessage = string.Empty;
 
         [ObservableProperty]
-        private bool _isOwner = false;
+        private bool _isOwner = true;
 
         [ObservableProperty]
         private int _userId;
@@ -78,6 +78,18 @@ namespace SteamProfile.ViewModels
 
         [ObservableProperty]
         private bool _hasSpecialAchievement;
+
+        [ObservableProperty]
+        private string _equippedFrame = string.Empty;
+
+        [ObservableProperty]
+        private string _equippedHat = string.Empty;
+
+        [ObservableProperty]
+        private string _equippedPet = "ms-appx:///Assets/100_achievement.jpeg"; // Using the dog image for now
+
+        [ObservableProperty]
+        private string _equippedEmoji = string.Empty;
 
         public static ProfileViewModel Instance
         {
@@ -107,7 +119,7 @@ namespace SteamProfile.ViewModels
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
         }
 
-        public async Task LoadProfileAsync()
+        public async Task LoadProfileAsync(bool isOwner = true)
         {
             try
             {
@@ -126,8 +138,8 @@ namespace SteamProfile.ViewModels
                         Bio = currentUser.Description ?? string.Empty;
                         ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
 
-                        // Set IsOwner based on whether the viewed profile is the current user's profile
-                        IsOwner = true; // TODO: Compare with logged-in user ID when implementing profile viewing
+                        // Set IsOwner based on the parameter
+                        IsOwner = isOwner;
 
                         // Load friend count
                         _ = LoadFriendCountAsync();
