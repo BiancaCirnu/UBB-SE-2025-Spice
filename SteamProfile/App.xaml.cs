@@ -25,6 +25,7 @@ namespace SteamProfile
 {
     public partial class App : Application
     {
+        private static readonly string connectionString;
         public static readonly AchievementsService AchievementsService;
         public static readonly FeaturesService FeaturesService;
         public static readonly CollectionsService CollectionsService;
@@ -32,6 +33,7 @@ namespace SteamProfile
         public static readonly UserService UserService;
         public static IPasswordResetService PasswordResetService { get; private set; }
         public static readonly SessionService SessionService;
+        public static UserProfilesRepository UserProfileRepository { get; private set; }
 
         static App()
         {
@@ -44,6 +46,8 @@ namespace SteamProfile
             var walletRepository = new WalletRepository(dataLink);
             var sessionRepository = new SessionRepository(dataLink);
             var passwordResetRepo = new PasswordResetRepository(dataLink);
+            UserProfileRepository = new UserProfilesRepository(dataLink);
+
 
             // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);

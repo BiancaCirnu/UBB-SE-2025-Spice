@@ -15,7 +15,7 @@
             <Setter Property="Padding" Value="8"/>
         </Style>
     </UserControl.Resources>
-
+    
     <StackPanel>
         <!-- Profile Picture and Basic Info -->
         <Grid Height="300" Background="#333333">

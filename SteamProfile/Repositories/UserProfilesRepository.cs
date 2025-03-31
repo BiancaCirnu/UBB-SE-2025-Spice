@@ -1,9 +1,10 @@
 ﻿using SteamProfile.Data;
-
 using SteamProfile.Models;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
+using Dapper;
 
 namespace SteamProfile.Repositories
 {
@@ -11,12 +12,12 @@ namespace SteamProfile.Repositories
     {
         private readonly DataLink _dataLink;
 
-        public UserProfilesRepository(DataLink datalink)
+        public UserProfilesRepository(DataLink dataLink)
         {
-            _dataLink = datalink ?? throw new ArgumentNullException(nameof(datalink));
+            _dataLink = dataLink ?? throw new ArgumentNullException(nameof(dataLink));
         }
 
-        public UserProfile GetProfileByUserId(int userId)
+        public UserProfile? GetUserProfileByUserId(int userId)
         {
             try
             {
@@ -28,13 +29,13 @@ namespace SteamProfile.Repositories
                 var dataTable = _dataLink.ExecuteReader("GetUserProfileByUserId", parameters);
                 return dataTable.Rows.Count > 0 ? MapDataRowToUserProfile(dataTable.Rows[0]) : null;
             }
-            catch(DatabaseOperationException ex)
+            catch (DatabaseOperationException ex)
             {
-                throw new RepositoryException($"Failed to retrieve profile for user {userId}.", ex);
+                throw new RepositoryException($"Failed to retrieve user profile with ID {userId} from the database.", ex);
             }
         }
 
-        public UserProfile UpdateProfile(UserProfile profile)
+        public UserProfile? UpdateProfile(UserProfile profile)
         {
             try
             {
@@ -59,7 +60,7 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public UserProfile CreateProfile(int userId)
+        public UserProfile? CreateProfile(int userId)
         {
             try
             {

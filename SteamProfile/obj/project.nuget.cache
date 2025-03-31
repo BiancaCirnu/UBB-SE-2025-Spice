@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "XzhSLqWKwD8=",
+  "dgSpecHash": "W6Be33mZOaQ=",
   "success": true,
   "projectFilePath": "D:\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
   "expectedPackageFiles": [
@@ -19,6 +19,7 @@
     "C:\\Users\\alexi\\.nuget\\packages\\communitytoolkit.winui.ui.controls.markdown\\7.1.2\\communitytoolkit.winui.ui.controls.markdown.7.1.2.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\communitytoolkit.winui.ui.controls.media\\7.1.2\\communitytoolkit.winui.ui.controls.media.7.1.2.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\communitytoolkit.winui.ui.controls.primitives\\7.1.2\\communitytoolkit.winui.ui.controls.primitives.7.1.2.nupkg.sha512",
+    "C:\\Users\\alexi\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\microsoft.extensions.configuration.binder\\8.0.0\\microsoft.extensions.configuration.binder.8.0.0.nupkg.sha512",

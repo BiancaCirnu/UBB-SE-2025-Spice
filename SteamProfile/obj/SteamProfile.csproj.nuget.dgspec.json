@@ -66,6 +66,10 @@
               "target": "Package",
               "version": "[7.1.2, )"
             },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.66, )"
+            },
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
               "version": "[8.0.0, )"

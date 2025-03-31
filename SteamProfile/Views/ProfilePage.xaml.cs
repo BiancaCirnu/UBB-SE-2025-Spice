@@ -17,6 +17,7 @@ using System.Diagnostics;
 using SteamProfile.Data;
 using SteamProfile.Repositories;
 using SteamProfile.Services;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,25 +31,41 @@ namespace SteamProfile.Views
     {
         public ProfileViewModel ViewModel { get; }
         private bool _isOwnProfile;
+        private int _userId;
 
         public ProfilePage()
         {
             try
             {
                 InitializeComponent();
+                Debug.WriteLine("ProfilePage initialized.");
 
                 // Initialize the ViewModel with the UI thread's dispatcher
                 var dataLink = DataLink.Instance;
+                Debug.WriteLine("DataLink instance obtained.");
+
                 var friendshipsRepository = new FriendshipsRepository(dataLink);
                 var friendsService = new FriendsService(friendshipsRepository);
-                ProfileViewModel.Initialize(App.UserService, friendsService, Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread());
+                Debug.WriteLine("FriendshipsRepository and FriendsService initialized.");
+
+                // Add the UserProfileRepository parameter
+                ProfileViewModel.Initialize(
+                    App.UserService, 
+                    friendsService, 
+                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
+                    App.UserProfileRepository
+                );
+                Debug.WriteLine("ProfileViewModel initialized with services.");
+
                 ViewModel = ProfileViewModel.Instance;
 
                 // By default, assume we're viewing someone else's profile
-                _isOwnProfile = true;
+                //_isOwnProfile = true;
+                Debug.WriteLine("Assuming we're viewing someone else's profile.");
 
                 // Load the profile data
-                _ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                //_ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                Debug.WriteLine("Profile data loading initiated.");
             }
             catch (Exception ex)
             {
@@ -66,13 +83,15 @@ namespace SteamProfile.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            Debug.WriteLine("Navigated to ProfilePage.");
 
             // If we receive a parameter, it indicates whose profile we're viewing
             if (e.Parameter != null)
             {
                 // If the parameter is true, it means we're viewing our own profile
-                _isOwnProfile = (bool)e.Parameter;
-                _ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                _userId = (int)e.Parameter;
+                Debug.WriteLine($"Navigating to profile. Is own profile: {_isOwnProfile}");
+                _ = ViewModel.LoadProfileAsync(_userId);
             }
         }
 
@@ -89,6 +108,7 @@ namespace SteamProfile.Views
                 };
 
                 await errorDialog.ShowAsync();
+                Debug.WriteLine("Error dialog shown.");
             }
             catch (Exception ex)
             {

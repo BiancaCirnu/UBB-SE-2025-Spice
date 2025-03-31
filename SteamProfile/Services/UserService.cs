@@ -1,4 +1,4 @@
-﻿using SteamProfile.Models;
+using SteamProfile.Models;
 using SteamProfile.Repositories;
 using SteamProfile.Exceptions;
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BCrypt.Net;
-using System.Diagnostics;
 using SteamProfile.Utils;
 
 namespace SteamProfile.Services
@@ -24,62 +23,14 @@ namespace SteamProfile.Services
 
         public List<User> GetAllUsers()
         {
-            try
-            {
-                Debug.WriteLine("Getting all users");
-                var users = _usersRepository.GetAllUsers();
-                Debug.WriteLine($"Successfully retrieved {users.Count} users");
-                return users;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in GetAllUsers: {ex.Message}");
-                throw;
-            }
+            return _usersRepository.GetAllUsers();
         }
 
         public User GetUserById(int userId)
         {
-            try
-            {
-                Debug.WriteLine($"Getting user by ID: {userId}");
-                var user = _usersRepository.GetUserById(userId);
-                if (user != null)
-                {
-                    Debug.WriteLine($"Found user: {user.Username}");
-                }
-                else
-                {
-                    Debug.WriteLine($"No user found with ID: {userId}");
-                }
-                return user;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in GetUserById: {ex.Message}");
-                throw;
-            }
+            return _usersRepository.GetUserById(userId);
         }
 
-        public User CreateUser(User user)
-        {
-            ValidateUserAndEmail(user.Email, user.Username);
-
-            // Hash the password before passing it to the repository
-            user.Password = PasswordHasher.HashPassword(user.Password);
-            return _usersRepository.CreateUser(user);
-        }
-
-        public User UpdateUser(User user)
-        {
-            return _usersRepository.UpdateUser(user);
-        }
-
-        public void DeleteUser(int userId)
-        {
-            _usersRepository.DeleteUser(userId);
-        }
-   
         public User GetUserByEmail(string email)
         {
             return _usersRepository.GetUserByEmail(email);
@@ -104,6 +55,24 @@ namespace SteamProfile.Services
             }
         }
 
+        public User CreateUser(User user)
+        {
+            ValidateUserAndEmail(user.Email, user.Username);
+
+            // Hash the password before passing it to the repository
+            user.Password = PasswordHasher.HashPassword(user.Password);
+            return _usersRepository.CreateUser(user);
+        }
+
+        public User UpdateUser(User user)
+        {
+            return _usersRepository.UpdateUser(user);
+        }
+
+        public void DeleteUser(int userId)
+        {
+            _usersRepository.DeleteUser(userId);
+        }
 
         public User? Login(string emailOrUsername, string password)
         {
@@ -111,7 +80,7 @@ namespace SteamProfile.Services
             if (user != null)
             {
                 if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
-                { 
+                {
                     _sessionService.CreateNewSession(user);
 
                     // update last login time for user

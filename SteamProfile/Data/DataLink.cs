@@ -36,7 +36,7 @@ namespace SteamProfile.Data
                 }
 
                 connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
-                
+
                 // Test the connection immediately
                 using var testConnection = new SqlConnection(connectionString);
                 testConnection.Open();
@@ -218,14 +218,14 @@ namespace SteamProfile.Data
     public class DatabaseConnectionException : Exception
     {
         public DatabaseConnectionException(string message) : base(message) { }
-        public DatabaseConnectionException(string message, Exception innerException) 
+        public DatabaseConnectionException(string message, Exception innerException)
             : base(message, innerException) { }
     }
 
     public class DatabaseOperationException : Exception
     {
         public DatabaseOperationException(string message) : base(message) { }
-        public DatabaseOperationException(string message, Exception innerException) 
+        public DatabaseOperationException(string message, Exception innerException)
             : base(message, innerException) { }
     }
 }

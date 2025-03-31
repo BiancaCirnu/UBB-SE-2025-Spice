@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using SteamProfile.Views;
 using Microsoft.UI.Xaml;
+using SteamProfile.Repositories;
 
 namespace SteamProfile.ViewModels
 {
@@ -20,6 +21,7 @@ namespace SteamProfile.ViewModels
         private readonly UserService _userService;
         private readonly FriendsService _friendsService;
         private readonly DispatcherQueue _dispatcherQueue;
+        private readonly UserProfilesRepository _userProfileRepository;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -93,6 +95,7 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private string _equippedEmoji = string.Empty;
 
+        
         public static ProfileViewModel Instance
         {
             get
@@ -105,43 +108,65 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        public static void Initialize(UserService userService, FriendsService friendsService, DispatcherQueue dispatcherQueue)
+        public static void Initialize(
+            UserService userService, 
+            FriendsService friendsService, 
+            DispatcherQueue dispatcherQueue,
+            UserProfilesRepository userProfileRepository)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository);
         }
 
-        private ProfileViewModel(UserService userService, FriendsService friendsService, DispatcherQueue dispatcherQueue)
+        public ProfileViewModel(
+            UserService userService, 
+            FriendsService friendsService, 
+            DispatcherQueue dispatcherQueue,
+            UserProfilesRepository userProfileRepository)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
+            _userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
         }
 
-        public async Task LoadProfileAsync(bool isOwner = true)
+        public async Task LoadProfileAsync(int user_id)
         {
             try
             {
+                
                 await _dispatcherQueue.EnqueueAsync(() => IsLoading = true);
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
-                // Load user data on a background thread
+                // Load both user and profile data on a background thread
                 var currentUser = await Task.Run(() => _userService.GetCurrentUser());
+                var userProfile = await Task.Run(() => 
+                    _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
+
+                if (user_id == currentUser.UserId)
+                    IsOwner = true;
+                else IsOwner = false;
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
                     if (currentUser != null)
                     {
+                        // Basic user info from Users table
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
-                     //   Bio = currentUser.DescrBiption ?? string.Empty;
-                      //  ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
+
+                        // Profile info from UserProfiles table
+                        if (userProfile != null)
+                        {
+                            Bio = userProfile.Bio ?? string.Empty;
+                            ProfilePicture = userProfile.ProfilePicture ?? string.Empty;
+                        }
 
                         // Set IsOwner based on the parameter
-                        IsOwner = isOwner;
+                        //IsOwner = isOwner;
 
                         // Load friend count
                         _ = LoadFriendCountAsync();

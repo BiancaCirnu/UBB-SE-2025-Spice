@@ -230,7 +230,7 @@
                              Glyph="&#xE713;"
                              Foreground="White"/>
                 </Button>
-            </StackPanel>
+        </StackPanel>
 
             <!-- Collections Header -->
             <TextBlock Grid.Row="1" 
