@@ -18,6 +18,8 @@ using SteamProfile.Data;
 using SteamProfile.Repositories;
 using SteamProfile.Services;
 using System.Threading.Tasks;
+using SteamProfile.Views;
+using SteamProfile.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -127,6 +129,10 @@ namespace SteamProfile.Views
         private void ViewCollections_Click(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(CollectionsPage));
+        }
+        private void AchievementsButton_Click (object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AchievementsPage));
         }
     }
 }

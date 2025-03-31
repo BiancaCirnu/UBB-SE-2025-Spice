@@ -83,10 +83,10 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@username", user.Username),
                     new SqlParameter("@email", user.Email),
+                    new SqlParameter("@username", user.Username),
                     new SqlParameter("@hashed_password", user.Password),
-                    new SqlParameter("@developer", user.IsDeveloper),
+                    new SqlParameter("@developer", user.IsDeveloper)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("CreateUser", parameters);
@@ -94,7 +94,6 @@ namespace SteamProfile.Repositories
                 {
                     throw new RepositoryException("Failed to create user.");
                 }
-
                 return MapDataRowToUser(dataTable.Rows[0]);
             }
             catch (DatabaseOperationException ex)
@@ -112,6 +111,8 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@user_Id", userId)
                 };
+
+                _dataLink.ExecuteNonQuery("DeleteWallet", parameters);
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
             }

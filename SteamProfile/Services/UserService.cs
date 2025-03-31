@@ -72,6 +72,7 @@ namespace SteamProfile.Services
         public void DeleteUser(int userId)
         {
             _usersRepository.DeleteUser(userId);
+
         }
 
         public User? Login(string emailOrUsername, string password)

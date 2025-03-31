@@ -62,11 +62,15 @@ namespace SteamProfile
             WalletService = new WalletService(walletRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
             SessionService = new SessionService(sessionRepository);
+            UserService = new UserService(usersRepository, SessionService);  
+            WalletService = new WalletService(walletRepository, UserService);
             UserService = new UserService(usersRepository, SessionService);
             FriendsService = new FriendsService(friendshipsRepository, UserService);
             OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
+
         }
 
         private Window m_window;
@@ -85,5 +89,6 @@ namespace SteamProfile
             //NavigationService.Instance.Initialize(m_window.Content as Frame); // Ensure the frame is passed
             m_window.Activate();
         }
+
     }
 }

@@ -1,3 +1,4 @@
+go
 CREATE PROCEDURE GetUserById
     @userId INT
 AS
