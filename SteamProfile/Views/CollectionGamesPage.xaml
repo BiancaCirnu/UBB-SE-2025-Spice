@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:SteamProfile.Models"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:converters="using:SteamProfile.Converters"
+    xmlns:converters="using:SteamProfile.Converters" xmlns:viewmodels="using:SteamProfile.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:CollectionGamesViewModel}"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
