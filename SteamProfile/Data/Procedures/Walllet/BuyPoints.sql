@@ -6,6 +6,6 @@ begin
 	where user_id = @userId;
 
 	update Wallet
-	set balance = balance - @price 
+	set money_for_games = money_for_games - @price 
 	where user_id = @userId
 end

@@ -1,4 +1,4 @@
-create or alter procedure WinPoints @amount int, @userId int 
+create or alter procedure BuyWithPoints @amount int, @userId int 
 as 
 begin
 	update  Wallet 

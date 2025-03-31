@@ -9,63 +9,65 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <!--<Grid Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Width="400" Spacing="15">
             <TextBlock Text="Account Settings" FontSize="30" FontWeight="Bold" Margin="0,0,0,20"/>
 
-            <!-- Modify Email Section -->
             <TextBlock Text="Modify Email" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox x:Name="EmailText" Width="250" PlaceholderText="New email" TextChanged="ValidEmail"
-                        Text="{x:Bind ViewModel.Email, Mode=TwoWay}"/>
-                <Button Content="Update" Width="100" Click="UpdateEmail_Click"/>
+                <TextBox Width="250" PlaceholderText="New email"
+                        Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Content="Update" Width="100" 
+                        Command="{x:Bind ViewModel.UpdateEmailCommand}"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid email address" Foreground="Red"
+            <TextBlock Text="{x:Bind ViewModel.EmailErrorMessage, Mode=OneWay}" Foreground="Red"
                     Visibility="{x:Bind ViewModel.EmailErrorMessageVisibility, Mode=OneWay}"/>
 
-            <!-- Modify Username Section -->
             <TextBlock Text="Modify Username" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox x:Name="UsernameText" Width="250" PlaceholderText="New username" TextChanged="ValidUsername"
-                                                 Text="{x:Bind ViewModel.Username, Mode=TwoWay}"/>
-
-                <Button Content="Update" Width="100"  Click="UpdateUsername_Click"/>
+                <TextBox Width="250" PlaceholderText="New username"
+                         Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Content="Update" Width="100" 
+                        Command="{x:Bind ViewModel.UpdateUsernameCommand}"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid username" Foreground="Red"
-           Visibility="{x:Bind ViewModel.UsernameErrorMessageVisibility, Mode=OneWay}"/>
+            <TextBlock Text="{x:Bind ViewModel.UsernameErrorMessage, Mode=OneWay}" Foreground="Red"
+                     Visibility="{x:Bind ViewModel.UsernameErrorMessageVisibility, Mode=OneWay}"/>
 
-            <!-- Modify Password Section -->
             <TextBlock Text="Modify Password" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <PasswordBox x:Name="PasswordText" Width="250" PlaceholderText="New password" PasswordChanged="ValidPassword"
-                                                     Password="{x:Bind ViewModel.Password, Mode=TwoWay}"/>
-
-                <Button Content="Update" Width="100" Click="UpdatePassword_Click"/>
+                <PasswordBox Width="250" PlaceholderText="New password"
+                             Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Content="Update" Width="100" 
+                        Command="{x:Bind ViewModel.UpdatePasswordCommand}"/>
             </StackPanel>
-            <TextBlock Text="Insert a valid password" Foreground="Red"
-           Visibility="{x:Bind ViewModel.PasswordErrorMessageVisibility, Mode=OneWay}"/>
+            <TextBlock Text="{x:Bind ViewModel.PasswordErrorMessage, Mode=OneWay}" Foreground="Red"
+                     Visibility="{x:Bind ViewModel.PasswordErrorMessageVisibility, Mode=OneWay}"/>
 
-            <!-- Action Buttons -->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="20" >
-                <Button Content="Log out" Width="200" Height="40" Foreground="Red"/>
-                <Button Content="Delete Account" Width="200" Height="40" Foreground="Red"/>
-                <Button Content="Cancel" Width="200" Height="40" Click="CancelButton_Click"/>
+                <Button Content="Log out" Width="200" Height="40" Foreground="Red"
+                        Command="{x:Bind ViewModel.LogoutCommand}"/>
+                <Button Content="Delete Account" Width="200" Height="40" Foreground="Red"
+                        Command="{x:Bind ViewModel.DeleteAccountCommand}"/>
+                <Button Content="Cancel" Width="200" Height="40" 
+                        Command="{x:Bind ViewModel.CancelCommand}"/>
             </StackPanel>
         </StackPanel>
+
         <ContentDialog x:Name="PasswordConfirmationDialog"
                Title="Confirm Password"
                PrimaryButtonText="Confirm"
                SecondaryButtonText="Cancel"
                DefaultButton="Primary"
                RequestedTheme="Dark"
-               PrimaryButtonClick="PasswordConfirmationDialog_PrimaryButtonClick">
-            <StackPanel>
+               PrimaryButtonClick="PasswordConfirmationDialog_PrimaryButtonClick"
+               SecondaryButtonClick="PasswordConfirmationDialog_SecondaryButtonClick">
+        <StackPanel>
                 <TextBlock Text="Please enter your current password to confirm changes:" Margin="0,0,0,10"/>
                 <PasswordBox x:Name="ConfirmPasswordBox" PlaceholderText="Current Password"/>
-                <TextBlock x:Name="PasswordErrorText" Text="Incorrect password" Foreground="Red" Visibility="Collapsed"/>
+                <TextBlock Text="{x:Bind ViewModel.PasswordConfirmationError, Mode=OneWay}" 
+                           Foreground="Red" 
+                           Visibility="{x:Bind ViewModel.PasswordConfirmationErrorVisibility, Mode=OneWay}"/>
             </StackPanel>
         </ContentDialog>
-        
-
-    </Grid>
+    </Grid>-->
 </Page>

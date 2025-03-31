@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 using SteamProfile.ViewModels;
 using System;
 using SteamProfile.Views.WalletViews;
+using SteamProfile.Services;
 
 namespace SteamProfile.Views
 {
@@ -35,6 +36,11 @@ namespace SteamProfile.Views
         {
             Frame.Navigate(typeof(AddPointsPage), ViewModel);
         }
+        private void GoBack(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ConfigurationsPage));
+        }
+
 
     }
 }

@@ -24,7 +24,7 @@
             <!-- Modify Profile Picture Section -->
             <TextBlock Text="Modify Picture" FontSize="18" FontWeight="SemiBold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <Button x:Name="PickAPhotoButton" Content="Open a Picture" Click="PickAPhotoButton_Click"/>
+                <Button x:Name="PickAPhotoButton" Content="Open a Picture" Command="{Binding ChooseNewPhoto}"/>
                 <TextBlock x:Name="PickAPhotoOutputTextBlock" 
                            Text="{x:Bind ViewModel.SelectedImageName, Mode=OneWay}" 
                            TextWrapping="Wrap" 
@@ -46,16 +46,16 @@
                      Visibility="{x:Bind ViewModel.DescriptionErrorVisibility, Mode=OneWay}"/>
 
             <!-- Modify Features Button -->
-            <Button Content="Modify Features" Click="GoToFeaturesPage_Click" Width="200" Height="40" HorizontalAlignment="Center" Margin="10"/>
+            <Button Content="Modify Features" Command="{Binding ViewModel.NavigateToFeatures}" Width="200" Height="40" HorizontalAlignment="Center" Margin="10"/>
 
             <!-- Action Buttons -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="20,10,0,0">
                 <Button Content="Save Changes" 
                         Width="130" 
                         Height="40" 
-                        Click="SaveChanges_Click"
+                        Command="{Binding SaveChanges}"
                         IsEnabled="{x:Bind ViewModel.CanSave, Mode=OneWay}"/>
-                <Button Content="Cancel" Width="130" Height="40" Click="Cancel_Click"/>
+                <Button Content="Cancel" Width="130" Height="40" Command="{Binding ViewModel.BackToConfig}"/>
             </StackPanel>
         </StackPanel>
     </Grid>
