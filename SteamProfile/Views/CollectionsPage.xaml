@@ -10,11 +10,19 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
+        <!-- Back Button -->
+        <Button Grid.Row="0"
+                Content="Back"
+                Click="BackButton_Click"
+                Style="{StaticResource AccentButtonStyle}"
+                HorizontalAlignment="Left"
+                Margin="20"/>
 
         <!-- Title -->
         <TextBlock Text="COLLECTIONS" 
@@ -46,78 +54,78 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:Key="CollectionItemTemplate" x:DataType="models:Collection">
-                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    CornerRadius="8"
-                                    Padding="12"
-                                    Margin="12,12,12,12"
-                                    Width="400"
-                                    Height="152">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                        <DataTemplate x:DataType="models:Collection">
+                            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  BorderThickness="1"
+                                  CornerRadius="8"
+                                  Padding="16"
+                                  Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="132"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                                    <!-- Collection Cover Picture -->
-                                    <Grid Grid.Column="0" 
-                                          Width="120" 
-                                          Height="120"
-                                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                          CornerRadius="8">
-                                        <Image Source="{Binding CoverPicture}"
-                                               Stretch="UniformToFill"
-                                               Height="120"
-                                               Width="120"/>
-                                    </Grid>
-
-                                    <!-- Collection Info -->
-                                    <StackPanel Grid.Column="1" 
-                                              Margin="12,0,0,0"
-                                              VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}"
-                                                   Style="{StaticResource BodyStrongTextBlockStyle}"
-                                                   TextWrapping="Wrap"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxLines="1"/>
-                                        <TextBlock Text="{Binding Description}"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                   TextWrapping="Wrap"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxLines="2"
-                                                   Margin="0,4,0,0"/>
-                                        <TextBlock Text="{Binding CreationDate, Converter={StaticResource DateOnlyToStringConverter}}"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                   TextWrapping="Wrap"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxLines="1"
-                                                   Margin="0,4,0,0"/>
-                                        
-                                        <!-- Buttons Stack -->
-                                        <StackPanel Orientation="Horizontal" 
-                                                    Spacing="8"
-                                                    Margin="0,8,0,0">
-                                            <Button Content="View"
-                                                    Command="{Binding DataContext.NavigateToCollectionGamesCommand, ElementName=RootGrid}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    MinWidth="100"/>
-                                            <Button Content="Edit"
-                                                    Command="{Binding DataContext.NavigateToEditCollectionCommand, ElementName=RootGrid}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    MinWidth="100"
-                                                    Visibility="{Binding DataContext.IsAllOwnedGamesCollection, ElementName=RootGrid, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>
-                                            <Button Content="Delete"
-                                                    Command="{Binding DataContext.DeleteCollectionCommand, ElementName=RootGrid}"
-                                                    CommandParameter="{Binding}"
-                                                    Style="{StaticResource AccentButtonStyle}"
-                                                    MinWidth="100"
-                                                    Visibility="{Binding DataContext.IsAllOwnedGamesCollection, ElementName=RootGrid, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>
-                                        </StackPanel>
-                                    </StackPanel>
+                                <!-- Collection Cover Picture -->
+                                <Grid Grid.Row="0" 
+                                      Width="120" 
+                                      Height="120"
+                                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                      CornerRadius="8">
+                                    <Image Source="{Binding CoverPicture}"
+                                           Stretch="UniformToFill"
+                                           Height="120"
+                                           Width="120"/>
                                 </Grid>
-                            </Border>
+
+                                <!-- Collection Name -->
+                                <TextBlock Grid.Row="1"
+                                         Text="{Binding Name}"
+                                         Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                         HorizontalAlignment="Center"
+                                         Margin="0,12,0,8"/>
+
+                                <!-- Bottom Section with Date and Buttons -->
+                                <Grid Grid.Row="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Buttons Stack -->
+                                    <StackPanel Grid.Row="0"
+                                              Orientation="Horizontal" 
+                                              HorizontalAlignment="Center"
+                                              Spacing="8">
+                                        <!-- View Button -->
+                                        <Button Content="View"
+                                                Click="ViewCollection_Click"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource AccentButtonStyle}"/>
+
+                                        <!-- Edit Button -->
+                                        <Button Content="Edit"
+                                                Click="EditCollection_Click"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource AccentButtonStyle}"/>
+
+                                        <!-- Delete Button -->
+                                        <Button Content="Delete"
+                                                Click="DeleteCollection_Click"
+                                                CommandParameter="{Binding CollectionId}"
+                                                Style="{StaticResource AccentButtonStyle}"
+                                                Visibility="{Binding DataContext.IsAllOwnedGamesCollection, ElementName=RootGrid, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>
+                                    </StackPanel>
+
+                                    <!-- Creation Date -->
+                                    <TextBlock Grid.Row="1"
+                                             Text="{Binding CreatedAt, Converter={StaticResource DateOnlyToStringConverter}}"
+                                             Style="{ThemeResource BodyTextBlockStyle}"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                </Grid>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

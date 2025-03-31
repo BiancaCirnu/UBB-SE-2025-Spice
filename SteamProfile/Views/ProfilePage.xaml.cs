@@ -45,5 +45,10 @@ namespace SteamProfile.Views
             // Direct navigation to ConfigurationsPage
             this.Frame.Navigate(typeof(ConfigurationsPage));
         }
+
+        private void ViewCollections_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(CollectionsPage));
+        }
     }
 }

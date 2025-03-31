@@ -5,7 +5,6 @@ using SteamProfile.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace SteamProfile.ViewModels
 {
@@ -27,12 +26,11 @@ namespace SteamProfile.ViewModels
 
     public partial class CollectionsViewModel : ObservableObject
     {
-        private readonly ICollectionService _collectionService;
-        private readonly INavigationService _navigationService;
-        private readonly int _userId;
+        private readonly CollectionsService _collectionsService;
+        private readonly int _userId = 1; // TODO: Get actual user ID
 
         [ObservableProperty]
-        private ObservableCollection<Collection> _collections;
+        private ObservableCollection<Collection> _collections = new();
 
         [ObservableProperty]
         private Collection _selectedCollection;
@@ -43,38 +41,43 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
-        [ObservableProperty]
-        private bool _isAllOwnedGamesCollection;
-
-        public CollectionsViewModel(ICollectionService collectionService, INavigationService navigationService, int userId)
+        public CollectionsViewModel(CollectionsService collectionsService)
         {
-            _collectionService = collectionService;
-            _navigationService = navigationService;
-            _userId = userId;
-            Collections = new ObservableCollection<Collection>();
+            _collectionsService = collectionsService ?? throw new ArgumentNullException(nameof(collectionsService));
         }
 
         [RelayCommand]
-        private async Task LoadCollectionsAsync()
+        private void LoadCollections()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
+                Debug.WriteLine("Loading collections...");
 
-                var collections = await _collectionService.GetCollectionsAsync(_userId);
+                var collections = _collectionsService.GetAllCollections(_userId);
+                Debug.WriteLine($"Retrieved {collections?.Count ?? 0} collections from service");
+                
                 Collections.Clear();
-                foreach (var collection in collections)
+                if (collections != null)
                 {
-                    Collections.Add(collection);
+                    foreach (var collection in collections)
+                    {
+                        Collections.Add(collection);
+                    }
+                    Debug.WriteLine($"Added {Collections.Count} collections to ObservableCollection");
                 }
-
-                // Set IsAllOwnedGamesCollection based on the current collection
-                IsAllOwnedGamesCollection = false;
+                else
+                {
+                    Debug.WriteLine("Collections list is null");
+                    ErrorMessage = "No collections found.";
+                }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                ErrorMessage = $"Failed to load collections: {ex.Message}";
+                Debug.WriteLine($"Error loading collections: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                ErrorMessage = "Error loading collections. Please try again.";
             }
             finally
             {
@@ -83,41 +86,18 @@ namespace SteamProfile.ViewModels
         }
 
         [RelayCommand]
-        private void NavigateToCollectionGames(Collection collection)
-        {
-            _navigationService.NavigateToCollectionGames(collection.Id);
-        }
-
-        [RelayCommand]
-        private void NavigateToCreateCollection()
-        {
-            _navigationService.NavigateToCreateCollection(_userId);
-        }
-
-        [RelayCommand]
-        private void NavigateToEditCollection(Collection collection)
-        {
-            _navigationService.NavigateToEditCollection(collection.Id);
-        }
-
-        [RelayCommand]
-        private async Task DeleteCollectionAsync(Collection collection)
+        private void DeleteCollection(int collectionId)
         {
             try
             {
-                IsLoading = true;
-                ErrorMessage = string.Empty;
-
-                await _collectionService.DeleteCollectionAsync(collection.Id);
-                Collections.Remove(collection);
+                Debug.WriteLine($"Deleting collection {collectionId}");
+                _collectionsService.DeleteCollection(collectionId, _userId);
+                LoadCollections(); // Reload collections after deletion
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                ErrorMessage = $"Failed to delete collection: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
+                Debug.WriteLine($"Error deleting collection: {ex.Message}");
+                ErrorMessage = "Error deleting collection. Please try again.";
             }
         }
 
@@ -155,8 +135,8 @@ namespace SteamProfile.ViewModels
                 }
 
                 Debug.WriteLine($"Adding game {gameId} to collection {SelectedCollection.Name}");
-                _collectionService.AddGameToCollection(SelectedCollection.CollectionId, gameId, _userId);
-                LoadCollectionsAsync(); // Reload collections to update the UI
+                _collectionsService.AddGameToCollection(SelectedCollection.CollectionId, gameId, _userId);
+                LoadCollections(); // Reload collections to update the UI
             }
             catch (Exception ex)
             {
@@ -177,8 +157,8 @@ namespace SteamProfile.ViewModels
                 }
 
                 Debug.WriteLine($"Removing game {gameId} from collection {SelectedCollection.Name}");
-                _collectionService.RemoveGameFromCollection(SelectedCollection.CollectionId, gameId);
-                LoadCollectionsAsync(); // Reload collections to update the UI
+                _collectionsService.RemoveGameFromCollection(SelectedCollection.CollectionId, gameId);
+                LoadCollections(); // Reload collections to update the UI
             }
             catch (Exception ex)
             {
@@ -193,14 +173,14 @@ namespace SteamProfile.ViewModels
             try
             {
                 Debug.WriteLine($"Creating collection: {parameters.Name}");
-                _collectionService.CreateCollection(
+                _collectionsService.CreateCollection(
                     _userId,
                     parameters.Name,
                     parameters.CoverPicture,
                     parameters.IsPublic,
                     parameters.CreatedAt
                 );
-                LoadCollectionsAsync(); // Reload collections after creation
+                LoadCollections(); // Reload collections after creation
             }
             catch (Exception ex)
             {
@@ -215,14 +195,14 @@ namespace SteamProfile.ViewModels
             try
             {
                 Debug.WriteLine($"Updating collection: {parameters.Name}");
-                _collectionService.UpdateCollection(
+                _collectionsService.UpdateCollection(
                     parameters.CollectionId,
                     _userId,
                     parameters.Name,
                     parameters.CoverPicture,
                     parameters.IsPublic
                 );
-                LoadCollectionsAsync(); // Reload collections after update
+                LoadCollections(); // Reload collections after update
             }
             catch (Exception ex)
             {
