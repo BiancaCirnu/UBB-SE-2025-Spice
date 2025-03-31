@@ -18,7 +18,7 @@
                 <TextBox Width="250" PlaceholderText="New email"
                         Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdateEmailCommand}" IsEnabled="{x:Bind ViewModel.UpdateEmai}"/>
+                        Command="{x:Bind ViewModel.UpdateEmailCommand}" IsEnabled="{x:Bind ViewModel.UpdateEmailEnabled}"/>
             </StackPanel>
             <TextBlock Text="Please introduce a unique valid email" Foreground="Red"
                     Visibility="{x:Bind ViewModel.EmailErrorMessageVisibility, Mode=OneWay}"/>
@@ -28,7 +28,7 @@
                 <TextBox Width="250" PlaceholderText="New username"
                          Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdateUsernameCommand}" IsEnabled="{x:Bind ViewModel.UpdateUsername}"/>
+                        Command="{x:Bind ViewModel.UpdateUsernameCommand}" IsEnabled="{x:Bind ViewModel.UpdateUsernameEnabled}"/>
             </StackPanel>
             <TextBlock Text="Please introduce a unique valid username" Foreground="Red"
                      Visibility="{x:Bind ViewModel.UsernameErrorMessageVisibility, Mode=OneWay}"/>
@@ -38,7 +38,7 @@
                 <PasswordBox Width="250" PlaceholderText="New password"
                              Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdatePasswordCommand}" IsEnabled="{x:Bind ViewModel.UpdatePassword}"/>
+                        Command="{x:Bind ViewModel.UpdatePasswordCommand}" IsEnabled="{x:Bind ViewModel.UpdatePasswordEnabled}"/>
             </StackPanel>
             <TextBlock TextWrapping="Wrap" Foreground="Red"
                      Visibility="{x:Bind ViewModel.PasswordErrorMessageVisibility, Mode=OneWay}">

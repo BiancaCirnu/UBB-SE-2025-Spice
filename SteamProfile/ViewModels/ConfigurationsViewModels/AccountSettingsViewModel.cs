@@ -42,6 +42,15 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
         [ObservableProperty]
         private Visibility passwordConfirmationErrorVisibility = Visibility.Collapsed;
 
+        [ObservableProperty]
+        private bool updateEmailEnabled = false;
+
+        [ObservableProperty]
+        private bool updateUsernameEnabled = false;
+
+        [ObservableProperty]
+        private bool updatePasswordEnabled = false;
+
         private readonly UserService userService;
 
         public AccountSettingsViewModel()
@@ -71,14 +80,9 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         private void ValidatePassword(string password)
         {
-            if (IsValidPassword(password))
-            {
-                PasswordErrorMessageVisibility = Visibility.Collapsed;
-            }
-            else
-            {
-                PasswordErrorMessageVisibility = Visibility.Visible;
-            }
+            bool isValid = IsValidPassword(password);
+            PasswordErrorMessageVisibility = isValid ? Visibility.Collapsed : Visibility.Visible;
+            UpdatePasswordEnabled = isValid;
         }
 
         private bool IsValidPassword(string password)
@@ -95,14 +99,9 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         private void ValidateEmail(string email)
         {
-            if (IsValidEmail(email))
-            {
-                EmailErrorMessageVisibility = Visibility.Collapsed;
-            }
-            else
-            {
-                EmailErrorMessageVisibility = Visibility.Visible;
-            }
+            bool isValid = IsValidEmail(email);
+            EmailErrorMessageVisibility = isValid ? Visibility.Collapsed : Visibility.Visible;
+            UpdateEmailEnabled = isValid;
         }
 
         private bool IsValidEmail(string email)
@@ -119,14 +118,9 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         private void ValidateUsername(string username)
         {
-            if (IsValidUsername(username))
-            {
-                UsernameErrorMessageVisibility = Visibility.Collapsed;
-            }
-            else
-            {
-                UsernameErrorMessageVisibility = Visibility.Visible;
-            }
+            bool isValid = IsValidUsername(username);
+            UsernameErrorMessageVisibility = isValid ? Visibility.Collapsed : Visibility.Visible;
+            UpdateUsernameEnabled = isValid;
         }
 
         private bool IsValidUsername(string username)
