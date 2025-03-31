@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "W6Be33mZOaQ=",
+  "dgSpecHash": "Ve1eeU1NL18=",
   "success": true,
   "projectFilePath": "D:\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\alexi\\.nuget\\packages\\bcrypt.net-core\\1.6.0\\bcrypt.net-core.1.6.0.nupkg.sha512",
+    "C:\\Users\\alexi\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\colorcode.core\\2.0.13\\colorcode.core.2.0.13.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\colorcode.winui\\2.0.13\\colorcode.winui.2.0.13.nupkg.sha512",
     "C:\\Users\\alexi\\.nuget\\packages\\communitytoolkit.common\\7.1.2\\communitytoolkit.common.7.1.2.nupkg.sha512",

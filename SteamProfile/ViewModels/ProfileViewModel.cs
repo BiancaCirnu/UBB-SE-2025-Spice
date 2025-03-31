@@ -212,7 +212,7 @@ namespace SteamProfile.ViewModels
         {
             try
             {
-                var count = await _friendsService.GetFriendshipCount(UserId.ToString());
+                var count = _friendsService.GetFriendshipCount(UserId);
                 await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
             }
             catch (Exception ex)

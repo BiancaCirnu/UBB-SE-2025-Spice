@@ -50,9 +50,9 @@
         "net8.0-windows10.0.19041": {
           "targetAlias": "net8.0-windows10.0.19041.0",
           "dependencies": {
-            "BCrypt.Net-Core": {
+            "BCrypt.Net-Next": {
               "target": "Package",
-              "version": "[1.6.0, )"
+              "version": "[4.0.3, )"
             },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
