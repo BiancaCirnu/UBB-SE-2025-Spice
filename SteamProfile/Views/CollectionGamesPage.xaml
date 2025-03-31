@@ -14,6 +14,7 @@
 
     <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.Resources>
+            <converters:GameCountToStringConverter x:Key="GameCountToStringConverter"/>
             <DataTemplate x:Key="GameItemTemplate" x:DataType="models:OwnedGame">
                 <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         CornerRadius="8"
@@ -91,12 +92,20 @@
                 Margin="20"/>
 
         <!-- Collection Name -->
-        <TextBlock Grid.Row="1"
-                  Text="{Binding CollectionName}" 
-                  FontSize="30" 
-                  FontWeight="Bold" 
-                  TextAlignment="Center"
-                  Margin="20"/>
+        <StackPanel Grid.Row="1"
+                  Orientation="Vertical" 
+                  Spacing="4"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Center"
+                  Margin="20">
+            <TextBlock Text="{Binding CollectionName}"
+                      Style="{StaticResource TitleLargeTextBlockStyle}"
+                      TextWrapping="Wrap"
+                      TextTrimming="CharacterEllipsis"
+                      MaxLines="1"/>
+            <TextBlock Text="{Binding Games.Count, Converter={StaticResource GameCountToStringConverter}}"
+                      Style="{StaticResource BodyTextBlockStyle}"/>
+        </StackPanel>
 
         <!-- Scrollable Content -->
         <ScrollViewer Grid.Row="2" 
