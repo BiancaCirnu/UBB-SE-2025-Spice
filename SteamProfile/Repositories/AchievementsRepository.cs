@@ -140,6 +140,7 @@ namespace SteamProfile.Repositories
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error during ExecuteScalar operation: {ex.Message}");
                 throw new RepositoryException("Error checking if achievement is unlocked.", ex);
             }
         }
@@ -190,11 +191,11 @@ namespace SteamProfile.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
-                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
                 if (ex.InnerException != null)
                 {
-                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
                 }
                 throw new RepositoryException("Error retrieving achievements with status for user.", ex);
             }

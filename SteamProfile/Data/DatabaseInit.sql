@@ -45,6 +45,7 @@ CREATE TABLE Achievements (
 	description char(100),
     achievement_type  NVARCHAR(100) NOT NULL,
     points INT NOT NULL CHECK (points >= 0),
+	icon_url NVARCHAR(255) CHECK (icon_url LIKE '%.svg' OR icon_url LIKE '%.png' OR icon_url LIKE '%.jpg')
 );
 
 
@@ -104,6 +105,42 @@ CREATE TABLE PasswordResetCodes (
 	email nvarchar(255),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+CREATE TABLE UserAchievements (
+    user_id INT NOT NULL,
+    achievement_id INT NOT NULL,
+    unlocked_at DATETIME DEFAULT GETDATE(),
+    PRIMARY KEY (user_id, achievement_id),
+    FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (achievement_id) REFERENCES Achievements(achievement_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE OwnedGames (
+        owned_game_id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NOT NULL,
+        game_id INT NOT NULL,
+        purchase_date DATETIME DEFAULT GETDATE(),
+        CONSTRAINT FK_OwnedGames_User FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    );
+
+CREATE TABLE Reviews (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_text NVARCHAR(MAX),
+    review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+);
+
+CREATE TABLE SoldGames (
+    sold_game_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    game_id INT NOT NULL,
+    sold_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+
+
 INSERT INTO Users (email, username, hashed_password, developer, last_login) VALUES
 ('alice@example.com', 'AliceGamer', 'hashed_password_1', 1, '2025-03-20 14:25:00'),
 ('bob@example.com', 'BobTheBuilder', 'hashed_password_2', 0, '2025-03-21 10:12:00'),
@@ -120,6 +157,12 @@ INSERT INTO Users (email, username, hashed_password, developer, last_login) VALU
 ('maracocaina77@gmail.com', 'Mara', 'hashed_password_1', 0, '2025-03-20 14:25:00');
 
 go 
+
+select * from Users
+select * from Achievements
+select * from UserAchievements
+insert into UserAchievements values (12, 1, GETDATE())
+
 
 CREATE PROCEDURE CheckUserExists
     @email NVARCHAR(100),
@@ -616,19 +659,6 @@ begin
 	delete from Wallet where wallet_id = @wallet_id
 end
 
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'OwnedGames')
-BEGIN
-    CREATE TABLE OwnedGames (
-        owned_game_id INT IDENTITY(1,1) PRIMARY KEY,
-        user_id INT NOT NULL,
-        game_id INT NOT NULL,
-        purchase_date DATETIME DEFAULT GETDATE(),
-        CONSTRAINT FK_OwnedGames_User FOREIGN KEY (user_id) REFERENCES Users(user_id)
-    );
-END
-
-
-
 
 
 -- Insert stored procedures
@@ -649,37 +679,12 @@ exec createWallet @user_id = 8;
 exec createWallet @user_id = 9;
 exec createWallet @user_id = 11;
 
-drop table users
-drop table Wallet
-select* from wallet
-select* from users
+
 -- Add more :r commands for other stored procedures as they are created
 -- :r Data\Procedures\Achievements\...
 -- :r Data\Procedures\Collections\...
 -- :r Data\Procedures\Features\...
 -- :r Data\Procedures\Wallet\... 
-
-
-CREATE TABLE SoldGames (
-    sold_game_id INT PRIMARY KEY IDENTITY,
-    user_id INT NOT NULL,
-    game_id INT NOT NULL,
-    sold_date DATETIME,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
-);
-
-insert into SoldGames(user_id, game_id) values (1, 1)
-
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Reviews')
-BEGIN
-	CREATE TABLE Reviews (
-    review_id INT PRIMARY KEY IDENTITY,
-    user_id INT NOT NULL,
-    review_text NVARCHAR(MAX),
-    review_date DATETIME,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
-);
-END
 
 insert into Achievements(achievement_name, description, achievement_type, points) 
 values ('FRIENDSHIP1', 'You made a friend, you get a point', 'Friendships', 1)
@@ -735,5 +740,3 @@ values ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews'
 update Achievements 
 set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
 where achievement_id > 0
-exec GetWalletById @wallet_id =12
-select * from Wallet
