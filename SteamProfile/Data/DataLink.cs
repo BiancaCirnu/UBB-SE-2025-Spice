@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SteamProfile.Data
 {
-    public sealed class DataLink : IDisposable
+    public sealed partial class DataLink : IDisposable
     {
         private static readonly Lazy<DataLink> instance = new(() => new DataLink());
         private readonly string connectionString;
@@ -36,7 +36,7 @@ namespace SteamProfile.Data
                 }
 
                 connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
-                
+
                 // Test the connection immediately
                 using var testConnection = new SqlConnection(connectionString);
                 testConnection.Open();
@@ -159,6 +159,35 @@ namespace SteamProfile.Data
             }
         }
 
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedure, SqlParameter[] sqlParameters = null)
+        {
+            try
+            {
+                using var connection = GetConnection();
+                await connection.OpenAsync();
+
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -189,14 +218,14 @@ namespace SteamProfile.Data
     public class DatabaseConnectionException : Exception
     {
         public DatabaseConnectionException(string message) : base(message) { }
-        public DatabaseConnectionException(string message, Exception innerException) 
+        public DatabaseConnectionException(string message, Exception innerException)
             : base(message, innerException) { }
     }
 
     public class DatabaseOperationException : Exception
     {
         public DatabaseOperationException(string message) : base(message) { }
-        public DatabaseOperationException(string message, Exception innerException) 
+        public DatabaseOperationException(string message, Exception innerException)
             : base(message, innerException) { }
     }
 }

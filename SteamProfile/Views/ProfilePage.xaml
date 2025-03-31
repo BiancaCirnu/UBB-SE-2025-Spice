@@ -10,6 +10,39 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
+        <StackPanel VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    Spacing="10"
+                    Padding="40"
+                    MaxWidth="400">
+            
+            <TextBlock Text="Your Profile"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       HorizontalAlignment="Center"
+                       Padding="0,0,0,20"/>
 
+            <TextBlock Text="{x:Bind ViewModel.CurrentUser.Username, Mode=OneWay}"
+                      Style="{ThemeResource SubtitleTextBlockStyle}"
+                      HorizontalAlignment="Center"
+                      Margin="0,0,0,20"/>
+
+            <Button Content="Configurations"
+                    Click="ConfigurationsButton_Click"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Width="200"
+                    Margin="0,0,0,10"/>
+            <Button Content="Achievements"
+                    Click="AchievementsButton_Click"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Width="200"
+                    Margin="0,0,0,10"/>
+            <Button Content="Logout"
+                    Command="{x:Bind ViewModel.LogoutCommand, Mode=OneWay}"
+                    Style="{ThemeResource TextBlockButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Margin="0,20,0,0"/>
+        </StackPanel>
     </Grid>
 </Page>

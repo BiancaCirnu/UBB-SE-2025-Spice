@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace SteamProfile.Models
 {
-    internal class Wallet
+    public class Wallet
     {
+        
+        public int WalletId {  get; set; }
+        public int UserId {  get; set; }
+        public decimal Balance {  get; set; }
+
+        public int Points { get; set; }
+        
     }
+
 }

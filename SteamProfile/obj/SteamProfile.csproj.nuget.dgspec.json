@@ -1,14 +1,20 @@
 {
   "format": 1,
   "restore": {
+    "C:\\Users\\antonia\\source\\repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {}
     "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {}
   },
   "projects": {
+    "C:\\Users\\antonia\\source\\repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {
     "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {
       "version": "1.0.0",
       "restore": {
+        "projectUniqueName": "C:\\Users\\antonia\\source\\repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
         "projectUniqueName": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
         "projectName": "SteamProfile",
+        "projectPath": "C:\\Users\\antonia\\source\\repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
+        "packagesPath": "C:\\Users\\antonia\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\antonia\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\obj\\",
         "projectPath": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
         "packagesPath": "C:\\Users\\Bianca\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\obj\\",
@@ -17,6 +23,7 @@
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
+          "C:\\Users\\antonia\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Users\\Bianca\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
@@ -51,6 +58,10 @@
         "net8.0-windows10.0.19041": {
           "targetAlias": "net8.0-windows10.0.19041.0",
           "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
             "CommunityToolkit.Mvvm": {
               "target": "Package",
               "version": "[8.2.2, )"
@@ -63,6 +74,10 @@
               "target": "Package",
               "version": "[7.1.2, )"
             },
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[5.1.6, )"
+            },
             "Microsoft.Extensions.Configuration": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -74,6 +89,10 @@
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[9.0.3, )"
             },
             "Microsoft.Windows.SDK.BuildTools": {
               "target": "Package",
@@ -106,27 +125,27 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Runtime.win-arm64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.AspNetCore.App.Runtime.win-x86",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.win-arm64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.win-x64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.win-x86",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.Windows.SDK.NET.Ref",
@@ -134,15 +153,15 @@
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Runtime.win-arm64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Runtime.win-x86",
-              "version": "[8.0.14, 8.0.14]"
+              "version": "[8.0.13, 8.0.13]"
             }
           ],
           "frameworkReferences": {
@@ -153,7 +172,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {

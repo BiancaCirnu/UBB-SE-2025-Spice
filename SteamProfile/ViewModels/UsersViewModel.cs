@@ -5,8 +5,15 @@ using SteamProfile.Services;
 using System;
 using System.Collections.ObjectModel;
 
-namespace SteamProfile.ViewModels { 
-
+namespace SteamProfile.ViewModels
+{
+    /// <summary>
+    /// ViewModel for the Users page that manages the display and manipulation of user data.
+    /// Implements the MVVM pattern by:
+    /// - Managing the data (Model) through the UserService
+    /// - Providing data binding properties for the View
+    /// - Handling user interactions through commands
+    /// </summary>
     public partial class UsersViewModel : ObservableObject
     {
         // Singleton instance to ensure only one ViewModel exists for the Users page
@@ -62,7 +69,6 @@ namespace SteamProfile.ViewModels {
                 Username = $"RandomUser_{_random.Next(1000)}",
                 Email = $"random{_random.Next(1000)}@example.com",
                 Password = "RandomPassword123",
-                Description = "This is a random test user",
                 IsDeveloper = _random.Next(2) == 1,
                 CreatedAt = DateTime.Now
             };
@@ -70,7 +76,6 @@ namespace SteamProfile.ViewModels {
             // First save to database through the service
             var createdUser = _userService.CreateUser(randomUser);
             // Only update UI if database operation was successful
-
             if (createdUser != null)
             {
                 Users.Add(createdUser);

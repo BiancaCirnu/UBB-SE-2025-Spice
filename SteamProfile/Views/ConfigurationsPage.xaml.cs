@@ -5,7 +5,9 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SteamProfile.Services;
 using SteamProfile.ViewModels;
+using SteamProfile.Views.ConfigurationsView;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,13 +20,19 @@ namespace SteamProfile.Views
 {
     public sealed partial class ConfigurationsPage : Page
     {
-        private readonly ConfigurationsViewModel _viewModel;
 
+        public ConfigurationsViewModel ViewModel { get; private set; }
         public ConfigurationsPage()
         {
             this.InitializeComponent();
-            _viewModel = new ConfigurationsViewModel(App.UserService);
-            this.DataContext = _viewModel;
+            this.Loaded += ConfigurationsPage_Loaded;
         }
+
+        private void ConfigurationsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel = new ConfigurationsViewModel(this.Frame);
+            this.DataContext = ViewModel;
+        }
+      
     }
 }
