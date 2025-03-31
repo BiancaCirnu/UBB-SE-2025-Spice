@@ -36,6 +36,7 @@ namespace SteamProfile
         public static IPasswordResetService PasswordResetService { get; private set; }
         public static readonly SessionService SessionService;
         public static UserProfilesRepository UserProfileRepository { get; private set; }
+        public static CollectionsRepository CollectionsRepository { get;  }
 
         static App()
         {
@@ -52,6 +53,7 @@ namespace SteamProfile
             var sessionRepository = new SessionRepository(dataLink);
             var passwordResetRepo = new PasswordResetRepository(dataLink);
             UserProfileRepository = new UserProfilesRepository(dataLink);
+            CollectionsRepository = new CollectionsRepository(dataLink);
 
 
             // Initialize all services

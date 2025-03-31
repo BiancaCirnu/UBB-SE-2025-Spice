@@ -53,14 +53,16 @@ namespace SteamProfile.Views
                     App.UserService, 
                     friendsService, 
                     Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
-                    App.UserProfileRepository
+                    App.UserProfileRepository,
+                    App.CollectionsRepository
                 );
                 Debug.WriteLine("ProfileViewModel initialized with services.");
 
                 ViewModel = ProfileViewModel.Instance;
+                DataContext = ProfileViewModel.Instance; // Ensure this is set correctly
 
                 // By default, assume we're viewing someone else's profile
-              //  _isOwnProfile = true;
+                //  _isOwnProfile = true;
                 Debug.WriteLine("Assuming we're viewing someone else's profile.");
 
                 // Load the profile data
@@ -92,7 +94,11 @@ namespace SteamProfile.Views
                 _userId = (int)e.Parameter;
                 Debug.WriteLine($"Navigating to profile of user: {_userId}");
                 Debug.WriteLine($"ProfileViewModel Instance: {ProfileViewModel.Instance != null}");
+
+                // nu ar tb sa fie nevoie de asta nu stiu ce se intampla
                 ViewModel = ProfileViewModel.Instance;
+                DataContext = ProfileViewModel.Instance; // Ensure this is set correctly
+
                 _ = ViewModel.LoadProfileAsync(_userId);  // ??!!
             }
         }

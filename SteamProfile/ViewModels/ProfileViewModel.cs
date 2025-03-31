@@ -45,7 +45,7 @@ namespace SteamProfile.ViewModels
         private string _coverPhoto = string.Empty;
 
         [ObservableProperty]
-        private ObservableCollection<string> _collections = new();
+        private ObservableCollection<Collection> _collections = new();
 
         [ObservableProperty]
         private bool _isLoading = false;
@@ -94,8 +94,8 @@ namespace SteamProfile.ViewModels
 
         [ObservableProperty]
         private string _equippedEmoji = string.Empty;
+        private static CollectionsRepository _collectionsRepository;
 
-        
         public static ProfileViewModel Instance
         {
             get
@@ -112,25 +112,28 @@ namespace SteamProfile.ViewModels
             UserService userService, 
             FriendsService friendsService, 
             DispatcherQueue dispatcherQueue,
-            UserProfilesRepository userProfileRepository)
+            UserProfilesRepository userProfileRepository,
+            CollectionsRepository collectionsRepository)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository);
         }
 
         public ProfileViewModel(
             UserService userService, 
             FriendsService friendsService, 
             DispatcherQueue dispatcherQueue,
-            UserProfilesRepository userProfileRepository)
+            UserProfilesRepository userProfileRepository,
+            CollectionsRepository collectionsRepository)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
             _userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
+            _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
         }
 
         public async Task LoadProfileAsync(int user_id)
@@ -189,8 +192,18 @@ namespace SteamProfile.ViewModels
                         Points = 0;
                         CoverPhoto = "default_cover.png";
 
+
+                        // Get the last three collections
+                        var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
                         Collections.Clear();
-                        // TODO: Load collections
+
+                        
+                       
+                        foreach (var collection in lastThreeCollections)
+                        {
+                            Collections.Add(collection);
+                        }
+
                     }
                     IsLoading = false;
                 });

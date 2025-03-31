@@ -89,7 +89,8 @@
                         <Button Style="{StaticResource TransparentButton}"
                                 Padding="0"
                                 Command="{x:Bind ViewModel.ShowFriendsCommand, Mode=OneWay}"
-                                HorizontalAlignment="Center">
+                                HorizontalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
                             <Border Background="#E6D5B8" 
                                     Padding="15,5" 
                                     CornerRadius="5">
@@ -234,64 +235,51 @@
 
             <!-- Collections Header -->
             <TextBlock Grid.Row="1" 
-                      Text="Collections"
-                      Foreground="White"
-                      FontSize="24"
-                      Margin="0,0,0,20"/>
+          Text="Collections"
+          Foreground="White"
+          FontSize="24"
+          Margin="0,0,0,20"/>
 
             <!-- Collections Grid -->
             <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <!-- Add Collection Button -->
+                    <Border Background="#E6D5B8" 
+                Width="200" Height="150"
+                Margin="10"
+                Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
+                        <Button Style="{StaticResource TransparentButton}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Command="{x:Bind ViewModel.AddCollectionCommand}">
+                            <TextBlock Text="+" 
+                           FontSize="48" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+                        </Button>
+                    </Border>
 
-                <!-- Add Collection Button -->
-                <Border Grid.Column="0"
-                        Background="#E6D5B8" 
-                        Width="200" Height="150"
-                        Margin="10"
-                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
-                    <Button Style="{StaticResource TransparentButton}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            Command="{x:Bind ViewModel.AddCollectionCommand}">
-                        <TextBlock Text="+" 
-                                 FontSize="48" 
-                                 HorizontalAlignment="Center" 
-                                 VerticalAlignment="Center"/>
-                    </Button>
-                </Border>
-
-                <!-- Collection Cover Photos -->
-                <Border Grid.Column="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource BoolToGridColumnConverter}}"
-                        Background="#E6D5B8" 
-                        Width="200" Height="150"
-                        Margin="10">
-                    <TextBlock Text="Cover photo" 
-                             HorizontalAlignment="Center" 
-                             VerticalAlignment="Center"/>
-                </Border>
-
-                <Border Grid.Column="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource BoolToNextGridColumnConverter}}"
-                        Background="#E6D5B8" 
-                        Width="200" Height="150"
-                        Margin="10">
-                    <TextBlock Text="Cover photo" 
-                             HorizontalAlignment="Center" 
-                             VerticalAlignment="Center"/>
-                </Border>
-
-                <Border Grid.Column="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource BoolToLastGridColumnConverter}}"
-                        Background="#E6D5B8" 
-                        Width="200" Height="150"
-                        Margin="10">
-                    <TextBlock Text="Cover photo" 
-                             HorizontalAlignment="Center" 
-                             VerticalAlignment="Center"/>
-                </Border>
+                    <!-- Collections Grid -->
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#E6D5B8" 
+                            Width="200" Height="150"
+                            Margin="10">
+                                    <Image Source="{Binding CoverPicture}" 
+                               Stretch="Uniform" 
+                               HorizontalAlignment="Center" 
+                               VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

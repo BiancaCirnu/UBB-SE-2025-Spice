@@ -38,7 +38,7 @@ namespace SteamProfile.ViewModels
                 IsLoading = true;
                 ErrorMessage = null;
 
-                Debug.WriteLine("Loading friends for user ID 1...");
+                Debug.WriteLine("Loading friends for user ID ...");
                 var friendships = _friendsService.GetAllFriendships();
                 Debug.WriteLine($"Retrieved {friendships.Count} friendships");
 
