@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "UIi6VcYTrsU=",
+  "dgSpecHash": "LppZtj62saY=",
   "success": true,
   "projectFilePath": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
   "expectedPackageFiles": [
@@ -21,6 +21,7 @@
     "C:\\Users\\Bianca\\.nuget\\packages\\communitytoolkit.winui.ui.controls.markdown\\7.1.2\\communitytoolkit.winui.ui.controls.markdown.7.1.2.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\communitytoolkit.winui.ui.controls.media\\7.1.2\\communitytoolkit.winui.ui.controls.media.7.1.2.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\communitytoolkit.winui.ui.controls.primitives\\7.1.2\\communitytoolkit.winui.ui.controls.primitives.7.1.2.nupkg.sha512",
+    "C:\\Users\\Bianca\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\microsoft.data.sqlclient\\5.1.6\\microsoft.data.sqlclient.5.1.6.nupkg.sha512",
@@ -181,12 +182,5 @@
     "C:\\Users\\Bianca\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.14\\microsoft.netcore.app.runtime.win-x64.8.0.14.nupkg.sha512",
     "C:\\Users\\Bianca\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\8.0.14\\microsoft.windowsdesktop.app.runtime.win-x86.8.0.14.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\obj\\project.nuget.cache : After parsing a value an unexpected character was encountered: \". Path 'expectedPackageFiles[175]', line 185, position 4."
-    }
-  ]
+  "logs": []
 }
