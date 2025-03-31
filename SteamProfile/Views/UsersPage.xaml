@@ -6,48 +6,30 @@
     xmlns:local="using:SteamProfile.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Grid Padding="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel Padding="20">
+            <TextBlock Text="Users"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       Margin="0,0,0,20"/>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="0,0,0,20">
-            <TextBlock 
-                Text="Users List" 
-                Style="{StaticResource TitleTextBlockStyle}"/>
-            
-            <Button 
-                Command="{Binding AddRandomUserCommand}"
-                Style="{StaticResource AccentButtonStyle}">
-                <StackPanel Orientation="Horizontal" Spacing="5">
-                    <FontIcon Glyph="&#xE710;"/>
-                    <TextBlock Text="Add Random User"/>
-                </StackPanel>
-            </Button>
+            <ListView ItemsSource="{Binding Users}"
+                      SelectionMode="Single"
+                      SelectionChanged="ListView_SelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding Username}" 
+                                     Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <TextBlock Text="{Binding Email}" 
+                                     Style="{ThemeResource BodyTextBlockStyle}"/>
+                            <TextBlock Text="{Binding CreatedAt}" 
+                                     Style="{ThemeResource BodyTextBlockStyle}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackPanel>
-
-        <controls:DataGrid 
-            x:Name="UsersGrid"
-            Grid.Row="1"
-            ItemsSource="{Binding Users}"
-            SelectedItem="{Binding SelectedUser, Mode=TwoWay}"
-            AutoGenerateColumns="False"
-            IsReadOnly="True"
-            GridLinesVisibility="Horizontal"
-            HorizontalGridLinesBrush="{ThemeResource SystemControlForegroundBaseMediumBrush}"
-            AlternatingRowBackground="{ThemeResource SystemControlBackgroundListLowBrush}">
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Header="Username" Binding="{Binding Username}" Width="*"/>
-                <controls:DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="*"/>
-                <controls:DataGridTextColumn Header="Developer" Binding="{Binding IsDeveloper}" Width="Auto"/>
-                <controls:DataGridTextColumn Header="Created" Binding="{Binding CreatedAt}" Width="Auto"/>
-                <controls:DataGridTextColumn Header="Last Login" Binding="{Binding LastLogin}" Width="Auto"/>
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
     </Grid>
 </Page> 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SteamProfile.Data
 {
-    public sealed class DataLink : IDisposable
+    public sealed partial class DataLink : IDisposable
     {
         private static readonly Lazy<DataLink> instance = new(() => new DataLink());
         private readonly string connectionString;
@@ -156,6 +156,35 @@ namespace SteamProfile.Data
             catch (Exception ex)
             {
                 throw new DatabaseOperationException($"Error during ExecuteNonQuery operation: {ex.Message}", ex);
+            }
+        }
+
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedure, SqlParameter[] sqlParameters = null)
+        {
+            try
+            {
+                using var connection = GetConnection();
+                await connection.OpenAsync();
+
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
             }
         }
 

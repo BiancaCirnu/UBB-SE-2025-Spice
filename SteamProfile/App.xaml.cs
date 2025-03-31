@@ -19,6 +19,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using SteamProfile.Views;
 
 namespace SteamProfile
 {
@@ -28,9 +29,9 @@ namespace SteamProfile
         public static readonly FeaturesService FeaturesService;
         public static readonly CollectionsService CollectionsService;
         public static readonly WalletService WalletService;
-        public static readonly AuthenticationService AuthenticationService;
         public static readonly UserService UserService;
         public static IPasswordResetService PasswordResetService { get; private set; }
+        public static readonly SessionService SessionService;
 
         static App()
         {
@@ -41,19 +42,20 @@ namespace SteamProfile
             var usersRepository = new UsersRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
+            var sessionRepository = new SessionRepository(dataLink);
+            var passwordResetRepo = new PasswordResetRepository(dataLink);
 
             // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
-            FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
-            AuthenticationService = new AuthenticationService(usersRepository);
-            UserService = new UserService(usersRepository);
-
-            // Initialize password reset service
-            var passwordResetRepo = new PasswordResetRepository(dataLink);
+            SessionService = new SessionService(sessionRepository);
+            UserService = new UserService(usersRepository, SessionService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
         }
+
+        private Window m_window;
 
         public App()
         {
@@ -64,13 +66,8 @@ namespace SteamProfile
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            MainWindow = new MainWindow();
-            MainWindow.Activate();
-            
-            var rootFrame = new Frame();
-            MainWindow.Content = rootFrame;
-            
-            rootFrame.Navigate(typeof(LoginPage));
+            m_window = new MainWindow();
+            m_window.Activate();
         }
 
         private Window? m_window;

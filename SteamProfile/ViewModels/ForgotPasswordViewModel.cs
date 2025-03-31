@@ -29,8 +29,10 @@ namespace SteamProfile.ViewModels
         private bool _showEmailSection = true;
         private bool _showCodeSection = false;
         private bool _showPasswordSection = false;
+        private bool _showLoginButton = false;
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event EventHandler PasswordResetSuccess;
 
         public string Email
         {
@@ -122,9 +124,20 @@ namespace SteamProfile.ViewModels
             }
         }
 
+        public bool ShowLoginButton
+        {
+            get => _showLoginButton;
+            set
+            {
+                _showLoginButton = value;
+                OnPropertyChanged(nameof(ShowLoginButton));
+            }
+        }
+
         public ICommand SendResetCodeCommand { get; }
         public ICommand VerifyCodeCommand { get; }
         public ICommand ResetPasswordCommand { get; }
+        public ICommand NavigateToLoginCommand { get; }
 
         public ForgotPasswordViewModel(IPasswordResetService passwordResetService)
         {
@@ -142,6 +155,14 @@ namespace SteamProfile.ViewModels
         {
             try
             {
+                // Check if email is empty
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    StatusMessage = "Please enter your email address.";
+                    StatusColor = new SolidColorBrush(Colors.Red);
+                    return;
+                }
+
                 // Cleanup expired codes first
                 _passwordResetService.CleanupExpiredCodes();
 
@@ -173,6 +194,12 @@ namespace SteamProfile.ViewModels
                     ShowCodeSection = true;
                     StatusMessage = "Reset code has been generated and opened in a text file.";
                     StatusColor = new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    // This is the important change: show an error when the email doesn't exist
+                    StatusMessage = "Email address not found. Please check and try again.";
+                    StatusColor = new SolidColorBrush(Colors.Red);
                 }
             }
             catch (Exception ex)
@@ -235,7 +262,9 @@ namespace SteamProfile.ViewModels
                     
                     StatusMessage = "Password reset successful. You can now login with your new password.";
                     StatusColor = new SolidColorBrush(Colors.Green);
-
+                    
+                    // Raise the password reset success event
+                    PasswordResetSuccess?.Invoke(this, EventArgs.Empty);
                 }
                 else
                 {

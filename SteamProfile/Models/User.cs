@@ -9,11 +9,13 @@ namespace SteamProfile.Models
     public class User
     {
         public int UserId { get; set; }
-        public string Email { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
+        public string Username { get; set; }
+        public string Email { get; set; }
+        
+        // This property is used for input/output but never stored in the database
+        // The actual password is stored as a hash in the database
         public string Password { get; set; }
-        public string? ProfilePicture { get; set; }
-        public string? Description { get; set; }
+        
         public bool IsDeveloper { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
@@ -23,8 +25,6 @@ namespace SteamProfile.Models
             Email = other.Email;
             Username = other.Username;
             Password = other.Password;
-            ProfilePicture = other.ProfilePicture;
-            Description = other.Description;
             IsDeveloper = other.IsDeveloper;
             CreatedAt = other.CreatedAt;
             LastLogin = other.LastLogin;

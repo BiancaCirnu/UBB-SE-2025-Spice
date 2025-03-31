@@ -6,43 +6,47 @@
     xmlns:local="using:SteamProfile"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    mc:Ignorable="d"
-    Title="SteamProfile">
+    mc:Ignorable="d">
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Navigation Menu -->
-        <NavigationView
-            x:Name="NavView"
-            Grid.Column="0"
-            PaneDisplayMode="Left"
-            IsSettingsVisible="False"
-            IsBackButtonVisible="Collapsed"
-            SelectionChanged="NavView_SelectionChanged">
-            <NavigationView.MenuItems>
-                <NavigationViewItem Icon="People" Content="Users" Tag="users"/>
-                <NavigationViewItem Icon="Contact" Content="Profile" Tag="profile"/>
-                <NavigationViewItem Icon="Favorite" Content="Achievements" Tag="achievements"/>
-                <NavigationViewItem Icon="Library" Content="Collections" Tag="collections"/>
-                <NavigationViewItem Icon="Setting" Content="Features" Tag="features"/>
-                <NavigationViewItem Icon="Contact2" Content="Friends" Tag="friends"/>
-                <NavigationViewItem Content="Wallet" Tag="wallet">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8C7;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Icon="Setting" Content="Configurations" Tag="configurations"/>
-            </NavigationView.MenuItems>
-        </NavigationView>
+        <Frame x:Name="ContentFrame" Grid.Row="0"/>
 
-        <!-- Content Frame -->
-        <Frame
-            x:Name="ContentFrame"
-            Grid.Column="1"/>
+        <StackPanel x:Name="WelcomePanel" 
+                    Grid.Row="0" 
+                    Spacing="20" 
+                    Padding="40" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center"
+                    MaxWidth="800">
+            <TextBlock Text="Welcome to Steam Profile"
+                       Style="{ThemeResource TitleLargeTextBlockStyle}"
+                       HorizontalAlignment="Center"/>
+
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="10">
+                <Button x:Name="LoginButton"
+                        Click="LoginButton_Click"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Width="200">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE77B;"/>
+                        <TextBlock Text="Login"/>
+                    </StackPanel>
+                </Button>
+
+                <Button x:Name="RegisterButton"
+                        Click="RegisterButton_Click"
+                        Style="{ThemeResource AccentButtonStyle}"
+                        Width="200">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;"/>
+                        <TextBlock Text="Create an Account"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </StackPanel>
     </Grid>
-</Window>
+</Window> 
