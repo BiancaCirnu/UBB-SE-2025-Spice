@@ -25,8 +25,7 @@ namespace SteamProfile.Views
     /// </summary>
     public sealed partial class ProfilePage : Page
     {
-        private readonly ProfileViewModel _viewModel;
-        private int _userId;
+        public ProfileViewModel ViewModel { get; private set; }
 
         public ProfilePage()
         {
@@ -45,21 +44,6 @@ namespace SteamProfile.Views
         {
             // Direct navigation to ConfigurationsPage
             this.Frame.Navigate(typeof(ConfigurationsPage));
-        }
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-            if (e.Parameter is int userId)
-            {
-                _userId = userId;
-                UserIdText.Text = _userId.ToString();
-            }
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.GoBack();
         }
     }
 }

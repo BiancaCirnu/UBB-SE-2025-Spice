@@ -32,6 +32,9 @@ namespace SteamProfile
         public static readonly UserService UserService;
         public static readonly FriendsService FriendsService;
         public static readonly OwnedGamesService OwnedGamesService;
+        public static readonly AuthenticationService AuthenticationService;
+        public static IPasswordResetService PasswordResetService { get; private set; }
+        public static readonly SessionService SessionService;
 
         static App()
         {
@@ -44,15 +47,20 @@ namespace SteamProfile
             var walletRepository = new WalletRepository(dataLink);
             var friendshipsRepository = new FriendshipsRepository(dataLink);
             var ownedGamesRepossitory = new OwnedGamesRepository(dataLink);
+            var sessionRepository = new SessionRepository(dataLink);
+            var passwordResetRepo = new PasswordResetRepository(dataLink);
 
             // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
-            UserService = new UserService(usersRepository);
+            SessionService = new SessionService(sessionRepository);
+            UserService = new UserService(usersRepository, SessionService);
             FriendsService = new FriendsService(friendshipsRepository);
             OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
+            PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
         }
 
         private Window m_window;
