@@ -131,7 +131,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Data\Procedures\Achievements\" />
     <Folder Include="Data\Procedures\Features\" />
     <Folder Include="Data\Procedures\Collections\" />
   </ItemGroup>

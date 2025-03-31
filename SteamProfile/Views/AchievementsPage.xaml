@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="SteamProfile.Views.AchievementsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,7 +8,135 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid Padding="20" HorizontalAlignment="Center">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
 
+            <!-- Achievements Title -->
+            <TextBlock Text="ACHIEVEMENTS" FontSize="30" FontWeight="Bold" TextAlignment="Center"/>
+
+            <StackPanel Margin="20,20,20,0">
+                <TextBlock Text="FRIENDSHIPS" FontSize="20" FontWeight="Bold" />
+
+                <ItemsControl ItemsSource="{Binding FriendshipsAchievements}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="20"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
+                                <Grid>
+                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Margin="20,20,20,0">
+                <TextBlock Text="OWNED GAMES" FontSize="20" FontWeight="Bold" />
+
+                <ItemsControl ItemsSource="{Binding OwnedGamesAchievements}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="20"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
+                                <Grid>
+                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Margin="20,20,20,0">
+                <TextBlock Text="SOLD GAMES" FontSize="20" FontWeight="Bold" />
+
+                <ItemsControl ItemsSource="{Binding SoldGamesAchievements}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="20"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
+                                <Grid>
+                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Margin="20,20,20,0">
+                <TextBlock Text="NUMBER OF REVIEWS" FontSize="20" FontWeight="Bold" />
+
+                <ItemsControl ItemsSource="{Binding NumberOfPostsAchievements}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="20"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
+                                <Grid>
+                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Achievement.AchievementName}" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding Achievement.Description}" TextWrapping="Wrap" MaxWidth="200"/>
+                                                <TextBlock Text="{Binding UnlockedDate}"/>
+                                            </StackPanel>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+        </StackPanel>
     </Grid>
 </Page>

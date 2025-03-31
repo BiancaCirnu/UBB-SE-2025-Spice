@@ -1,5 +1,5 @@
 -- Drop existing objects if they exist
-:r Data\DropExistingObjects.sql
+--:r Data\DropExistingObjects.sql
 
 -- Create Users table
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Users')
@@ -20,13 +20,17 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Achievemen
 BEGIN
     CREATE TABLE Achievements (
         achievement_id INT IDENTITY(1,1) PRIMARY KEY,
-        name NVARCHAR(255) NOT NULL,
         description NVARCHAR(MAX),
-        points int not null,
-        icon NVARCHAR(MAX),
+		achievement_type NVARCHAR(MAX), 
+		points int,
+        icon_url NVARCHAR(MAX),
+        created_at DATETIME NOT NULL DEFAULT GETDATE()
     );
 END
 
+
+-- Create UserAchievements table (junction table)
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'UserAchievements')
 -- Create Features table
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Features')
 BEGIN
@@ -161,15 +165,107 @@ insert into PointsOffers(numberOfPoints, value) values
 --    );
 --END
 
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'OwnedGames')
+BEGIN
+    CREATE TABLE OwnedGames (
+        owned_game_id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NOT NULL,
+        game_id INT NOT NULL,
+        purchase_date DATETIME DEFAULT GETDATE(),
+        CONSTRAINT FK_OwnedGames_User FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    );
+END
+
+
+
+
+
 -- Insert stored procedures
-:r Data\Procedures\Users\GetAllUsers.sql
-:r Data\Procedures\Users\GetUserById.sql
-:r Data\Procedures\Users\UserLogin.sql
-:r Data\Procedures\Users\CreateUser.sql
-:r Data\Procedures\Users\UpdateUser.sql
+--:r Data\Procedures\Users\GetAllUsers.sql
+--:r Data\Procedures\Users\GetUserById.sql
+--:r Data\Procedures\Users\UserLogin.sql
+--:r Data\Procedures\Users\CreateUser.sql
+--:r Data\Procedures\Users\UpdateUser.sql
 
 -- Add more :r commands for other stored procedures as they are created
 -- :r Data\Procedures\Achievements\...
 -- :r Data\Procedures\Collections\...
 -- :r Data\Procedures\Features\...
 -- :r Data\Procedures\Wallet\... 
+
+
+CREATE TABLE SoldGames (
+    sold_game_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    game_id INT NOT NULL,
+    sold_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+insert into SoldGames(user_id, game_id) values (1, 1)
+
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Reviews')
+BEGIN
+	CREATE TABLE Reviews (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_text NVARCHAR(MAX),
+    review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+);
+END
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('FRIENDSHIP1', 'You made a friend, you get a point', 'Friendships', 1)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('FRIENDSHIP2', 'You made 5 friends, you get 3 points', 'Friendships', 3)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('FRIENDSHIP3', 'You made 10 friends, you get 5 points', 'Friendships', 5)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('FRIENDSHIP4', 'You made 50 friends, you get 10 points', 'Friendships', 10)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('FRIENDSHIP5', 'You made 100 friends, you get 15 points', 'Friendships', 15)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('OWNEDGAMES1', 'You own 1 game, you get 1 point', 'Owned Games', 1)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('OWNEDGAMES2', 'You own 5 games, you get 3 poinst', 'Owned Games', 3)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('OWNEDGAMES3', 'You own 10 games, you get 5 points', 'Owned Games', 5)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('OWNEDGAMES4', 'You own 50 games, you get 10 points', 'Owned Games', 10)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('SOLDGAMES1', 'You sold 1 game, you get 1 point', 'Sold Games', 1)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('SOLDGAMES2', 'You sold 5 games, you get 3 points', 'Sold Games', 3)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('SOLDGAMES3', 'You sold 10 games, you get 5 points', 'Sold Games', 5)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('SOLDGAMES4', 'You sold 50 games, you get 10 points', 'Sold Games', 10)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('REVIEW1', 'You gave 1 review, you get 1 point', 'Number of Reviews', 1)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('REVIEW2', 'You gave 5 reviews, you get 3 points', 'Number of Reviews', 3)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('REVIEW3', 'You gave 10 reviews, you get 5 points', 'Number of Reviews', 5)
+
+insert into Achievements(achievement_name, description, achievement_type, points) 
+values ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews', 10)
+
+update Achievements 
+set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
+where achievement_id > 0

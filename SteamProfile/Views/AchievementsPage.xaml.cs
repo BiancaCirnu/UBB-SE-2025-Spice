@@ -23,7 +23,7 @@ namespace SteamProfile.Views
         public AchievementsPage()
         {
             this.InitializeComponent();
-            _viewModel = new AchievementsViewModel(App.AchievementsService);
+            _viewModel = AchievementsViewModel.Instance;
             this.DataContext = _viewModel;
         }
     }
