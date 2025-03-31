@@ -13,17 +13,38 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using System.Diagnostics;
 
 namespace SteamProfile.Views
 {
     public sealed partial class FriendsPage : Page
     {
         private readonly FriendsViewModel _viewModel;
+
+        public FriendsViewModel ViewModel => _viewModel;
+
         public FriendsPage()
         {
-            this.InitializeComponent();
-            _viewModel = new FriendsViewModel();
-            this.DataContext = _viewModel;
+            InitializeComponent();
+            _viewModel = new FriendsViewModel(App.FriendsService);
+            DataContext = _viewModel;
+            _viewModel.LoadFriends(); // Load friends immediately when page is created
+        }
+
+        private void RemoveFriend_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is int friendshipId)
+            {
+                _viewModel.RemoveFriend(friendshipId);
+            }
+        }
+
+        private void ViewFriend_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is int userId)
+            {
+                Frame.Navigate(typeof(ProfilePage), userId);
+            }
         }
     }
 }

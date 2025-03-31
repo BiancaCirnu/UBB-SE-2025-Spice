@@ -14,10 +14,12 @@ using Microsoft.UI.Xaml.Shapes;
 using SteamProfile.Data;
 using SteamProfile.Repositories;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using SteamProfile.Views;
 
 namespace SteamProfile
 {
@@ -27,8 +29,12 @@ namespace SteamProfile
         public static readonly FeaturesService FeaturesService;
         public static readonly CollectionsService CollectionsService;
         public static readonly WalletService WalletService;
-        public static readonly AuthenticationService AuthenticationService;
         public static readonly UserService UserService;
+        public static readonly FriendsService FriendsService;
+        public static readonly OwnedGamesService OwnedGamesService;
+        public static readonly AuthenticationService AuthenticationService;
+        public static IPasswordResetService PasswordResetService { get; private set; }
+        public static readonly SessionService SessionService;
 
         static App()
         {
@@ -39,26 +45,37 @@ namespace SteamProfile
             var usersRepository = new UsersRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
+            var friendshipsRepository = new FriendshipsRepository(dataLink);
+            var ownedGamesRepossitory = new OwnedGamesRepository(dataLink);
+            var sessionRepository = new SessionRepository(dataLink);
+            var passwordResetRepo = new PasswordResetRepository(dataLink);
 
+            // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
-            FeaturesService = new FeaturesService(featuresRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             WalletService = new WalletService(walletRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
-            UserService = new UserService(usersRepository);
+            SessionService = new SessionService(sessionRepository);
+            UserService = new UserService(usersRepository, SessionService);
+            FriendsService = new FriendsService(friendshipsRepository);
+            OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
+            PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
         }
+
+        private Window m_window;
 
         public App()
         {
             this.InitializeComponent();
         }
 
+        public Window MainWindow { get; set; }
+
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = new MainWindow();
             m_window.Activate();
         }
-
-        private Window? m_window;
     }
 }

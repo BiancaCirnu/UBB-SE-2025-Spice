@@ -13,17 +13,42 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using SteamProfile.Views;
+
+// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace SteamProfile.Views
 {
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
     public sealed partial class ProfilePage : Page
     {
-        private readonly ProfileViewModel _viewModel;
+        public ProfileViewModel ViewModel { get; private set; }
+
         public ProfilePage()
         {
             this.InitializeComponent();
-            _viewModel = new ProfileViewModel(App.UserService);
-            this.DataContext = _viewModel;
+            this.Loaded += ProfilePage_Loaded;
+        }
+
+        private void ProfilePage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel = new ProfileViewModel(App.UserService, this.Frame);
+            this.DataContext = ViewModel;
+        }
+
+        // Add this new method for Configurations button
+        private void ConfigurationsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Direct navigation to ConfigurationsPage
+            this.Frame.Navigate(typeof(ConfigurationsPage));
+        }
+
+        private void ViewCollections_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(CollectionsPage));
         }
     }
 }

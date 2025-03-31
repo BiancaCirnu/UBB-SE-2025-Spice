@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SteamProfile.Data
 {
-    public sealed class DataLink : IDisposable
+    public sealed partial class DataLink : IDisposable
     {
         private static readonly Lazy<DataLink> instance = new(() => new DataLink());
         private readonly string connectionString;
@@ -158,6 +158,66 @@ namespace SteamProfile.Data
                 throw new DatabaseOperationException($"Error during ExecuteNonQuery operation: {ex.Message}", ex);
             }
         }
+
+        public async Task<DataTable> ExecuteReaderAsync(string storedProcedure, SqlParameter[]? sqlParameters = null)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                await connection.OpenAsync();
+                using var reader = await command.ExecuteReaderAsync();
+                var dataTable = new DataTable();
+                dataTable.Load(reader);
+                return dataTable;
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteReaderAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteReaderAsync operation: {ex.Message}", ex);
+            }
+        }
+
+        public async Task ExecuteNonQueryAsync(string storedProcedure, SqlParameter[]? sqlParameters = null)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                await connection.OpenAsync();
+                await command.ExecuteNonQueryAsync();
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+        }
+
 
         public void Dispose()
         {

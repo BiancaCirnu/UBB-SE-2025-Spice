@@ -10,7 +10,6 @@ namespace SteamProfile.Services
     public class AuthenticationService
     {
         private readonly UsersRepository _usersRepository;
-
         public AuthenticationService(UsersRepository usersRepository)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));

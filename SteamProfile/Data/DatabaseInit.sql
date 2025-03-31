@@ -6,14 +6,12 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Users')
 BEGIN
     CREATE TABLE Users (
         user_id INT IDENTITY(1,1) PRIMARY KEY,
-        email NVARCHAR(255) NOT NULL UNIQUE,
-        username NVARCHAR(255) NOT NULL UNIQUE,
-        password NVARCHAR(255) NOT NULL,
-        profile_picture NVARCHAR(MAX),
-        description NVARCHAR(MAX),
+        username NVARCHAR(50) NOT NULL UNIQUE,
+        email NVARCHAR(100) NOT NULL UNIQUE,
+        hashed_password NVARCHAR(255) NOT NULL,
         developer BIT NOT NULL DEFAULT 0,
         created_at DATETIME NOT NULL DEFAULT GETDATE(),
-        last_login DATETIME
+        last_login DATETIME NULL
     );
 END
 
@@ -47,9 +45,12 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Collection
 BEGIN
     CREATE TABLE Collections (
         collection_id INT IDENTITY(1,1) PRIMARY KEY,
-        name NVARCHAR(255) NOT NULL,
-        description NVARCHAR(MAX),
-        created_at DATETIME NOT NULL DEFAULT GETDATE()
+        user_id INT NOT NULL,
+        name NVARCHAR(100) NOT NULL,
+        cover_picture NVARCHAR(MAX),
+        is_public BIT DEFAULT 0,
+        created_at DATETIME DEFAULT GETDATE(),
+        CONSTRAINT FK_Collections_User FOREIGN KEY (user_id) REFERENCES Users(user_id)
     );
 END
 
@@ -146,6 +147,55 @@ BEGIN
     );
 END
 
+-- Create OwnedGames table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'OwnedGames')
+BEGIN
+    CREATE TABLE OwnedGames (
+        owned_game_id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NOT NULL,
+        game_id INT NOT NULL,
+        purchase_date DATETIME DEFAULT GETDATE(),
+        CONSTRAINT FK_OwnedGames_User FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    );
+END
+
+-- Create OwnedGames_Collection table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'OwnedGames_Collection')
+BEGIN
+    CREATE TABLE OwnedGames_Collection (
+        collection_id INT NOT NULL,
+        game_id INT NOT NULL,
+        PRIMARY KEY (collection_id, game_id),
+        FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
+    );
+END
+
+-- Create Friendships table
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Friendships')
+BEGIN
+    CREATE TABLE Friendships (
+        friendship_id INT IDENTITY(1,1) PRIMARY KEY,
+        user_id INT NOT NULL,
+        friend_id INT NOT NULL,
+        CONSTRAINT FK_Friendships_User FOREIGN KEY (user_id) REFERENCES Users(user_id),
+        CONSTRAINT FK_Friendships_Friend FOREIGN KEY (friend_id) REFERENCES Users(user_id),
+        CONSTRAINT UQ_Friendship UNIQUE (user_id, friend_id),
+        CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
+    );
+END
+
+-- Add indexes for better query performance
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Friendships_UserId')
+BEGIN
+    CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
+END
+
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Friendships_FriendId')
+BEGIN
+    CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
+END
+
 -- Insert stored procedures
 :r Data\Procedures\Users\GetAllUsers.sql
 :r Data\Procedures\Users\GetUserById.sql
@@ -155,6 +205,22 @@ END
 
 -- Add more :r commands for other stored procedures as they are created
 -- :r Data\Procedures\Achievements\...
--- :r Data\Procedures\Collections\...
--- :r Data\Procedures\Features\...
--- :r Data\Procedures\Wallet\... 
+:r Data\Procedures\Collections\GetPublicCollectionsForUser.sql
+:r Data\Procedures\Collections\GetPrivateCollectionsForUser.sql
+:r Data\Procedures\Collections\GetAllCollectionsForUser.sql
+:r Data\Procedures\Collections\MakeCollectionPrivate.sql
+:r Data\Procedures\Collections\MakeCollectionPublic.sql
+:r Data\Procedures\Collections\DeleteCollection.sql
+:r Data\Procedures\Collections\CreateCollection.sql
+:r Data\Procedures\Collections\UpdateCollection.sql
+:r Data\Procedures\OwnedGames\GetAllOwnedGames.sql
+:r Data\Procedures\OwnedGames\GetOwnedGameById.sql
+:r Data\Procedures\OwnedGames\AddGameToCollection.sql
+:r Data\Procedures\OwnedGames\RemoveGameFromCollection.sql
+:r Data\Procedures\OwnedGames\GetGamesInCollection.sql
+:r Data\Procedures\Friendships\GetFriendsForUser.sql
+:r Data\Procedures\Friendships\GetFriendshipCountForUser.sql
+:r Data\Procedures\Friendships\AddFriend.sql
+:r Data\Procedures\Friendships\RemoveFriend.sql
+
+
