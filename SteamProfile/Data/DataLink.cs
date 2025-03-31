@@ -159,6 +159,35 @@ namespace SteamProfile.Data
             }
         }
 
+        public async Task<int> ExecuteNonQueryAsync(string storedProcedure, SqlParameter[] sqlParameters = null)
+        {
+            try
+            {
+                using var connection = GetConnection();
+                await connection.OpenAsync();
+
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                return await command.ExecuteNonQueryAsync();
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
+            }
+        }
+
         public void Dispose()
         {
             Dispose(true);

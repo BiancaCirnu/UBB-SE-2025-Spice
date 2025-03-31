@@ -34,10 +34,22 @@ namespace SteamProfile.ViewModels
         }
 
         [RelayCommand]
+        private void NavigateToConfigurations()
+        {
+            _frame.Navigate(typeof(ConfigurationsPage));
+        }
+
+        [RelayCommand]
         private void Logout()
         {
             _userService.Logout();
             _frame.Navigate(typeof(LoginPage)); // Navigate back to the login page
+        }
+
+        [RelayCommand]
+        private void NavigateToFeatures()
+        {
+            _frame.Navigate(typeof(FeaturesPage));
         }
     }
 }
