@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Models;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -51,12 +52,16 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
         [ObservableProperty]
         private bool updatePasswordEnabled = false;
 
-        private readonly UserService userService;
+        // Event to request the View to show the password confirmation dialog
+        public event EventHandler RequestPasswordConfirmation;
 
-        public AccountSettingsViewModel()
+        private readonly UserService userService;
+        private Action pendingAction;
+        private readonly Frame _frame;
+        public AccountSettingsViewModel(Frame frame)
         {
             userService = App.UserService;
-
+            _frame = frame;
             UpdateEmailCommand = new RelayCommand(UpdateEmail, CanUpdateEmail);
             UpdateUsernameCommand = new RelayCommand(UpdateUsername, CanUpdateUsername);
             UpdatePasswordCommand = new RelayCommand(UpdatePassword, CanUpdatePassword);
@@ -64,7 +69,6 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             DeleteAccountCommand = new RelayCommand(DeleteAccount);
             CancelCommand = new RelayCommand(Cancel);
 
-            // Load current user data
             var currentUser = userService.GetCurrentUser();
             if (currentUser != null)
             {
@@ -142,90 +146,107 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         private void UpdateEmail()
         {
-            // Show password confirmation dialog
-            var dialog = new ContentDialog
+            pendingAction = () =>
             {
-                Title = "Confirm Password",
-                PrimaryButtonText = "Confirm",
-                SecondaryButtonText = "Cancel",
-                Content = "Please enter your current password to confirm changes"
+                if (userService.UpdateUserEmail(Email, CurrentPassword))
+                {
+                    ErrorMessage = "Email updated successfully!";
+                }
+                else
+                {
+                    ErrorMessage = "Failed to update email. Please try again.";
+                }
             };
 
-            // Handle confirmation
-            // In actual implementation, you would verify the password and update the email
-            if (userService.UpdateUserEmail(Email, CurrentPassword))
-            {
-                // Show success message
-            }
-            else
-            {
-                // Show error message
-            }
+            RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
         }
 
         private void UpdateUsername()
         {
-            // Show password confirmation dialog
-            // Handle confirmation
-            // Update username in the user service
-            if (userService.UpdateUserUsername(Username, CurrentPassword))
+            pendingAction = () =>
             {
-                // Show success message
-            }
-            else
-            {
-                // Show error message
-            }
+                if (userService.UpdateUserUsername(Username, CurrentPassword))
+                {
+                    ErrorMessage = "Username updated successfully!";
+                }
+                else
+                {
+                    ErrorMessage = "Failed to update username. Please try again.";
+                }
+            };
+
+            RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
         }
 
         private void UpdatePassword()
         {
-            // Show password confirmation dialog
-            // Handle confirmation
-            // Update password in the user service
-            if (userService.UpdateUserPassword(Password, CurrentPassword))
+            pendingAction = () =>
             {
-                // Show success message
-                Password = string.Empty; // Clear the password field
-            }
-            else
-            {
-                // Show error message
-            }
+                if (userService.UpdateUserPassword(Password, CurrentPassword))
+                {
+                    ErrorMessage = "Password updated successfully!";
+                    Password = string.Empty; // Clear the password field
+                }
+                else
+                {
+                    ErrorMessage = "Failed to update password. Please try again.";
+                }
+            };
+
+            RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
         }
 
         private void Logout()
         {
             userService.Logout();
-            // Navigate to login page
-            // App.NavigationService.Navigate(typeof(LoginPage));
+            _frame.Navigate(typeof(LoginPage));
         }
 
-        private void DeleteAccount()
+        private async void DeleteAccount()
         {
-            // Show confirmation dialog
             var dialog = new ContentDialog
             {
                 Title = "Delete Account",
                 Content = "Are you sure you want to delete your account? This action cannot be undone.",
                 PrimaryButtonText = "Delete",
                 CloseButtonText = "Cancel"
+
             };
 
-            // Handle confirmation
-            // Delete account in the user service
-            // Navigate to login page
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                pendingAction = () =>
+                {
+                    userService.DeleteUser(userService.GetCurrentUser().UserId);
+                    _frame.Navigate(typeof(LoginPage));
+                };
+
+                RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void Cancel()
         {
-            // Navigate back or to home page
-            // App.NavigationService.GoBack();
+            _frame.Navigate(typeof(ProfilePage));
         }
 
         public bool VerifyPassword(string password)
         {
             return userService.VerifyUserPassword(password);
+        }
+
+        public void ExecutePendingAction()
+        {
+            pendingAction?.Invoke();
+            pendingAction = null;
+            CurrentPassword = string.Empty;
+        }
+
+        public void CancelPendingAction()
+        {
+            pendingAction = null;
+            CurrentPassword = string.Empty;
         }
     }
 }

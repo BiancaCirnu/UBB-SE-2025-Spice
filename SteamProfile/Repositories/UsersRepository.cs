@@ -217,6 +217,57 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public void ChangeEmail(int userId, string newEmail)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@newEmail", newEmail)
+                };
+                _dataLink.ExecuteNonQuery("ChangeEmailForUser", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to change email for user ID {userId}.", ex);
+            }
+        }
+        public void ChangePassword(int userId, string newPassword)
+        {
+            try
+            {
+
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@newHashedPassword", PasswordHasher.HashPassword(newPassword))
+                };
+                _dataLink.ExecuteNonQuery("ChangePassword", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to change password for user ID {userId}.", ex);
+            }
+        }
+        public void ChangeUsername(int userId, string newUsername)
+        {
+            try
+            {
+
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@newUsername",newUsername)
+                };
+                _dataLink.ExecuteNonQuery("ChangeUsername", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to change username for user ID {userId}.", ex);
+            }
+        }
+
         public void UpdateLastLogin(int userId)
         {
             try

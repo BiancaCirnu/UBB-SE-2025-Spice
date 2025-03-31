@@ -17,8 +17,8 @@
             <StackPanel Orientation="Horizontal" Spacing="10">
                 <TextBox Width="250" PlaceholderText="New email"
                         Text="{x:Bind ViewModel.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdateEmailCommand}" IsEnabled="{x:Bind ViewModel.UpdateEmailEnabled}"/>
+                <Button Content="Update Email" Width="100" 
+                        Command="{x:Bind ViewModel.UpdateEmailCommand}" />
             </StackPanel>
             <TextBlock Text="Please introduce a unique valid email" Foreground="Red"
                     Visibility="{x:Bind ViewModel.EmailErrorMessageVisibility, Mode=OneWay}"/>
@@ -27,8 +27,8 @@
             <StackPanel Orientation="Horizontal" Spacing="10">
                 <TextBox Width="250" PlaceholderText="New username"
                          Text="{x:Bind ViewModel.Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdateUsernameCommand}" IsEnabled="{x:Bind ViewModel.UpdateUsernameEnabled}"/>
+                <Button Content="Update Username" Width="100" 
+                        Command="{x:Bind ViewModel.UpdateUsernameCommand}" />
             </StackPanel>
             <TextBlock Text="Please introduce a unique valid username" Foreground="Red"
                      Visibility="{x:Bind ViewModel.UsernameErrorMessageVisibility, Mode=OneWay}"/>
@@ -37,8 +37,8 @@
             <StackPanel Orientation="Horizontal" Spacing="10">
                 <PasswordBox Width="250" PlaceholderText="New password"
                              Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Content="Update" Width="100" 
-                        Command="{x:Bind ViewModel.UpdatePasswordCommand}" IsEnabled="{x:Bind ViewModel.UpdatePasswordEnabled}"/>
+                <Button Content="Update Password" Width="100" 
+                        Command="{x:Bind ViewModel.UpdatePasswordCommand}"/>
             </StackPanel>
             <TextBlock TextWrapping="Wrap" Foreground="Red"
                      Visibility="{x:Bind ViewModel.PasswordErrorMessageVisibility, Mode=OneWay}">

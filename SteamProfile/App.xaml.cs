@@ -64,6 +64,7 @@ namespace SteamProfile
         }
 
         public Window MainWindow { get; set; }
+        public static object NavigationService { get; internal set; }
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {

@@ -25,20 +25,11 @@ namespace SteamProfile.Services
             return _usersRepository.GetAllUsers();
         }
 
-        public User GetUserById(int userId)
-        {
-            return _usersRepository.GetUserById(userId);
-        }
+        public User GetUserById(int userId) => _usersRepository.GetUserById(userId);
 
-        public User GetUserByEmail(string email)
-        {
-            return _usersRepository.GetUserByEmail(email);
-        }
+        public User GetUserByEmail(string email) => _usersRepository.GetUserByEmail(email);
 
-        public User GetUserByUsername(string username)
-        {
-            return _usersRepository.GetUserByUsername(username);
-        }
+        public User GetUserByUsername(string username) => _usersRepository.GetUserByUsername(username);
         public void ValidateUserAndEmail(string email, string username)
         {
             // Check if user already exists
@@ -76,6 +67,26 @@ namespace SteamProfile.Services
         {
             _usersRepository.DeleteUser(userId);
 
+        }
+        public bool acceptChanges(int user_id, string givenPassword)
+        {
+            User user = _usersRepository.GetUserById(user_id);
+            
+            if (PasswordHasher.VerifyPassword(givenPassword, user.Password))
+                {
+                return true;
+                }
+            return false;
+        }
+
+        public void updateUserEmail(int userId, string newEmail) {
+            _usersRepository.ChangeEmail(userId, newEmail);
+        }
+        public void updateUserPassword(int userId, string newPassword) {
+            _usersRepository.ChangePassword(userId, newPassword);
+        }
+        public void updateUserUsername(int userId, string newUsername) {
+            _usersRepository.ChangeUsername(userId, newUsername);
         }
 
         public User? Login(string emailOrUsername, string password)
