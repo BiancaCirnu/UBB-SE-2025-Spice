@@ -70,6 +70,5 @@ namespace SteamProfile
             m_window.Activate();
         }
 
-        private Window? m_window;
     }
 }
