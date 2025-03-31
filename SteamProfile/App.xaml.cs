@@ -30,27 +30,42 @@ namespace SteamProfile
         public static readonly CollectionsService CollectionsService;
         public static readonly WalletService WalletService;
         public static readonly UserService UserService;
+        public static readonly FriendsService FriendsService;
+        public static readonly OwnedGamesService OwnedGamesService;
+        public static readonly AuthenticationService AuthenticationService;
         public static IPasswordResetService PasswordResetService { get; private set; }
         public static readonly SessionService SessionService;
+        public static UserProfilesRepository UserProfileRepository { get; private set; }
 
         static App()
         {
             var dataLink = DataLink.Instance;
+            var navigationService = NavigationService.Instance ;
 
             var achievementsRepository = new AchievementsRepository(dataLink);
             var featuresRepository = new FeaturesRepository(dataLink);
             var usersRepository = new UsersRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
+            var friendshipsRepository = new FriendshipsRepository(dataLink);
+            var ownedGamesRepossitory = new OwnedGamesRepository(dataLink);
             var sessionRepository = new SessionRepository(dataLink);
             var passwordResetRepo = new PasswordResetRepository(dataLink);
+            UserProfileRepository = new UserProfilesRepository(dataLink);
+
 
             // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
+            WalletService = new WalletService(walletRepository);
+            AuthenticationService = new AuthenticationService(usersRepository);
             SessionService = new SessionService(sessionRepository);
             UserService = new UserService(usersRepository, SessionService);  
             WalletService = new WalletService(walletRepository, UserService);
+            UserService = new UserService(usersRepository, SessionService);
+            FriendsService = new FriendsService(friendshipsRepository, UserService);
+            OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
 
@@ -61,6 +76,7 @@ namespace SteamProfile
         public App()
         {
             this.InitializeComponent();
+
         }
 
         public Window MainWindow { get; set; }
@@ -68,6 +84,7 @@ namespace SteamProfile
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = new MainWindow();
+            //NavigationService.Instance.Initialize(m_window.Content as Frame); // Ensure the frame is passed
             m_window.Activate();
         }
 

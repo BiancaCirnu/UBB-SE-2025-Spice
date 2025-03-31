@@ -2,6 +2,8 @@ go
 CREATE PROCEDURE GetAllUsers
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     SELECT 
         user_id,
         username,

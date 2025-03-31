@@ -6,10 +6,146 @@
     xmlns:local="using:SteamProfile.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:SteamProfile.Models" xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <!-- Back Button -->
+        <Button Grid.Row="0"
+                Content="Back"
+                Click="BackButton_Click"
+                Style="{StaticResource AccentButtonStyle}"
+                HorizontalAlignment="Left"
+                Margin="20"/>
+
+        <!-- Title -->
+        <TextBlock Text="COLLECTIONS" 
+                  FontSize="30" 
+                  FontWeight="Bold" 
+                  TextAlignment="Center"
+                  Margin="20"/>
+
+        <!-- Scrollable Content -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Orientation="Vertical" 
+                        HorizontalAlignment="Center"
+                        Padding="20">
+                <!-- Create Collection Button -->
+                <Button Content="Create Collection"
+                        Click="CreateCollection_Click"
+                        Style="{StaticResource AccentButtonStyle}"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,15,20"/>
+
+                <!-- Collections Grid -->
+                <ItemsControl ItemsSource="{Binding Collections}"
+                            Margin="0,0,0,20">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:WrapPanel Orientation="Horizontal" MaxWidth="680"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:Collection">
+                            <Grid Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  BorderThickness="1"
+                                  CornerRadius="8"
+                                  Padding="16"
+                                  Margin="10">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="132"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Collection Cover Picture -->
+                                <Grid Grid.Row="0" 
+                                      Width="120" 
+                                      Height="120"
+                                      Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                      CornerRadius="8">
+                                    <Image Source="{Binding CoverPicture}"
+                                           Stretch="UniformToFill"
+                                           Height="120"
+                                           Width="120"/>
+                                </Grid>
+
+                                <!-- Collection Name -->
+                                <TextBlock Grid.Row="1"
+                                         Text="{Binding Name}"
+                                         Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                         HorizontalAlignment="Center"
+                                         Margin="0,12,0,8"/>
+
+                                <!-- Bottom Section with Date and Buttons -->
+                                <Grid Grid.Row="2">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Buttons Stack -->
+                                    <StackPanel Grid.Row="0"
+                                              Orientation="Horizontal" 
+                                              HorizontalAlignment="Center"
+                                              Spacing="8">
+                                        <!-- View Button -->
+                                        <Button Content="View"
+                                                Click="ViewCollection_Click"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource AccentButtonStyle}"/>
+
+                                        <!-- Edit Button -->
+                                        <Button Content="Edit"
+                                                Click="EditCollection_Click"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource AccentButtonStyle}"/>
+
+                                        <!-- Delete Button -->
+                                        <Button Content="Delete"
+                                                Click="DeleteCollection_Click"
+                                                CommandParameter="{Binding CollectionId}"
+                                                Style="{StaticResource AccentButtonStyle}"
+                                                Visibility="{Binding IsAllOwnedGamesCollection, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>                          
+                                    </StackPanel>
+                                        
+                                    <!-- Creation Date -->
+                                    <TextBlock Grid.Row="1"
+                                             Text="{Binding CreatedAt, Converter={StaticResource DateOnlyToStringConverter}}"
+                                             Style="{ThemeResource BodyTextBlockStyle}"
+                                             HorizontalAlignment="Center"
+                                             Margin="0,8,0,0"/>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Indicator -->
+        <ProgressRing Grid.Row="1"
+                      IsActive="{Binding IsLoading}"
+                      Width="50"
+                      Height="50"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+
+        <!-- Error Message -->
+        <TextBlock Grid.Row="1"
+                   Text="{Binding ErrorMessage}"
+                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
     </Grid>
 </Page>

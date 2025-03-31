@@ -3,7 +3,7 @@ CREATE OR ALTER PROCEDURE GetFriendshipCountForUser
 AS
 BEGIN
     SELECT COUNT(*) as friend_count
-    FROM Friends
+    FROM Friendships
     WHERE user_id = @user_id;
 END
 GO 

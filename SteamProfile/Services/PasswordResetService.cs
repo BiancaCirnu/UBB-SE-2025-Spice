@@ -25,6 +25,7 @@ namespace SteamProfile.Services
             _userService = userService;
         }
 
+     
         public string GenerateResetCode(string email)
         {
             var user = _userService.GetUserByEmail(email);

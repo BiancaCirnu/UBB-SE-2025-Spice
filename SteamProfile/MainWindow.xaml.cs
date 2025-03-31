@@ -4,6 +4,7 @@ using SteamProfile.Views;
 using Microsoft.UI.Windowing;
 using Microsoft.UI;
 using System;
+using SteamProfile.Services;
 
 namespace SteamProfile
 {
@@ -12,8 +13,7 @@ namespace SteamProfile
         public MainWindow()
         {
             this.InitializeComponent();
-
-            this.InitializeComponent();
+            NavigationService.Instance.Initialize(ContentFrame); // Pass the Frame directly !!!!!!!!!!!
 
             IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             WindowId windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
@@ -37,4 +37,4 @@ namespace SteamProfile
             ContentFrame.Navigate(typeof(RegisterPage));
         }
     }
-} 
+}

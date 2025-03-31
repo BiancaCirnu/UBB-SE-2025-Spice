@@ -1,16 +1,21 @@
 ﻿DROP TABLE IF EXISTS Feature_User;
+DROP TABLE IF EXISTS UserSessions;
 DROP TABLE IF EXISTS User_Achievement;
 DROP TABLE IF EXISTS OwnedGames_Collection;
+DROP TABLE IF EXISTS User_Wallet;
+DROP TABLE IF EXISTS Friendships;
 DROP TABLE IF EXISTS Wallet;
 DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
+DROP TABLE IF EXISTS Friendships;
+DROP TABLE IF EXISTS OwnedGames;
 DROP TABLE IF EXISTS Users;
 drop table if exists PasswordResetCodes;
 
 drop procedure if exists CreateUser;
 drop procedure if exists GetAllUsers;
-drop procedure if exists GetUserByEmail
+drop procedure if exists GetUserByEmail;
 DROP PROCEDURE IF EXISTS ValidateResetCode;
 DROP PROCEDURE IF EXISTS ResetPassword;
 DROP PROCEDURE IF EXISTS GetUserByEmail;
@@ -58,11 +63,25 @@ CREATE TABLE Features (
 -- Collections Table
 CREATE TABLE Collections (
     collection_id INT PRIMARY KEY identity(1,1),
-    name NVARCHAR(100) NOT NULL,
-    picture NVARCHAR(255) CHECK (picture LIKE '%.svg' OR picture LIKE '%.png' OR picture LIKE '%.jpg'),
-    description NVARCHAR(100),
-    is_public BIT DEFAULT 1
+    user_id INT NOT NULL,
+    name NVARCHAR(100) NOT NULL CHECK (LEN(name) >= 1 AND LEN(name) <= 100),
+    cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
+    is_public BIT DEFAULT 1,
+    created_at DATE DEFAULT CAST(GETDATE() AS DATE),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllCollections
+AS
+BEGIN
+    SELECT collection_id, user_id, name, cover_picture, is_public, created_at
+    FROM Collections
+    ORDER BY name;
+END
+GO
+
 -- Wallet Table
 create TABLE Wallet (
     wallet_id INT PRIMARY KEY identity(1,1),
@@ -72,14 +91,46 @@ create TABLE Wallet (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
+-- OwnedGames Table(mock table, should check OwnedGames team)
+CREATE TABLE OwnedGames (
+    game_id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    title NVARCHAR(100) NOT NULL CHECK (LEN(title) >= 1 AND LEN(title) <= 100),
+    description NVARCHAR(MAX),
+    cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllOwnedGames
+AS
+BEGIN
+    SELECT game_id, user_id, title, description, cover_picture
+    FROM OwnedGames
+    ORDER BY title;
+END
+GO
+
 -- OwnedGames_Collection Table
 CREATE TABLE OwnedGames_Collection (
     collection_id INT NOT NULL,
     game_id INT NOT NULL,
-    date_added DATETIME DEFAULT GETDATE(),
     PRIMARY KEY (collection_id, game_id),
-    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllOwnedGamesInCollection
+AS
+BEGIN
+    SELECT collection_id, game_id
+    FROM OwnedGames_Collection
+    ORDER BY collection_id;
+END
+GO
 
 -- User_Achievement Table
 CREATE TABLE User_Achievement (
@@ -127,7 +178,7 @@ INSERT INTO Users (email, username, hashed_password, developer, last_login) VALU
 INSERT INTO Users (email, username, hashed_password, developer, last_login) VALUES
 ('maracocaina77@gmail.com', 'Mara', 'hashed_password_1', 0, '2025-03-20 14:25:00');
 
-go 
+go
 
 CREATE PROCEDURE CheckUserExists
     @email NVARCHAR(100),
@@ -512,6 +563,142 @@ AS
 BEGIN
     SELECT * FROM Users
     WHERE email = @email
+END
+
+-- Mock data for OwnedGames table
+
+-- SHOOTERS (game_id 1–3)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'Call of Duty: MWIII', 'First-person military shooter', '/Assets/Games/codmw3.png'),
+(1, 'Overwatch 2', 'Team-based hero shooter', '/Assets/Games/overwatch2.png'),
+(1, 'Counter-Strike 2', 'Tactical shooter', '/Assets/Games/cs2.png');
+
+-- SPORTS (game_id 4–6)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'FIFA 25', 'Football simulation', '/Assets/Games/fifa25.png'),
+(1, 'NBA 2K25', 'Basketball simulation', '/Assets/Games/nba2k25.png'),
+(1, 'Tony Hawk Pro Skater', 'Skateboarding sports game', '/Assets/Games/thps.png');
+
+-- CHILL (game_id 7)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'Stardew Valley', 'Relaxing farming game', '/Assets/Games/stardewvalley.png');
+
+-- PETS (game_id 8–10)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'The Sims 4: Cats & Dogs', 'Life sim with pets', '/Assets/Games/sims4pets.png'),
+(1, 'Nintendogs', 'Pet care simulation', '/Assets/Games/nintendogs.png'),
+(1, 'Pet Hotel', 'Manage a hotel for pets', '/Assets/Games/pethotel.png');
+
+-- X-Mas (game_id 11)
+INSERT INTO OwnedGames (user_id, title, description, cover_picture)
+VALUES
+(1, 'Christmas Wonderland', 'Festive hidden object game', '/Assets/Games/xmas.png');
+
+select * from OwnedGames;
+
+SELECT COUNT(*) FROM OwnedGames;
+
+-- Assume collection_id 1–6
+INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
+VALUES
+(1, 'All Owned Games', '/Assets/Collections/allgames.jpg', 1, '2022-02-21'),
+(1, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
+(1, 'Sports', '/Assets/Collections/sports.jpg', 1, '2023-03-21'),
+(1, 'Chill Games', '/Assets/Collections/chill.jpg', 1, '2024-03-21'),
+(1, 'Pets', '/Assets/Collections/pets.jpg', 0, '2025-01-21'),
+(1, 'X-Mas', '/Assets/Collections/xmas.jpg', 0, '2025-02-21');
+
+select * from Collections;
+
+SELECT COUNT(*) FROM Collections;
+
+
+-- All games (collection_id = 1)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+SELECT 1, game_id FROM OwnedGames;
+
+-- Shooters (collection_id = 2)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (2, 1), (2, 2), (2, 3);
+
+-- Sports (collection_id = 3)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (3, 4), (3, 5), (3, 6);
+
+-- Chill (collection_id = 4)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (4, 7);
+
+-- Pets (collection_id = 5)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (5, 8), (5, 9), (5, 10);
+
+-- X-Mas (collection_id = 6)
+INSERT INTO OwnedGames_Collection (collection_id, game_id)
+VALUES (6, 11);
+
+-- Create Friendships table
+CREATE TABLE Friendships (
+    friendship_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    friend_id INT NOT NULL,
+    CONSTRAINT FK_Friendships_User FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    CONSTRAINT FK_Friendships_Friend FOREIGN KEY (friend_id) REFERENCES Users(user_id),
+    CONSTRAINT UQ_Friendship UNIQUE (user_id, friend_id),
+    CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
+);
+
+-- Add indexes for better query performance
+CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
+CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
+
+-- Add some mock data for testing
+INSERT INTO Friendships (user_id, friend_id)
+VALUES 
+    (1, 2),
+    (1, 3),
+    (1, 4),
+    (1, 5);
+
+GO
+
+CREATE OR ALTER PROCEDURE GetAllFriendships
+AS
+BEGIN
+    SELECT 
+        f.friendship_id,
+        f.user_id,
+        u1.username as user_username,
+        f.friend_id,
+        u2.username as friend_username
+    FROM Friendships f
+    JOIN Users u1 ON f.user_id = u1.user_id
+    JOIN Users u2 ON f.friend_id = u2.user_id
+    ORDER BY f.user_id, f.friend_id;
+END
+GO
+
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Black Hat', 2000, 'An elegant hat', 'hat', 'Assets/Features/Hats/black-hat.png');
+
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Pufu', 10, 'Cute doggo', 'pet', 'Assets/Features/Pets/dog.png');
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Kitty', 8, 'Cute cat', 'pet', 'Assets/Features/Pets/cat.png');
+
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Frame', 5, 'Violet frame', 'frame', 'Assets/Features/Frames/frame1.png');
+
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Love Emoji', 7, 'lalal', 'emoji', 'Assets/Features/Emojis/love.png');
+
+INSERT INTO Features (name, value, description, type, source) VALUES
+('Violet Background', 7, 'Violet Background', 'background', 'Assets/Features/Backgrounds/violet.jpg');
+
 END
 
 select * from Wallet

@@ -159,13 +159,11 @@ namespace SteamProfile.Data
             }
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string storedProcedure, SqlParameter[] sqlParameters = null)
+        public async Task<DataTable> ExecuteReaderAsync(string storedProcedure, SqlParameter[]? sqlParameters = null)
         {
             try
             {
-                using var connection = GetConnection();
-                await connection.OpenAsync();
-
+                using var connection = new SqlConnection(connectionString);
                 using var command = new SqlCommand(storedProcedure, connection)
                 {
                     CommandType = CommandType.StoredProcedure
@@ -176,7 +174,39 @@ namespace SteamProfile.Data
                     command.Parameters.AddRange(sqlParameters);
                 }
 
-                return await command.ExecuteNonQueryAsync();
+                await connection.OpenAsync();
+                using var reader = await command.ExecuteReaderAsync();
+                var dataTable = new DataTable();
+                dataTable.Load(reader);
+                return dataTable;
+            }
+            catch (SqlException ex)
+            {
+                throw new DatabaseOperationException($"Database error during ExecuteReaderAsync operation: {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Error during ExecuteReaderAsync operation: {ex.Message}", ex);
+            }
+        }
+
+        public async Task ExecuteNonQueryAsync(string storedProcedure, SqlParameter[]? sqlParameters = null)
+        {
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                using var command = new SqlCommand(storedProcedure, connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                if (sqlParameters != null)
+                {
+                    command.Parameters.AddRange(sqlParameters);
+                }
+
+                await connection.OpenAsync();
+                await command.ExecuteNonQueryAsync();
             }
             catch (SqlException ex)
             {
@@ -187,6 +217,7 @@ namespace SteamProfile.Data
                 throw new DatabaseOperationException($"Error during ExecuteNonQueryAsync operation: {ex.Message}", ex);
             }
         }
+
 
         public void Dispose()
         {

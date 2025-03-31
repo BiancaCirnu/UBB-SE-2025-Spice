@@ -1,4 +1,4 @@
-﻿using SteamProfile.Models;
+using SteamProfile.Models;
 using SteamProfile.Repositories;
 using SteamProfile.Exceptions;
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BCrypt.Net;
+using SteamProfile.Utils;
 
 namespace SteamProfile.Services
 {
@@ -80,7 +81,7 @@ namespace SteamProfile.Services
             if (user != null)
             {
                 if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
-                { 
+                {
                     _sessionService.CreateNewSession(user);
 
                     // update last login time for user
