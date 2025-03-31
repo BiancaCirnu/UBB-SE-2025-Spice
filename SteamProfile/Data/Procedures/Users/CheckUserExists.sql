@@ -1,10 +1,22 @@
-CREATE PROCEDURE GetAllFeatures
+CREATE PROCEDURE CreateUserProfile
+    @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT feature_id, name, value, description, type, source
-    FROM Features
-    ORDER BY type, value DESC;
-END
-go
+
+    INSERT INTO UserProfiles (user_id)
+    VALUES (@user_id);
+
+    SELECT 
+        profile_id,
+        user_id,
+        profile_picture,
+        bio,
+        equipped_frame,
+        equipped_hat,
+        equipped_pet,
+        equipped_emoji,
+        last_modified
+    FROM UserProfiles
+    WHERE profile_id = SCOPE_IDENTITY();
+END; 

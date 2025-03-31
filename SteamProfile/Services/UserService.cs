@@ -108,7 +108,7 @@ namespace SteamProfile.Services
             var user = _usersRepository.VerifyCredentials(emailOrUsername);
             if (user != null)
             {
-                if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
+                if (Utils.PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
                 { 
                     _sessionService.CreateNewSession(user);
 

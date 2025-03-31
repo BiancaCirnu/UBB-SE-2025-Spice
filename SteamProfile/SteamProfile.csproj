@@ -74,7 +74,7 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -150,6 +150,9 @@
 		<Content Include="Assets\Features\**\*.svg">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Include="Data\Procedures\UserProfiles\CreateUserProfile.sql" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="Assets\Features\Backgrounds\violet.jpg">
