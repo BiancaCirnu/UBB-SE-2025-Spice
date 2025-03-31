@@ -18,13 +18,18 @@ namespace SteamProfile.Views
 {
     public sealed partial class ConfigurationsPage : Page
     {
-        private readonly ConfigurationsViewModel _viewModel;
+        public ConfigurationsViewModel ViewModel { get; private set; }
 
         public ConfigurationsPage()
         {
             this.InitializeComponent();
-            _viewModel = new ConfigurationsViewModel(App.UserService);
-            this.DataContext = _viewModel;
+            this.Loaded += ConfigurationsPage_Loaded;
+        }
+
+        private void ConfigurationsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            ViewModel = new ConfigurationsViewModel(this.Frame);
+            this.DataContext = ViewModel;
         }
     }
 }

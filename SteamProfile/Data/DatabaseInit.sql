@@ -6,14 +6,12 @@ IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Users')
 BEGIN
     CREATE TABLE Users (
         user_id INT IDENTITY(1,1) PRIMARY KEY,
-        email NVARCHAR(255) NOT NULL UNIQUE,
-        username NVARCHAR(255) NOT NULL UNIQUE,
-        password NVARCHAR(255) NOT NULL,
-        profile_picture NVARCHAR(MAX),
-        description NVARCHAR(MAX),
+        username NVARCHAR(50) NOT NULL UNIQUE,
+        email NVARCHAR(100) NOT NULL UNIQUE,
+        hashed_password NVARCHAR(255) NOT NULL,
         developer BIT NOT NULL DEFAULT 0,
         created_at DATETIME NOT NULL DEFAULT GETDATE(),
-        last_login DATETIME
+        last_login DATETIME NULL
     );
 END
 

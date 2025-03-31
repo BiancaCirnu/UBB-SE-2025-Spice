@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SteamProfile.Data
 {
-    public sealed class DataLink : IDisposable
+    public sealed partial class DataLink : IDisposable
     {
         private static readonly Lazy<DataLink> instance = new(() => new DataLink());
         private readonly string connectionString;

@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SteamProfile.ViewModels;
 
@@ -6,13 +5,18 @@ namespace SteamProfile.Views
 {
     public sealed partial class UsersPage : Page
     {
-        private readonly UsersViewModel _viewModel;
+        public UsersViewModel ViewModel { get; }
 
         public UsersPage()
         {
+            ViewModel = UsersViewModel.Instance;
             this.InitializeComponent();
-            _viewModel = UsersViewModel.Instance;
-            this.DataContext = _viewModel;
+            this.DataContext = ViewModel;
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Handle user selection if needed
         }
     }
 } 

@@ -1,5 +1,4 @@
-﻿-- Drop tables in reverse order of dependencies
-DROP TABLE IF EXISTS Feature_User;
+﻿DROP TABLE IF EXISTS Feature_User;
 DROP TABLE IF EXISTS User_Achievement;
 DROP TABLE IF EXISTS OwnedGames_Collection;
 DROP TABLE IF EXISTS User_Wallet;
@@ -11,30 +10,34 @@ DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Friendships;
 DROP TABLE IF EXISTS OwnedGames;
 
+drop procedure if exists CreateUser;
+drop procedure if exists GetAllUsers;
+drop procedure if exists GetUserByEmail
+DROP PROCEDURE IF EXISTS ValidateResetCode;
+DROP PROCEDURE IF EXISTS ResetPassword;
+DROP PROCEDURE IF EXISTS GetUserByEmail;
+DROP PROCEDURE IF EXISTS StorePasswordResetCode;
+DROP PROCEDURE IF EXISTS VerifyResetCode;
+drop procedure if exists CleanupResetCodes;
 
--- User Table
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY identity(1,1),
-    email NVARCHAR(255) UNIQUE NOT NULL CHECK (email LIKE '%@%._%'),
-    username NVARCHAR(100) UNIQUE NOT NULL,
-    password_hash NVARCHAR(255) NOT NULL,
-    profile_picture NVARCHAR(255) CHECK (profile_picture LIKE '%.svg' OR profile_picture LIKE '%.png' OR profile_picture LIKE '%.jpg'),
-    description NVARCHAR(1000),
-    developer BIT DEFAULT 0,
-    created_at DATETIME DEFAULT GETDATE(),
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) COLLATE SQL_Latin1_General_CP1254_CS_AS NOT NULL UNIQUE, -- case sensitivity for usernames
+    email NVARCHAR(100) COLLATE SQL_Latin1_General_CP1254_CS_AS NOT NULL UNIQUE, -- case sensitivity for emails
+    hashed_password NVARCHAR(255) NOT NULL,
+    developer BIT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
     last_login DATETIME NULL
 );
 
--- Create GetAllUsers stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetAllUsers
-AS
-BEGIN
-    SELECT user_id, email, username, profile_picture, description, developer, created_at, last_login
-    FROM Users
-    ORDER BY username;
-END
-GO
+CREATE TABLE UserSessions (
+    session_id UNIQUEIDENTIFIER PRIMARY KEY,
+    user_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),  
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
 
 -- Achievements Table
 CREATE TABLE Achievements (
