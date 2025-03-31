@@ -146,17 +146,20 @@ namespace SteamProfile.ViewModels
                 var userProfile = await Task.Run(() => 
                     _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
 
-                if (user_id == _userService.GetCurrentUser().UserId)
-                    IsOwner = true;
-                else IsOwner = false;
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
                     if (currentUser != null)
                     {
+                        if (user_id == _userService.GetCurrentUser().UserId)
+                            IsOwner = true;
+                        else IsOwner = false;
+
                         // Basic user info from Users table
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
+
+                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner}");
 
                         // Profile info from UserProfiles table
                         if (userProfile != null)
@@ -169,7 +172,7 @@ namespace SteamProfile.ViewModels
                         //IsOwner = isOwner;
 
                         // Load friend count
-                        _ = LoadFriendCountAsync();
+                        FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
 
                         // Set some test achievement values
                         HasGameplayAchievement = true;
@@ -208,22 +211,22 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        private async Task LoadFriendCountAsync()
-        {
-            try
-            {
-                var count = _friendsService.GetFriendshipCount(UserId);
-                await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error loading friend count: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-            }
-        }
+        //private async Task LoadFriendCountAsync()
+        //{
+        //    try
+        //    {
+        //        var count = _friendsService.GetFriendshipCount(UserId);
+        //        await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Debug.WriteLine($"Error loading friend count: {ex.Message}");
+        //        if (ex.InnerException != null)
+        //        {
+        //            Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+        //        }
+        //    }
+        //}
 
         [RelayCommand]
         private void EditProfile()

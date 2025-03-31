@@ -29,8 +29,8 @@ namespace SteamProfile.ViewModels
         private readonly CollectionsService _collectionsService;
         private readonly UserService _userService;
 
-        [ObservableProperty]
-        private bool _isAllOwnedGamesCollection;
+        //[ObservableProperty]
+        //private bool _isAllOwnedGamesCollection;
 
         [ObservableProperty]
         private ObservableCollection<Collection> _collections = new();

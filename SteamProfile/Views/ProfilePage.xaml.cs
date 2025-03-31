@@ -29,8 +29,8 @@ namespace SteamProfile.Views
     /// </summary>
     public sealed partial class ProfilePage : Page
     {
-        public ProfileViewModel ViewModel { get; }
-        private bool _isOwnProfile;
+        public ProfileViewModel ViewModel { get; private set; }
+        //private bool _isOwnProfile;
         private int _userId;
 
         public ProfilePage()
@@ -90,8 +90,10 @@ namespace SteamProfile.Views
             {
                 // If the parameter is true, it means we're viewing our own profile
                 _userId = (int)e.Parameter;
-                Debug.WriteLine($"Navigating to profile. Is own profile: {_isOwnProfile}");
-                _ = ProfileViewModel.Instance.LoadProfileAsync(_userId);  // ??!!
+                Debug.WriteLine($"Navigating to profile of user: {_userId}");
+                Debug.WriteLine($"ProfileViewModel Instance: {ProfileViewModel.Instance != null}");
+                ViewModel = ProfileViewModel.Instance;
+                _ = ViewModel.LoadProfileAsync(_userId);  // ??!!
             }
         }
 

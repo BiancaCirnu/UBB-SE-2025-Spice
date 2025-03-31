@@ -1,7 +1,6 @@
 using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
-using System;
 
 namespace SteamProfile.Converters
 {
@@ -25,9 +24,15 @@ namespace SteamProfile.Converters
         {
             if (value is Visibility visibility)
             {
-                return visibility == Visibility.Visible;
+                bool result = visibility == Visibility.Visible;
+                // If parameter is "inverse", invert the boolean value
+                if (parameter?.ToString()?.ToLower() == "inverse")
+                {
+                    result = !result;
+                }
+                return result;
             }
             return false;
         }
     }
-} 
+}

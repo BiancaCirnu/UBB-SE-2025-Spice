@@ -31,6 +31,8 @@ namespace SteamProfile.Views
             _viewModel.LoadFriends(); // Load friends immediately when page is created
         }
 
+
+
         private void RemoveFriend_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is int friendshipId)

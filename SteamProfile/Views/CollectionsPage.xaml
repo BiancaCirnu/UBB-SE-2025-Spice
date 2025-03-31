@@ -115,9 +115,9 @@
                                                 Click="DeleteCollection_Click"
                                                 CommandParameter="{Binding CollectionId}"
                                                 Style="{StaticResource AccentButtonStyle}"
-                                                Visibility="{Binding DataContext.IsAllOwnedGamesCollection, ElementName=RootGrid, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>
+                                                Visibility="{Binding IsAllOwnedGamesCollection, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=inverse}"/>                          
                                     </StackPanel>
-
+                                        
                                     <!-- Creation Date -->
                                     <TextBlock Grid.Row="1"
                                              Text="{Binding CreatedAt, Converter={StaticResource DateOnlyToStringConverter}}"
