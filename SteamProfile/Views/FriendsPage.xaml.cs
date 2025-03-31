@@ -41,9 +41,9 @@ namespace SteamProfile.Views
 
         private void ViewFriend_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.Tag is int userId)
+            if (sender is Button button && button.Tag is int friendId)
             {
-                Frame.Navigate(typeof(ProfilePage), userId);
+                Frame.Navigate(typeof(ProfilePage), friendId);
             }
         }
     }

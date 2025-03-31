@@ -39,7 +39,7 @@ namespace SteamProfile.ViewModels
                 ErrorMessage = null;
 
                 Debug.WriteLine("Loading friends for user ID 1...");
-                var friendships = _friendsService.GetAllFriendships(1);
+                var friendships = _friendsService.GetAllFriendships();
                 Debug.WriteLine($"Retrieved {friendships.Count} friendships");
 
                 Friendships.Clear();
@@ -86,7 +86,7 @@ namespace SteamProfile.ViewModels
                 Debug.WriteLine("Friend removed successfully from database");
                 
                 // Refresh the friends list
-                var updatedFriendships = _friendsService.GetAllFriendships(1);
+                var updatedFriendships = _friendsService.GetAllFriendships();
                 Friendships.Clear();
                 foreach (var friendship in updatedFriendships)
                 {

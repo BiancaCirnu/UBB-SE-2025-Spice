@@ -24,7 +24,7 @@ namespace SteamProfile.Views
         public CollectionsPage()
         {
             this.InitializeComponent();
-            _viewModel = new CollectionsViewModel(App.CollectionsService);
+            _viewModel = new CollectionsViewModel(App.CollectionsService, App.UserService);
             this.DataContext = _viewModel;
         }
 

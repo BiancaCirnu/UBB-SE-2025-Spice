@@ -25,7 +25,6 @@ namespace SteamProfile
 {
     public partial class App : Application
     {
-        private static readonly string connectionString;
         public static readonly AchievementsService AchievementsService;
         public static readonly FeaturesService FeaturesService;
         public static readonly CollectionsService CollectionsService;
@@ -41,6 +40,7 @@ namespace SteamProfile
         static App()
         {
             var dataLink = DataLink.Instance;
+            var navigationService = NavigationService.Instance ;
 
             var achievementsRepository = new AchievementsRepository(dataLink);
             var featuresRepository = new FeaturesRepository(dataLink);
@@ -61,7 +61,7 @@ namespace SteamProfile
             AuthenticationService = new AuthenticationService(usersRepository);
             SessionService = new SessionService(sessionRepository);
             UserService = new UserService(usersRepository, SessionService);
-            FriendsService = new FriendsService(friendshipsRepository);
+            FriendsService = new FriendsService(friendshipsRepository, UserService);
             OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
@@ -72,6 +72,7 @@ namespace SteamProfile
         public App()
         {
             this.InitializeComponent();
+
         }
 
         public Window MainWindow { get; set; }
@@ -79,6 +80,7 @@ namespace SteamProfile
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             m_window = new MainWindow();
+            //NavigationService.Instance.Initialize(m_window.Content as Frame); // Ensure the frame is passed
             m_window.Activate();
         }
     }

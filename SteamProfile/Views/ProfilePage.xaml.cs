@@ -44,8 +44,8 @@ namespace SteamProfile.Views
                 var dataLink = DataLink.Instance;
                 Debug.WriteLine("DataLink instance obtained.");
 
-                var friendshipsRepository = new FriendshipsRepository(dataLink);
-                var friendsService = new FriendsService(friendshipsRepository);
+                //var friendshipsRepository = new FriendshipsRepository(dataLink);
+                var friendsService = App.FriendsService;
                 Debug.WriteLine("FriendshipsRepository and FriendsService initialized.");
 
                 // Add the UserProfileRepository parameter
@@ -60,11 +60,11 @@ namespace SteamProfile.Views
                 ViewModel = ProfileViewModel.Instance;
 
                 // By default, assume we're viewing someone else's profile
-                //_isOwnProfile = true;
+              //  _isOwnProfile = true;
                 Debug.WriteLine("Assuming we're viewing someone else's profile.");
 
                 // Load the profile data
-                //_ = ViewModel.LoadProfileAsync(_isOwnProfile);
+               // _ = ViewModel.LoadProfileAsync(_isOwnProfile);
                 Debug.WriteLine("Profile data loading initiated.");
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace SteamProfile.Views
                 // If the parameter is true, it means we're viewing our own profile
                 _userId = (int)e.Parameter;
                 Debug.WriteLine($"Navigating to profile. Is own profile: {_isOwnProfile}");
-                _ = ViewModel.LoadProfileAsync(_userId);
+                _ = ProfileViewModel.Instance.LoadProfileAsync(_userId);  // ??!!
             }
         }
 

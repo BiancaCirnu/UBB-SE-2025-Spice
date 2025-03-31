@@ -142,11 +142,11 @@ namespace SteamProfile.ViewModels
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
                 // Load both user and profile data on a background thread
-                var currentUser = await Task.Run(() => _userService.GetCurrentUser());
+                var currentUser = await Task.Run(() => _userService.GetUserById(user_id));
                 var userProfile = await Task.Run(() => 
                     _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
 
-                if (user_id == currentUser.UserId)
+                if (user_id == _userService.GetCurrentUser().UserId)
                     IsOwner = true;
                 else IsOwner = false;
 
