@@ -16,6 +16,12 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Back to Profile Button -->
+        <Button Content="Back to Profile"
+                Command="{x:Bind ViewModel.BackToProfileCommand}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10"/>
         <!-- Title -->
         <TextBlock Text="FRIENDS" 
                   FontSize="30" 

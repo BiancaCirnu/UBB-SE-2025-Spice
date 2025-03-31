@@ -1,17 +1,22 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Models;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using Windows.System;
 
 namespace SteamProfile.ViewModels
 {
     public partial class FriendsViewModel : ObservableObject
     {
         private readonly FriendsService _friendsService;
+        private readonly UserService _userService;
+
 
         [ObservableProperty]
         private ObservableCollection<Friendship> _friendships = new ObservableCollection<Friendship>();
@@ -25,9 +30,10 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private string _errorMessage;
 
-        public FriendsViewModel(FriendsService friendsService)
+        public FriendsViewModel(FriendsService friendsService, UserService userService)
         {
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
+            _userService = userService ?? throw new ArgumentNullException(nameof(friendsService));
         }
 
         [RelayCommand]
@@ -128,6 +134,14 @@ namespace SteamProfile.ViewModels
             public ServiceException(string message) : base(message) { }
             public ServiceException(string message, Exception innerException)
                 : base(message, innerException) { }
+        }
+
+        [RelayCommand]
+        private void BackToProfile()
+        {
+           
+            // Navigate back to the Profile page
+            NavigationService.Instance.Navigate(typeof(ProfilePage),_userService.GetCurrentUser().UserId);
         }
     }
 }

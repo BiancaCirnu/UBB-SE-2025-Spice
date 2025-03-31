@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SteamProfile.Services;
 using SteamProfile.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace SteamProfile.Views
     public sealed partial class AchievementsPage : Page
     {
         private readonly AchievementsViewModel _viewModel;
+        private readonly UserService _userService;
+        public AchievementsViewModel ViewModel => _viewModel;
 
         public AchievementsPage()
         {
@@ -27,9 +30,6 @@ namespace SteamProfile.Views
             this.DataContext = _viewModel;
         }
 
-        private void BackToProfile(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(ProfilePage));
-        }
+       
     }
 }

@@ -242,9 +242,9 @@ namespace SteamProfile.ViewModels
         //}
 
         [RelayCommand]
-        private void EditProfile()
+        private void Configuration()
         {
-            // TODO: Implement edit profile functionality
+            NavigationService.Instance.Navigate(typeof(Views.ConfigurationsPage));
         }
 
         [RelayCommand]

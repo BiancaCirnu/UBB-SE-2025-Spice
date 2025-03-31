@@ -225,7 +225,7 @@
 
                 <!-- Settings button -->
                 <Button Style="{StaticResource TransparentButton}"
-                        Command="{x:Bind ViewModel.EditProfileCommand}"
+                        Command="{x:Bind ViewModel.ConfigurationCommand}"
                         Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
                     <FontIcon FontFamily="Segoe MDL2 Assets" 
                              Glyph="&#xE713;"
