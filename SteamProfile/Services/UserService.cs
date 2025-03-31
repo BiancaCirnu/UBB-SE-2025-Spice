@@ -35,6 +35,10 @@ namespace SteamProfile.Services
             return _usersRepository.GetUserByEmail(email);
         }
 
+        public User GetUserByUsername(string username)
+        {
+            return _usersRepository.GetUserByUsername(username);
+        }
         public void ValidateUserAndEmail(string email, string username)
         {
             // Check if user already exists
@@ -105,6 +109,26 @@ namespace SteamProfile.Services
         public bool IsUserLoggedIn()
         {
             return _sessionService.IsUserLoggedIn();
+        }
+
+        internal bool UpdateUserUsername(string username, string currentPassword)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool UpdateUserPassword(string password, string currentPassword)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool UpdateUserEmail(string email, string currentPassword)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool VerifyUserPassword(string password)
+        {
+            throw new NotImplementedException();
         }
     }
 }

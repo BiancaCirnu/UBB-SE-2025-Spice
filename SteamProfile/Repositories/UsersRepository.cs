@@ -164,6 +164,24 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public User? GetUserByUsername(string username)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@username", username)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("GetUserByUsername", parameters);
+                return dataTable.Rows.Count > 0 ? MapDataRowToUser(dataTable.Rows[0]) : null;
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to retrieve user with username {username}.", ex);
+            }
+        }
+
         public void CleanupExpiredResetCodes()
         {
             try
