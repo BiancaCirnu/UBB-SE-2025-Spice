@@ -2,149 +2,54 @@
 using SteamProfile.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SteamProfile.ViewModels
 {
-    public class CardPaymentViewModel : INotifyPropertyChanged
+    public partial class CardPaymentViewModel : ObservableObject
     {
-        // Properties
-
+        // Private fields
         private int _amount;
         private WalletViewModel _walletViewModel;
         private User _user;
 
+        // Observable properties using MVVM Toolkit's source generators
+        [ObservableProperty]
         private string _amountText;
+
+        [ObservableProperty]
         private bool _isNameValid;
+
+        [ObservableProperty]
         private bool _isCardNumberValid;
+
+        [ObservableProperty]
         private bool _isCVVValid;
+
+        [ObservableProperty]
         private bool _isDateValid;
+
+        [ObservableProperty]
         private bool _showErrorMessage;
+
+        [ObservableProperty]
         private string _statusMessage;
+
+        [ObservableProperty]
         private Visibility _statusMessageVisibility;
 
-        public string AmountText
-        {
-            get => _amountText;
-            private set
-            {
-                if (_amountText != value)
-                {
-                    _amountText = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool IsNameValid
-        {
-            get => _isNameValid;
-            private set
-            {
-                if (_isNameValid != value)
-                {
-                    _isNameValid = value;
-                    OnPropertyChanged();
-                    UpdateErrorMessageVisibility();
-                }
-            }
-        }
-
-        public bool IsCardNumberValid
-        {
-            get => _isCardNumberValid;
-            private set
-            {
-                if (_isCardNumberValid != value)
-                {
-                    _isCardNumberValid = value;
-                    OnPropertyChanged();
-                    UpdateErrorMessageVisibility();
-                }
-            }
-        }
-
-        public bool IsCVVValid
-        {
-            get => _isCVVValid;
-            private set
-            {
-                if (_isCVVValid != value)
-                {
-                    _isCVVValid = value;
-                    OnPropertyChanged();
-                    UpdateErrorMessageVisibility();
-                }
-            }
-        }
-
-        public bool IsDateValid
-        {
-            get => _isDateValid;
-            private set
-            {
-                if (_isDateValid != value)
-                {
-                    _isDateValid = value;
-                    OnPropertyChanged();
-                    UpdateErrorMessageVisibility();
-                }
-            }
-        }
-
-        public bool ShowErrorMessage
-        {
-            get => _showErrorMessage;
-            private set
-            {
-                if (_showErrorMessage != value)
-                {
-                    _showErrorMessage = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(ErrorMessageVisibility));
-                }
-            }
-        }
-
-        public string StatusMessage
-        {
-            get => _statusMessage;
-            private set
-            {
-                if (_statusMessage != value)
-                {
-                    _statusMessage = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public Visibility StatusMessageVisibility
-        {
-            get => _statusMessageVisibility;
-            private set
-            {
-                if (_statusMessageVisibility != value)
-                {
-                    _statusMessageVisibility = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
+        // Computed properties - these must be manually maintained
         public Visibility ErrorMessageVisibility => ShowErrorMessage ? Visibility.Visible : Visibility.Collapsed;
 
         public bool AreAllFieldsValid => IsNameValid && IsCardNumberValid && IsCVVValid && IsDateValid;
 
         // Initialization
-
         public CardPaymentViewModel()
         {
-            StatusMessageVisibility = Visibility.Collapsed;
-            ShowErrorMessage = false;
+            _statusMessageVisibility = Visibility.Collapsed;
+            _showErrorMessage = false;
         }
 
         public void Initialize(Dictionary<string, object> parameters)
@@ -159,7 +64,6 @@ namespace SteamProfile.ViewModels
         }
 
         // Validation Methods
-
         public void ValidateName(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -221,14 +125,19 @@ namespace SteamProfile.ViewModels
             IsDateValid = (year > currentYear) || (year == currentYear && month >= currentMonth);
         }
 
+        // Manually update error message visibility when validation properties change
+        partial void OnIsNameValidChanged(bool value) => UpdateErrorMessageVisibility();
+        partial void OnIsCardNumberValidChanged(bool value) => UpdateErrorMessageVisibility();
+        partial void OnIsCVVValidChanged(bool value) => UpdateErrorMessageVisibility();
+        partial void OnIsDateValidChanged(bool value) => UpdateErrorMessageVisibility();
+
         private void UpdateErrorMessageVisibility()
         {
             ShowErrorMessage = !IsNameValid || !IsCardNumberValid || !IsCVVValid || !IsDateValid;
+            OnPropertyChanged(nameof(ErrorMessageVisibility));
         }
 
-
         // Payment Processing
-
         public async Task<bool> ProcessPaymentAsync()
         {
             if (!AreAllFieldsValid)
@@ -254,16 +163,5 @@ namespace SteamProfile.ViewModels
 
             return true;
         }
-
-
-        // INotifyPropertyChanged Implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
     }
 }

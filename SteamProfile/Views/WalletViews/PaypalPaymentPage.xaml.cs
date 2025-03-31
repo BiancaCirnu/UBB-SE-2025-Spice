@@ -17,12 +17,13 @@ namespace SteamProfile.Views.WalletViews
         public PaypalPaymentPage()
         {
             this.InitializeComponent();
-            this.DataContext = ViewModel;
+            DataContext = ViewModel;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
             if (e.Parameter is Dictionary<string, object> parameters)
             {
                 ViewModel.Initialize(parameters);
@@ -41,7 +42,8 @@ namespace SteamProfile.Views.WalletViews
 
         private async void AddMoneyButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await ViewModel.ProcessPaymentAsync())
+            bool success = await ViewModel.ProcessPaymentAsync();
+            if (success)
             {
                 Frame.GoBack();
             }

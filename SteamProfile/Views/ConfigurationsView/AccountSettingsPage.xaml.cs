@@ -49,15 +49,64 @@ namespace SteamProfile.Views.ConfigurationsView
         }
         private async void UpdatePassword_Click(object sender, RoutedEventArgs e)
         {
-            await ViewModel.UpdatePassword();
-        }
-        private async void UpdateUsername_Click(object sender, RoutedEventArgs e)
-        {
-            await ViewModel.UpdateUsername();
+            var result = await PasswordConfirmationDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                // Assuming ViewModel.Password holds the new password
+                await ViewModel.UpdatePasswordAsync();
+                await new ContentDialog
+                {
+                    Title = "Success",
+                    Content = "Your password has been updated.",
+                    CloseButtonText = "OK"
+                }.ShowAsync();
+            }
         }
         private async void UpdateEmail_Click(object sender, RoutedEventArgs e)
         {
-            await ViewModel.UpdateEmail();
+            var result = await PasswordConfirmationDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                // Assuming ViewModel.Password holds the new password
+                await ViewModel.UpdatePasswordAsync();
+                await new ContentDialog
+                {
+                    Title = "Success",
+                    Content = "Your password has been updated.",
+                    CloseButtonText = "OK"
+                }.ShowAsync();
+            }
+        }
+        private async void UpdateUsername_Click(object sender, RoutedEventArgs e)
+        {
+            var result = await PasswordConfirmationDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                // Assuming ViewModel.Password holds the new password
+                await ViewModel.UpdatePasswordAsync();
+                await new ContentDialog
+                {
+                    Title = "Success",
+                    Content = "Your username has been updated.",
+                    CloseButtonText = "OK"
+                }.ShowAsync();
+            }
+        }
+
+        private void PasswordConfirmationDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            string enteredPassword = ConfirmPasswordBox.Password;
+
+            // Check the entered password (this is just a placeholder, implement actual verification)
+            if (enteredPassword == "UserActualCurrentPassword")  // Replace with actual verification logic
+            {
+                PasswordErrorText.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                PasswordErrorText.Visibility = Visibility.Visible;
+                args.Cancel = true;
+            }
         }
     }
 }

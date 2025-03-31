@@ -2,86 +2,53 @@
 using SteamProfile.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace SteamProfile.ViewModels
 {
-    public class AddMoneyViewModel : INotifyPropertyChanged
+    public partial class AddMoneyViewModel : ObservableObject
     {
         private readonly WalletViewModel _walletViewModel;
         private readonly List<char> _digitsAsChar = new() { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-        private bool _isInputValid;
-        private bool _showErrorMessage;
-        private string _amountToAdd;
         private const int MAX_AMOUNT = 500;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ErrorMessageVisibility))]
+        private bool _showErrorMessage;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PaymentButtonsEnabled))]
+        private bool _isInputValid;
+
+        [ObservableProperty]
+        private string _amountToAdd;
 
         public ICommand AddFundsCommand { get; }
+
+        public Visibility ErrorMessageVisibility => ShowErrorMessage ? Visibility.Visible : Visibility.Collapsed;
+
+        public bool PaymentButtonsEnabled => IsInputValid;
 
         public AddMoneyViewModel(WalletViewModel walletViewModel)
         {
             _walletViewModel = walletViewModel ?? throw new ArgumentNullException(nameof(walletViewModel));
-            IsInputValid = false;
-            ShowErrorMessage = false;
+            _isInputValid = false;
+            _showErrorMessage = false;
 
             // Initialize the command
             AddFundsCommand = new RelayCommand(ProcessAddFunds, () => IsInputValid);
         }
 
-        public string AmountToAdd
+        // Called when AmountToAdd property changes
+        partial void OnAmountToAddChanged(string value)
         {
-            get => _amountToAdd;
-            set
-            {
-                if (_amountToAdd != value)
-                {
-                    _amountToAdd = value;
-                    ValidateInput(value);
-                    OnPropertyChanged();
-                    // Force command to reevaluate CanExecute
-                    (AddFundsCommand as RelayCommand)?.NotifyCanExecuteChanged();
-                }
-            }
+            ValidateInput(value);
+            // Force command to reevaluate CanExecute
+            (AddFundsCommand as RelayCommand)?.NotifyCanExecuteChanged();
         }
-
-        public bool IsInputValid
-        {
-            get => _isInputValid;
-            private set
-            {
-                if (_isInputValid != value)
-                {
-                    _isInputValid = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(PaymentButtonsEnabled));
-                    // Force command to reevaluate CanExecute
-                    (AddFundsCommand as RelayCommand)?.NotifyCanExecuteChanged();
-                }
-            }
-        }
-
-        public bool ShowErrorMessage
-        {
-            get => _showErrorMessage;
-            private set
-            {
-                if (_showErrorMessage != value)
-                {
-                    _showErrorMessage = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(ErrorMessageVisibility));
-                }
-            }
-        }
-
-        public Visibility ErrorMessageVisibility => ShowErrorMessage ? Visibility.Visible : Visibility.Collapsed;
-
-        public bool PaymentButtonsEnabled => IsInputValid;
 
         public void ValidateInput(string input)
         {
@@ -144,11 +111,6 @@ namespace SteamProfile.ViewModels
                 { "sum", int.Parse(AmountToAdd) },
                 { "viewModel", _walletViewModel }
             };
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

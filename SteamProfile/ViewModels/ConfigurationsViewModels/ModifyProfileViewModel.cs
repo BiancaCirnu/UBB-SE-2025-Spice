@@ -1,145 +1,46 @@
-﻿using Microsoft.UI.Xaml;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace SteamProfile.ViewModels.ConfigurationsViewModels
 {
-    public class ModifyProfileViewModel : INotifyPropertyChanged
+    public partial class ModifyProfileViewModel : ObservableObject
     {
+        // Observable properties with source generation
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanSave))]
+        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
         private string _description = string.Empty;
+
+        [ObservableProperty]
         private StorageFile _profileImage;
+
+        [ObservableProperty]
         private string _selectedImageName = string.Empty;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanSave))]
+        [NotifyPropertyChangedFor(nameof(DescriptionErrorVisibility))]
+        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
         private bool _isDescriptionValid;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanSave))]
+        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
         private bool _isImageValid;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DescriptionErrorVisibility))]
         private bool _showDescriptionError;
 
+        [ObservableProperty]
         private string _descriptionErrorMessage = "Description is required";
+
+        [ObservableProperty]
         private string _imageErrorMessage = "Profile image is required";
-
-        // Properties for data
-        public string Description
-        {
-            get => _description;
-            set
-            {
-                if (_description != value)
-                {
-                    _description = value;
-                    ValidateDescription(_description);
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public StorageFile ProfileImage
-        {
-            get => _profileImage;
-            set
-            {
-                if (_profileImage != value)
-                {
-                    _profileImage = value;
-                    if (_profileImage != null)
-                    {
-                        SelectedImageName = _profileImage.Name;
-                        IsImageValid = true;
-                    }
-                    else
-                    {
-                        SelectedImageName = string.Empty;
-                        IsImageValid = false;
-                    }
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string SelectedImageName
-        {
-            get => _selectedImageName;
-            set
-            {
-                if (_selectedImageName != value)
-                {
-                    _selectedImageName = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        // Validation properties
-        public bool IsDescriptionValid
-        {
-            get => _isDescriptionValid;
-            set
-            {
-                if (_isDescriptionValid != value)
-                {
-                    _isDescriptionValid = value;
-                    OnPropertyChanged();
-                    UpdateDescriptionErrorVisibility();
-                }
-            }
-        }
-
-        public bool IsImageValid
-        {
-            get => _isImageValid;
-            set
-            {
-                if (_isImageValid != value)
-                {
-                    _isImageValid = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool ShowDescriptionError
-        {
-            get => _showDescriptionError;
-            private set
-            {
-                if (_showDescriptionError != value)
-                {
-                    _showDescriptionError = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(DescriptionErrorVisibility));
-                }
-            }
-        }
-
-        public string DescriptionErrorMessage
-        {
-            get => _descriptionErrorMessage;
-            set
-            {
-                if (_descriptionErrorMessage != value)
-                {
-                    _descriptionErrorMessage = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string ImageErrorMessage
-        {
-            get => _imageErrorMessage;
-            set
-            {
-                if (_imageErrorMessage != value)
-                {
-                    _imageErrorMessage = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
 
         // UI helper properties
         public Visibility DescriptionErrorVisibility => ShowDescriptionError ? Visibility.Visible : Visibility.Collapsed;
@@ -156,19 +57,29 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             ShowDescriptionError = false;
         }
 
-        // INotifyPropertyChanged implementation
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        // Property change handlers
+        partial void OnDescriptionChanged(string value)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            ValidateDescription(value);
+        }
 
-            // Update CanSave when any validation property changes
-            if (propertyName == nameof(IsDescriptionValid) ||
-                propertyName == nameof(IsImageValid))
+        partial void OnProfileImageChanged(StorageFile value)
+        {
+            if (value != null)
             {
-                OnPropertyChanged(nameof(CanSave));
+                SelectedImageName = value.Name;
+                IsImageValid = true;
             }
+            else
+            {
+                SelectedImageName = string.Empty;
+                IsImageValid = false;
+            }
+        }
+
+        partial void OnIsDescriptionValidChanged(bool value)
+        {
+            UpdateDescriptionErrorVisibility();
         }
 
         // Validation methods
@@ -200,7 +111,8 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             }
         }
 
-        // Save method
+        // Save method with RelayCommand
+        [RelayCommand(CanExecute = nameof(CanSave))]
         public async Task<bool> SaveChanges()
         {
             // Validate all fields before saving

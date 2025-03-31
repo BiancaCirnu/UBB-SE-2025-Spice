@@ -20,21 +20,14 @@ namespace SteamProfile.Views.WalletViews
         {
             base.OnNavigatedTo(e);
 
-            // Check if navigation parameters contain the WalletViewModel
             if (e.Parameter is WalletViewModel walletViewModel)
             {
-                // Create repository
                 var repository = new PointsOffersRepository();
-
-                // Create the ViewModel with navigation frame
                 _viewModel = new AddPointsViewModel(walletViewModel, repository, this.Frame);
-
-                // Set the DataContext
                 this.DataContext = _viewModel;
             }
             else
             {
-                // Handle error - no wallet view model provided
                 ShowErrorAndGoBack("Navigation error: Wallet data not found.");
             }
         }

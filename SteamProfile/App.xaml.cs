@@ -60,5 +60,7 @@ namespace SteamProfile
         }
 
         private Window? m_window;
+
+        public static Window MainWindow { get;  set; }
     }
 }

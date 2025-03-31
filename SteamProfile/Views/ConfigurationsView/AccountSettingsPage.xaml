@@ -52,5 +52,20 @@
                 <Button Content="Cancel" Width="200" Height="40" Click="CancelButton_Click"/>
             </StackPanel>
         </StackPanel>
+        <ContentDialog x:Name="PasswordConfirmationDialog"
+               Title="Confirm Password"
+               PrimaryButtonText="Confirm"
+               SecondaryButtonText="Cancel"
+               DefaultButton="Primary"
+               RequestedTheme="Dark"
+               PrimaryButtonClick="PasswordConfirmationDialog_PrimaryButtonClick">
+            <StackPanel>
+                <TextBlock Text="Please enter your current password to confirm changes:" Margin="0,0,0,10"/>
+                <PasswordBox x:Name="ConfirmPasswordBox" PlaceholderText="Current Password"/>
+                <TextBlock x:Name="PasswordErrorText" Text="Incorrect password" Foreground="Red" Visibility="Collapsed"/>
+            </StackPanel>
+        </ContentDialog>
+        
+
     </Grid>
 </Page>

@@ -1,56 +1,30 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Models;
 using SteamProfile.Repositories;
-using SteamProfile.Services;
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace SteamProfile.ViewModels
 {
-    public class AddPointsViewModel : INotifyPropertyChanged
+    public partial class AddPointsViewModel : ObservableObject
     {
         private readonly WalletViewModel _walletViewModel;
         private readonly PointsOffersRepository _offersRepository;
         private readonly Frame _navigationFrame;
-        private int _userPoints;
-        private bool _isProcessing;
+
+        [ObservableProperty]
+        private int userPoints;
+
+        [ObservableProperty]
+        private bool isProcessing;
 
         public ObservableCollection<PointsOffer> PointsOffers { get; }
         public ICommand PurchasePointsCommand { get; }
-
-        public int UserPoints
-        {
-            get => _userPoints;
-            private set
-            {
-                if (_userPoints != value)
-                {
-                    _userPoints = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool IsProcessing
-        {
-            get => _isProcessing;
-            private set
-            {
-                if (_isProcessing != value)
-                {
-                    _isProcessing = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public AddPointsViewModel(WalletViewModel walletViewModel, PointsOffersRepository offersRepository, Frame navigationFrame)
         {
@@ -65,10 +39,7 @@ namespace SteamProfile.ViewModels
             PurchasePointsCommand = new RelayCommand<PointsOffer>(BuyPoints, CanBuyPoints);
         }
 
-        private bool CanBuyPoints(PointsOffer offer)
-        {
-            return offer != null && !IsProcessing;
-        }
+        private bool CanBuyPoints(PointsOffer offer) => offer != null && !IsProcessing;
 
         private async void BuyPoints(PointsOffer offer)
         {
@@ -80,24 +51,15 @@ namespace SteamProfile.ViewModels
             try
             {
                 bool success = await _walletViewModel.AddPoints(offer);
-
                 if (success)
                 {
-                    // Update the local UserPoints to reflect the wallet points
                     UserPoints = _walletViewModel.Points;
-
-                    // Force refresh wallet data
                     _walletViewModel.RefreshWalletData();
-
-                    // Show success message
                     await ShowSuccessMessageAsync(offer);
-
-                    // Navigate back to previous page
                     NavigateBack();
                 }
                 else
                 {
-                    // Show error message if purchase failed
                     await ShowErrorMessageAsync("Insufficient funds to purchase these points.");
                 }
             }
@@ -145,28 +107,9 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        // Method to refresh points display when the view becomes active
         public void RefreshPoints()
         {
             UserPoints = _walletViewModel.Points;
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void WalletViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(WalletViewModel.Points))
-            {
-                UserPoints = _walletViewModel.Points;
-            }
-        }
-
-        public void Dispose()
-        {
-            _walletViewModel.PropertyChanged -= WalletViewModel_PropertyChanged;
         }
     }
 }
