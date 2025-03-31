@@ -10,11 +10,13 @@ namespace SteamProfile.Services
     public class UserService
     {
         private readonly UsersRepository _usersRepository;
+        private readonly UserProfilesRepository _userProfilesRepository;
         private int? _currentUserId;
 
-        public UserService(UsersRepository usersRepository)
+        public UserService(UsersRepository usersRepository, UserProfilesRepository userProfilesRepository)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            _userProfilesRepository = userProfilesRepository ?? throw new ArgumentNullException(nameof(userProfilesRepository));
             InitializeCurrentUser();
         }
 
@@ -99,7 +101,13 @@ namespace SteamProfile.Services
 
         public User CreateUser(User user)
         {
-            return _usersRepository.CreateUser(user);
+            var createdUser = _usersRepository.CreateUser(user);
+            if (createdUser != null)
+            {
+                // Create a profile for the new user
+                _userProfilesRepository.CreateProfile(createdUser.UserId);
+            }
+            return createdUser;
         }
 
         public User UpdateUser(User user)
@@ -146,6 +154,21 @@ namespace SteamProfile.Services
         public void SetCurrentUser(int userId)
         {
             _currentUserId = userId;
+        }
+
+        public UserProfile GetUserProfile(int userId)
+        {
+            return _userProfilesRepository.GetProfileByUserId(userId);
+        }
+
+        public UserProfile UpdateUserProfile(UserProfile profile)
+        {
+            return _userProfilesRepository.UpdateProfile(profile);
+        }
+
+        public UserProfile CreateUserProfile(int userId)
+        {
+            return _userProfilesRepository.CreateProfile(userId);
         }
     }
 }

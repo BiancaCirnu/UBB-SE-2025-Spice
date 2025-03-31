@@ -15,7 +15,6 @@ namespace SteamProfile.Data
     {
         private static readonly Lazy<DataLink> instance = new(() => new DataLink());
         private readonly string connectionString;
-        private SqlConnection? sqlConnection;
         private bool disposed;
 
         private DataLink()
@@ -30,7 +29,6 @@ namespace SteamProfile.Data
                 string? localDataSource = config["LocalDataSource"];
                 string? initialCatalog = config["InitialCatalog"];
 
-               
                 connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
 
                 // Test the connection immediately
@@ -41,31 +39,25 @@ namespace SteamProfile.Data
             {
                 throw new DatabaseConnectionException("Failed to establish database connection. Please check your connection settings.", ex);
             }
-        
         }
 
         public static DataLink Instance => instance.Value;
 
-        private SqlConnection GetConnection()
+        private SqlConnection CreateConnection()
         {
             if (disposed)
             {
                 throw new ObjectDisposedException(nameof(DataLink));
             }
 
-            if (sqlConnection == null || sqlConnection.State == ConnectionState.Closed)
-            {
-                sqlConnection = new SqlConnection(connectionString);
-            }
-
-            return sqlConnection;
+            return new SqlConnection(connectionString);
         }
 
         public T? ExecuteScalar<T>(string storedProcedure, SqlParameter[]? sqlParameters = null)
         {
             try
             {
-                using var connection = GetConnection();
+                using var connection = CreateConnection();
                 connection.Open();
 
                 using var command = new SqlCommand(storedProcedure, connection)
@@ -95,7 +87,7 @@ namespace SteamProfile.Data
         {
             try
             {
-                using var connection = GetConnection();
+                using var connection = CreateConnection();
                 connection.Open();
 
                 using var command = new SqlCommand(storedProcedure, connection)
@@ -127,7 +119,7 @@ namespace SteamProfile.Data
         {
             try
             {
-                using var connection = GetConnection();
+                using var connection = CreateConnection();
                 connection.Open();
 
                 using var command = new SqlCommand(storedProcedure, connection)
@@ -162,18 +154,6 @@ namespace SteamProfile.Data
         {
             if (!disposed)
             {
-                if (disposing)
-                {
-                    if (sqlConnection != null)
-                    {
-                        if (sqlConnection.State == ConnectionState.Open)
-                        {
-                            sqlConnection.Close();
-                        }
-                        sqlConnection.Dispose();
-                        sqlConnection = null;
-                    }
-                }
                 disposed = true;
             }
         }

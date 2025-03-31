@@ -86,7 +86,7 @@ namespace SteamProfile.ViewModels
         private string _equippedHat = string.Empty;
 
         [ObservableProperty]
-        private string _equippedPet = "ms-appx:///Assets/100_achievement.jpeg"; // Using the dog image for now
+        private string _equippedPet = "ms-appx:///Assets/100_achievement.jpeg";
 
         [ObservableProperty]
         private string _equippedEmoji = string.Empty;
@@ -135,14 +135,15 @@ namespace SteamProfile.ViewModels
                     {
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
-                        Bio = currentUser.Description ?? string.Empty;
-                        ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
 
                         // Set IsOwner based on the parameter
                         IsOwner = isOwner;
 
                         // Load friend count
                         _ = LoadFriendCountAsync();
+
+                        // Load user profile data
+                        _ = LoadUserProfileDataAsync(currentUser.UserId);
 
                         // Set some test achievement values
                         HasGameplayAchievement = true;
@@ -178,6 +179,40 @@ namespace SteamProfile.ViewModels
                     ErrorMessage = "Failed to load profile data. Please try again later.";
                     IsLoading = false;
                 });
+            }
+        }
+
+        private async Task LoadUserProfileDataAsync(int userId)
+        {
+            try
+            {
+                var userProfile = await Task.Run(() => _userService.GetUserProfile(userId));
+                
+                if (userProfile != null)
+                {
+                    await _dispatcherQueue.EnqueueAsync(() =>
+                    {
+                        ProfilePicture = userProfile.ProfilePicture ?? string.Empty;
+                        Bio = userProfile.Bio ?? string.Empty;
+                        EquippedFrame = userProfile.EquippedFrame ?? string.Empty;
+                        EquippedHat = userProfile.EquippedHat ?? string.Empty;
+                        EquippedPet = userProfile.EquippedPet ?? "ms-appx:///Assets/100_achievement.jpeg";
+                        EquippedEmoji = userProfile.EquippedEmoji ?? string.Empty;
+                    });
+                }
+                else
+                {
+                    // Create a new profile if one doesn't exist
+                    await Task.Run(() => _userService.CreateUserProfile(userId));
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading user profile data: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
             }
         }
 

@@ -139,7 +139,7 @@ namespace SteamProfile.Repositories
                 Email = row["email"].ToString() ?? string.Empty,
                 Username = row["username"].ToString() ?? string.Empty,
                 ProfilePicture = row["profile_picture"] as string,
-                Description = row["description"] as string,
+                Description = row["bio"] as string,
                 IsDeveloper = Convert.ToBoolean(row["developer"]),
                 CreatedAt = Convert.ToDateTime(row["created_at"]),
                 LastLogin = row["last_login"] as DateTime?
