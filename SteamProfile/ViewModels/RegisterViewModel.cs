@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using SteamProfile.Exceptions;
 using SteamProfile.Validators;
+using SteamProfile.Repositories;
 
 namespace SteamProfile.ViewModels
 {
@@ -16,6 +17,7 @@ namespace SteamProfile.ViewModels
     {
         private readonly UserService _userService;
         private readonly Frame _frame;
+        private readonly WalletRepository _walletRepository;
 
         [ObservableProperty]
         private string username;
@@ -87,7 +89,10 @@ namespace SteamProfile.ViewModels
                     IsDeveloper = IsDeveloper
                 };
 
+
                 var createdUser = _userService.CreateUser(user);
+                _walletRepository.AddNewWallet(createdUser.UserId);
+
                 if (createdUser != null)
                 {
                     // Navigate to login page on successful registration

@@ -48,11 +48,12 @@ namespace SteamProfile
             // Initialize all services
             AchievementsService = new AchievementsService(achievementsRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
-            WalletService = new WalletService(walletRepository);
             SessionService = new SessionService(sessionRepository);
-            UserService = new UserService(usersRepository, SessionService);
+            UserService = new UserService(usersRepository, SessionService);  
+            WalletService = new WalletService(walletRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
+
         }
 
         private Window m_window;

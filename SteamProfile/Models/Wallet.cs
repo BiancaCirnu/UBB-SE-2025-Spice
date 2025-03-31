@@ -11,11 +11,10 @@ namespace SteamProfile.Models
         
         public int WalletId {  get; set; }
         public int UserId {  get; set; }
-        public decimal balance {  get; set; }
+        public decimal Balance {  get; set; }
 
-        public int points { get; set; }
-    
-       
+        public int Points { get; set; }
+        
     }
 
 }

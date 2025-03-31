@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using SteamProfile.Views;
 using System;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -9,134 +11,40 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 {
     public partial class ModifyProfileViewModel : ObservableObject
     {
-        // Observable properties with source generation
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CanSave))]
-        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
-        private string _description = string.Empty;
+        private readonly Frame _frame;
 
-        [ObservableProperty]
-        private StorageFile _profileImage;
-
-        [ObservableProperty]
-        private string _selectedImageName = string.Empty;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CanSave))]
-        [NotifyPropertyChangedFor(nameof(DescriptionErrorVisibility))]
-        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
-        private bool _isDescriptionValid;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CanSave))]
-        [NotifyCanExecuteChangedFor(nameof(SaveChangesCommand))]
-        private bool _isImageValid;
-
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(DescriptionErrorVisibility))]
-        private bool _showDescriptionError;
-
-        [ObservableProperty]
-        private string _descriptionErrorMessage = "Description is required";
-
-        [ObservableProperty]
-        private string _imageErrorMessage = "Profile image is required";
-
-        // UI helper properties
-        public Visibility DescriptionErrorVisibility => ShowDescriptionError ? Visibility.Visible : Visibility.Collapsed;
-
-        // Save enabled state
-        public bool CanSave => IsDescriptionValid && IsImageValid;
-
-        // Constructor
-        public ModifyProfileViewModel()
+        public ModifyProfileViewModel(Frame frame)
         {
-            // Initialize validation states
-            ValidateDescription(_description);
-            IsImageValid = false;
-            ShowDescriptionError = false;
+            _frame = frame;
         }
 
-        // Property change handlers
-        partial void OnDescriptionChanged(string value)
+        [RelayCommand]
+        private void NavigateToFeatures()
         {
-            ValidateDescription(value);
+            _frame.Navigate(typeof(FeaturesPage));
         }
 
-        partial void OnProfileImageChanged(StorageFile value)
+        [RelayCommand]
+        private void BackToConfig()
         {
-            if (value != null)
-            {
-                SelectedImageName = value.Name;
-                IsImageValid = true;
-            }
-            else
-            {
-                SelectedImageName = string.Empty;
-                IsImageValid = false;
-            }
+            _frame.GoBack();
         }
 
-        partial void OnIsDescriptionValidChanged(bool value)
+        [RelayCommand]
+        private void ChooseNewPhoto()
         {
-            UpdateDescriptionErrorVisibility();
+
         }
+        [ObservableProperty]
+        private string selectedImageName = string.Empty ;
+        [ObservableProperty]
+        private string description = string.Empty;
+        [ObservableProperty]
+        private string descriptionErrorMessage = string.Empty;
+        [ObservableProperty]
+        private Visibility descriptionErrorVisibility = Visibility.Collapsed;
+        [ObservableProperty]
+        public bool canSave;
 
-        // Validation methods
-        private void UpdateDescriptionErrorVisibility()
-        {
-            ShowDescriptionError = !IsDescriptionValid;
-        }
-
-        public void ValidateDescription(string description)
-        {
-            if (string.IsNullOrWhiteSpace(description))
-            {
-                IsDescriptionValid = false;
-                DescriptionErrorMessage = "Description is required";
-            }
-            else if (description.Length < 10)
-            {
-                IsDescriptionValid = false;
-                DescriptionErrorMessage = "Description must be at least 10 characters";
-            }
-            else if (description.Length > 500)
-            {
-                IsDescriptionValid = false;
-                DescriptionErrorMessage = "Description cannot exceed 500 characters";
-            }
-            else
-            {
-                IsDescriptionValid = true;
-            }
-        }
-
-        // Save method with RelayCommand
-        [RelayCommand(CanExecute = nameof(CanSave))]
-        public async Task<bool> SaveChanges()
-        {
-            // Validate all fields before saving
-            ValidateDescription(Description);
-
-            if (!CanSave)
-            {
-                return false;
-            }
-
-            try
-            {
-                // Implement your actual save logic here
-                // For example:
-                // - Upload image to server
-                // - Save description to database
-                await Task.Delay(500); // Simulating save operation
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
     }
 }

@@ -1,5 +1,5 @@
 go
-CREATE PROCEDURE CreateUser
+CREATE or alter PROCEDURE CreateUser
     @username NVARCHAR(50),
     @email NVARCHAR(100),
     @hashed_password NVARCHAR(255),

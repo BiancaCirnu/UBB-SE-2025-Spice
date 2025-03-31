@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage.Streams;
 using Windows.System;
 
 namespace SteamProfile.Repositories
@@ -14,82 +15,106 @@ namespace SteamProfile.Repositories
     public class WalletRepository
     {
         private readonly DataLink _dataLink;
-        private readonly int _walletId;
 
-        public WalletRepository(DataLink datalink, int walletId)
+        public WalletRepository(DataLink datalink)
         {
             _dataLink = datalink ?? throw new ArgumentNullException(nameof(datalink));
-            _walletId = walletId;
         }
 
-        public Wallet GetWallet()
+        public Wallet GetWallet(int walletId)
         {
             try
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@wallet_id", _walletId)
+                    new SqlParameter("@wallet_id", walletId)
                 };
                 var dataTable = _dataLink.ExecuteReader("GetWalletById", parameters);
-                return MapDataRowToUser(dataTable.Rows[0]);
+                return MapDataRowToWallet(dataTable.Rows[0]);
             }
             catch (DatabaseOperationException ex)
             {
-                throw new RepositoryException($"Failed to retrieve wallet with ID {_walletId} from the database.", ex);
+                throw new RepositoryException($"Failed to retrieve wallet with ID {walletId} from the database.", ex);
             }
         }
 
-        private Wallet MapDataRowToUser(DataRow dataRow)
+        private Wallet MapDataRowToWallet(DataRow dataRow) => new Wallet
         {
-            return new Wallet
-            {
-                WalletId = Convert.ToInt32(dataRow["wallet_id"]),
-                UserId = Convert.ToInt32(dataRow["user_id"]),
-                balance = Convert.ToInt32(dataRow["balance"]),
-                points = Convert.ToInt32(dataRow["points"])
-            };
-        }
+            WalletId = Convert.ToInt32(dataRow["wallet_id"]),
+            UserId = Convert.ToInt32(dataRow["user_id"]),
+            Balance = Convert.ToDecimal(dataRow["money_for_games"]),
+            Points = Convert.ToInt32(dataRow["points"]),
+        };
 
-        public void AddMoneyToWallet(decimal amount)
+        public void AddMoneyToWallet(decimal amount, int waletId)
         {
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@amount",  amount),
-                new SqlParameter("@userId", _walletId)
+                new SqlParameter("@userId", waletId)
             };
             _dataLink.ExecuteReader("AddMoney", parameters);
         }
 
-        public void AddPointsToWallet(int amount)
+        public void AddPointsToWallet(int amount, int walletId)
         {
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@amount",  amount),
-                new SqlParameter("@userId", _walletId)
+                new SqlParameter("@userId", walletId)
             };
             _dataLink.ExecuteReader("AddPoints", parameters);
         }
 
-        public decimal GetMoneyFromWallet()
+        public decimal GetMoneyFromWallet(int walletId)
         {
-            return GetWallet().balance;
+            return GetWallet(walletId).Balance;
         }
 
-        public int GetPointsFromWallet()
+        public int GetPointsFromWallet(int walletId)
         {
-            return GetWallet().points;
+            return GetWallet(walletId).Points;
         }
 
-        public void PurchasePoints(PointsOffer offer)
+        public void PurchasePoints(PointsOffer offer, int walletId)
         {
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@price", offer.Price),
                 new SqlParameter("@numberOfPoints", offer.Points), // Fixed parameter name from @@numberOfPoints to @points
-                new SqlParameter("@userId", _walletId)
+                new SqlParameter("@userId", walletId)
             };
             _dataLink.ExecuteReader("BuyPoints", parameters);
         }
-
+        public void AddNewWallet(int walletid)
+        {
+            try
+            {
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@userId", walletid)
+                };
+                var datatable = _dataLink.ExecuteReader("CreateWallet");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        public void RemoveWallet(int walletId)
+        {
+            try
+            {
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@userId", walletId)
+                };
+                var datatable = _dataLink.ExecuteReader("RemoveWallet");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 }

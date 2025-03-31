@@ -26,17 +26,21 @@
                     Style="{ThemeResource AccentButtonStyle}"
                     HorizontalAlignment="Center"
                     Width="200"/>
-
-            <!-- Add other configuration options here -->
-
+            <Button Content="Account Settings"
+                    Command="{Binding NavigateToAccountSettingsCommand}"
+                    HorizontalAlignment="Center" 
+                    Width="200"/>
+            <Button Content="Modify Profile"
+                    Command="{Binding NavigateToProfileSettingsCommand}"
+                    HorizontalAlignment="Center" 
+                    Width="200"/>
+            <Button Content="Go to wallet"
+                    Command="{Binding NavigateToWalletCommand}"
+                    HorizontalAlignment="Center" 
+                    Width="200"/>
             <Button Content="Back to Profile"
                     Command="{Binding NavigateToProfileCommand}"
                     Style="{ThemeResource TextBlockButtonStyle}"/>
-        </StackPanel>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="30">
-            <Button Content="Account Settings" Click="AccountSettings_Click" HorizontalAlignment="Stretch" FontSize="30"/>
-            <Button Content="Modify Profile" Click="ModifyProfile_Click" HorizontalAlignment="Stretch" FontSize="30"/>
-            <Button Content="Cancel" Click="Cancel_Click" HorizontalAlignment="Stretch" FontSize="30"/>
         </StackPanel>
     </Grid>
 </Page>

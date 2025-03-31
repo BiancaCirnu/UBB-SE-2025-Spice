@@ -1,7 +1,6 @@
 ﻿DROP TABLE IF EXISTS Feature_User;
 DROP TABLE IF EXISTS User_Achievement;
 DROP TABLE IF EXISTS OwnedGames_Collection;
-DROP TABLE IF EXISTS User_Wallet;
 DROP TABLE IF EXISTS Wallet;
 DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
@@ -64,21 +63,13 @@ CREATE TABLE Collections (
     description NVARCHAR(100),
     is_public BIT DEFAULT 1
 );
-
 -- Wallet Table
-CREATE TABLE Wallet (
+create TABLE Wallet (
     wallet_id INT PRIMARY KEY identity(1,1),
+    user_id INT unique,
     points INT NOT NULL DEFAULT 0,
     money_for_games DECIMAL(10,2) NOT NULL DEFAULT 0.00
-);
-
--- User_Wallet Connection Table
-CREATE TABLE User_Wallet (
-    user_id INT NOT NULL,
-    wallet_id INT NOT NULL,
-    PRIMARY KEY (user_id, wallet_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (wallet_id) REFERENCES Wallet(wallet_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- OwnedGames_Collection Table
@@ -456,7 +447,7 @@ BEGIN
         SELECT 0 as Result
 END
 
-SELECT @result AS VerificationResult;
+-- SELECT @result AS VerificationResult;
 
 
 go
@@ -522,3 +513,114 @@ BEGIN
     SELECT * FROM Users
     WHERE email = @email
 END
+
+select * from Wallet
+
+-------- WALLET PROCEDURES-------------
+go
+create or alter procedure GetWalletById @wallet_id int as
+begin
+	select * from Wallet where @wallet_id = wallet_id
+end
+go
+
+create or alter procedure WinPoints @amount int, @userId int 
+as 
+begin
+	update  Wallet 
+	set points = points + @amount
+	where user_id = @userId
+end
+go
+create or alter procedure CreateWallet @user_id int as
+begin
+	insert into Wallet (user_id, points, money_for_games)
+	values (@user_id,0,0)
+
+	update Wallet
+	set user_id = wallet_id
+	where wallet_id = (select max(wallet_id) from Wallet)
+end
+go
+
+create or alter procedure AddMoney @amount decimal, @userId int as
+begin 
+	update wallet  
+	set money_for_games = money_for_games + @amount
+	where user_id = @userId
+end
+go
+
+create or alter procedure BuyPoints @price decimal, @numberOfPoints int, @userId int 
+as
+begin
+	update Wallet 
+	set points = points + @numberOfPoints
+	where user_id = @userId;
+
+	update Wallet
+	set money_for_games = money_for_games - @price 
+	where user_id = @userId
+end
+
+go
+
+create or alter procedure BuyWithMoney @amount decimal, @userId int 
+as 
+begin
+	update  Wallet 
+	set money_for_games = money_for_games - @amount
+	where user_id = @userId
+end
+
+go
+
+create or alter procedure BuyWithPoints @amount int, @userId int 
+as 
+begin
+	update  Wallet 
+	set points = points - @amount
+	where user_id = @userId
+end
+go
+
+
+------Create table PointsOffers ----
+create table PointsOffers(
+    offerId  INT IDENTITY(1,1) PRIMARY KEY,
+    numberOfPoints int not null,
+    value int not null
+);
+insert into PointsOffers(numberOfPoints, value) values
+(5, 2),
+(25, 8), 
+(50, 15), 
+(100, 20),
+(500, 50)
+
+go
+create or alter procedure GetAllPointsOffers as 
+begin
+	select numberOfPoints, value from PointsOffers
+end
+go
+create or alter procedure GetPointsOfferByID @offerId int as
+begin
+	select numberOfPoints, value from PointsOffers where offerId = @offerId
+end
+go
+
+--- initialize wallet for first 11 users
+exec createWallet @user_id = 1;
+exec createWallet @user_id = 2;
+exec createWallet @user_id = 3;
+exec createWallet @user_id = 4;
+exec createWallet @user_id = 5;
+exec createWallet @user_id = 6;
+exec createWallet @user_id = 7;
+exec createWallet @user_id = 8;
+exec createWallet @user_id = 9;
+exec createWallet @user_id = 10;
+exec createWallet @user_id = 11;
+
+select * from Wallet

@@ -84,9 +84,8 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@email", user.Email),
                     new SqlParameter("@username", user.Username),
-                    new SqlParameter("@email", user.Email),
                     new SqlParameter("@hashed_password", user.Password),
-                    new SqlParameter("@developer", user.IsDeveloper),
+                    new SqlParameter("@developer", user.IsDeveloper)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("CreateUser", parameters);
@@ -112,6 +111,8 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@user_Id", userId)
                 };
+
+                _dataLink.ExecuteNonQuery("DeleteWallet", parameters);
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
             }

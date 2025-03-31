@@ -5,8 +5,8 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SteamProfile.Services;
 using SteamProfile.ViewModels;
-using SteamProfile.Views.ConfigurationsView;
 using SteamProfile.Views.ConfigurationsView;
 using System;
 using System.Collections.Generic;
@@ -20,8 +20,8 @@ namespace SteamProfile.Views
 {
     public sealed partial class ConfigurationsPage : Page
     {
-        public ConfigurationsViewModel ViewModel { get; private set; }
 
+        public ConfigurationsViewModel ViewModel { get; private set; }
         public ConfigurationsPage()
         {
             this.InitializeComponent();
@@ -33,17 +33,6 @@ namespace SteamProfile.Views
             ViewModel = new ConfigurationsViewModel(this.Frame);
             this.DataContext = ViewModel;
         }
-        private void AccountSettings_Click (object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(AccountSettingsPage), _viewModel);
-        }
-        private void ModifyProfile_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.Navigate(typeof(ModifyProfilePage), _viewModel);
-        }
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            Frame.GoBack();
-        }
+      
     }
 }

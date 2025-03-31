@@ -47,7 +47,7 @@
                         Click="AddPointsButton_Click" 
                         HorizontalAlignment="Stretch"/>
             </Grid>
-
+            <Button Click="GoBack" Content="Back to configurations"/>
             <!-- Transaction History Section could go here -->
         </StackPanel>
     </Grid>

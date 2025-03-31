@@ -11,32 +11,32 @@ namespace SteamProfile.Services
     public class WalletService
     {
         private readonly WalletRepository _walletRepository;
-        private readonly int _userId;
+        private readonly UserService _userService;
 
-        public WalletService(WalletRepository walletRepository, int userId)
+        public WalletService(WalletRepository walletRepository, UserService userService)
         {
             _walletRepository = walletRepository ?? throw new ArgumentNullException(nameof(walletRepository));
-            _userId = userId;
+            _userService = userService;
         }
 
         internal void AddMoney(decimal amount)
         {
-            _walletRepository.AddMoneyToWallet(amount);
+            _walletRepository.AddMoneyToWallet(amount, _userService.GetCurrentUser().UserId);
         }
 
         internal void AddPoints(int points)
         {
-            _walletRepository.AddPointsToWallet(points);
+            _walletRepository.AddPointsToWallet(points, _userService.GetCurrentUser().UserId);
         }
 
         internal decimal GetBalance()
         {
-            return _walletRepository.GetMoneyFromWallet();
+            return _walletRepository.GetMoneyFromWallet(_userService.GetCurrentUser().UserId);
         }
 
         internal int GetPoints()
         {
-           return (_walletRepository.GetPointsFromWallet());
+           return (_walletRepository.GetPointsFromWallet(_userService.GetCurrentUser().UserId));
         }
 
 
@@ -48,7 +48,7 @@ namespace SteamProfile.Services
             // Check if user has enough balance
             if (GetBalance() < offer.Price)
                 throw new InvalidOperationException("Insufficient funds");
-            _walletRepository.PurchasePoints(offer);
+            _walletRepository.PurchasePoints(offer, _userService.GetCurrentUser().UserId);
         }
     }
 }

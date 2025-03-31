@@ -14,6 +14,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using SteamProfile.Views;
+using SteamProfile.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,7 +27,6 @@ namespace SteamProfile.Views
     public sealed partial class ProfilePage : Page
     {
         public ProfileViewModel ViewModel { get; private set; }
-
         public ProfilePage()
         {
             this.InitializeComponent();
