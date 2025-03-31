@@ -1,19 +1,17 @@
-using System;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using System;
 
 namespace SteamProfile.Converters
 {
-    public class StringToVisibilityConverter : IValueConverter
+    public class BoolToOpacityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is string stringValue)
+            if (value is bool hasAchievement)
             {
-                return !string.IsNullOrEmpty(stringValue) ? Visibility.Visible : Visibility.Collapsed;
+                return hasAchievement ? 1.0 : 0.3; // Full opacity for unlocked, 30% for locked
             }
-            return Visibility.Collapsed;
+            return 0.3; // Default to locked state
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
@@ -21,4 +19,4 @@ namespace SteamProfile.Converters
             throw new NotImplementedException();
         }
     }
-}
+} 

@@ -29,4 +29,4 @@ namespace SteamProfile.Models
                 throw new InvalidOperationException("User cannot be friends with themselves.");
         }
     }
-} 
+}

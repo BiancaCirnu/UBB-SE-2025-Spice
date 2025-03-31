@@ -5,6 +5,9 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using SteamProfile.Data;
+using SteamProfile.Repositories;
+using SteamProfile.Services;
 using SteamProfile.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -44,6 +47,15 @@ namespace SteamProfile.Views
             if (sender is Button button && button.Tag is int userId)
             {
                 Frame.Navigate(typeof(ProfilePage), userId);
+            }
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            if (e.Parameter is int userId)
+            {
+                _userId = userId;
+                await _viewModel.LoadFriends(_userId.ToString());
             }
         }
     }

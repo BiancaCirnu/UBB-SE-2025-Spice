@@ -13,7 +13,11 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using SteamProfile.Views;
+using System.Diagnostics;
+using SteamProfile.Data;
+using SteamProfile.Repositories;
+using SteamProfile.Services;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,25 +29,91 @@ namespace SteamProfile.Views
     /// </summary>
     public sealed partial class ProfilePage : Page
     {
-        public ProfileViewModel ViewModel { get; private set; }
+        public ProfileViewModel ViewModel { get; }
+        private bool _isOwnProfile;
+        private int _userId;
 
         public ProfilePage()
         {
-            this.InitializeComponent();
-            this.Loaded += ProfilePage_Loaded;
+            try
+            {
+                InitializeComponent();
+                Debug.WriteLine("ProfilePage initialized.");
+
+                // Initialize the ViewModel with the UI thread's dispatcher
+                var dataLink = DataLink.Instance;
+                Debug.WriteLine("DataLink instance obtained.");
+
+                var friendshipsRepository = new FriendshipsRepository(dataLink);
+                var friendsService = new FriendsService(friendshipsRepository);
+                Debug.WriteLine("FriendshipsRepository and FriendsService initialized.");
+
+                // Add the UserProfileRepository parameter
+                ProfileViewModel.Initialize(
+                    App.UserService, 
+                    friendsService, 
+                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
+                    App.UserProfileRepository
+                );
+                Debug.WriteLine("ProfileViewModel initialized with services.");
+
+                ViewModel = ProfileViewModel.Instance;
+
+                // By default, assume we're viewing someone else's profile
+                //_isOwnProfile = true;
+                Debug.WriteLine("Assuming we're viewing someone else's profile.");
+
+                // Load the profile data
+                //_ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                Debug.WriteLine("Profile data loading initiated.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing ProfilePage: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+
+                // Show error dialog to user
+                ShowErrorDialog("Failed to initialize profile. Please try again later.");
+            }
         }
 
-        private void ProfilePage_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            ViewModel = new ProfileViewModel(App.UserService, this.Frame);
-            this.DataContext = ViewModel;
+            base.OnNavigatedTo(e);
+            Debug.WriteLine("Navigated to ProfilePage.");
+
+            // If we receive a parameter, it indicates whose profile we're viewing
+            if (e.Parameter != null)
+            {
+                // If the parameter is true, it means we're viewing our own profile
+                _userId = (int)e.Parameter;
+                Debug.WriteLine($"Navigating to profile. Is own profile: {_isOwnProfile}");
+                _ = ViewModel.LoadProfileAsync(_userId);
+            }
         }
 
-        // Add this new method for Configurations button
-        private void ConfigurationsButton_Click(object sender, RoutedEventArgs e)
+        private async void ShowErrorDialog(string message)
         {
-            // Direct navigation to ConfigurationsPage
-            this.Frame.Navigate(typeof(ConfigurationsPage));
+            try
+            {
+                ContentDialog errorDialog = new ContentDialog
+                {
+                    Title = "Error",
+                    Content = message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+
+                await errorDialog.ShowAsync();
+                Debug.WriteLine("Error dialog shown.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error showing dialog: {ex.Message}");
+            }
         }
 
         private void ViewCollections_Click(object sender, RoutedEventArgs e)

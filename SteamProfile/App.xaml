@@ -13,23 +13,17 @@
             </ResourceDictionary.MergedDictionaries>
             <!-- Other app resources here -->
 
-            <Style x:Key="TransparentButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="MinHeight" Value="0"/>
-                <Setter Property="MinWidth" Value="0"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <ContentPresenter/>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
+            <!-- Converters -->
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-            <converters:DateOnlyToStringConverter x:Key="DateOnlyToStringConverter"/>
             <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            <converters:StringFormatConverter x:Key="StringFormatConverter"/>
+            <converters:BoolToGridColumnConverter x:Key="BoolToGridColumnConverter"/>
+            <converters:BoolToNextGridColumnConverter x:Key="BoolToNextGridColumnConverter"/>
+            <converters:BoolToLastGridColumnConverter x:Key="BoolToLastGridColumnConverter"/>
+            <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <converters:StringToImageSourceConverter x:Key="StringToImageSourceConverter"/>
+          
         </ResourceDictionary>
     </Application.Resources>
 </Application>

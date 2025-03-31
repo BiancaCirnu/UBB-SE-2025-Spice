@@ -1,19 +1,17 @@
-using System;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
+﻿using Microsoft.UI.Xaml.Data;
 using System;
 
 namespace SteamProfile.Converters
 {
-    public class StringToVisibilityConverter : IValueConverter
+    public class StringFormatConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            if (value is string stringValue)
+            if (parameter is string format)
             {
-                return !string.IsNullOrEmpty(stringValue) ? Visibility.Visible : Visibility.Collapsed;
+                return string.Format(format, value);
             }
-            return Visibility.Collapsed;
+            return value?.ToString() ?? string.Empty;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

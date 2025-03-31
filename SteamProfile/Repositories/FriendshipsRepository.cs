@@ -1,4 +1,5 @@
 using SteamProfile.Data;
+
 using SteamProfile.Models;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SteamProfile.Repositories
 {
@@ -48,7 +50,7 @@ namespace SteamProfile.Repositories
                 Debug.WriteLine($"Unexpected Error: {ex.Message}");
                 Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while retrieving friendships.", ex);
-            }
+        }
         }
 
         public Friendship GetFriendshipById(int friendshipId)
@@ -69,7 +71,7 @@ namespace SteamProfile.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("An unexpected error occurred while retrieving friendship by ID.", ex);
-            }
+        }
         }
 
         public void RemoveFriendship(int friendshipId)
@@ -151,7 +153,7 @@ namespace SteamProfile.Repositories
                 FriendProfilePicture = row["friend_profile_picture"].ToString()
             };
         }
-    }
+        }
 
     public class RepositoryException : Exception
     {
@@ -159,4 +161,4 @@ namespace SteamProfile.Repositories
         public RepositoryException(string message, Exception innerException)
             : base(message, innerException) { }
     }
-} 
+}

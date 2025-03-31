@@ -2,6 +2,8 @@ CREATE PROCEDURE GetUserById
     @userId INT
 AS
 BEGIN
+    SET NOCOUNT ON;
+
     SELECT 
         user_id,
         username,
