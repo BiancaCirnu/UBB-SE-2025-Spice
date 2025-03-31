@@ -62,7 +62,7 @@ namespace SteamProfile.ViewModels {
                 Username = $"RandomUser_{_random.Next(1000)}",
                 Email = $"random{_random.Next(1000)}@example.com",
                 Password = "RandomPassword123",
-                Description = "This is a random test user",
+               // Description = "This is a random test user",
                 IsDeveloper = _random.Next(2) == 1,
                 CreatedAt = DateTime.Now
             };

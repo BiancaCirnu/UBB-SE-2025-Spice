@@ -1,5 +1,4 @@
-﻿-- Drop tables in reverse order of dependencies
-DROP TABLE IF EXISTS Feature_User;
+﻿DROP TABLE IF EXISTS Feature_User;
 DROP TABLE IF EXISTS User_Achievement;
 DROP TABLE IF EXISTS OwnedGames_Collection;
 DROP TABLE IF EXISTS User_Wallet;
@@ -9,146 +8,36 @@ DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
 DROP TABLE IF EXISTS Users;
+drop table if exists PasswordResetCodes;
 
--- Drop stored procedures
-DROP PROCEDURE IF EXISTS GetAllUsers;
-DROP PROCEDURE IF EXISTS GetUserById;
-DROP PROCEDURE IF EXISTS GetUserFriends;
-DROP PROCEDURE IF EXISTS AddFriend;
-DROP PROCEDURE IF EXISTS RemoveFriend;
-DROP PROCEDURE IF EXISTS CheckFriendship;
-DROP PROCEDURE IF EXISTS GetFriendCount;
-DROP PROCEDURE IF EXISTS GetAllFriendships;
-DROP PROCEDURE IF EXISTS GetFriendshipsForUser;
-DROP PROCEDURE IF EXISTS GetFriendshipCountForUser;
+drop procedure if exists CreateUser;
+drop procedure if exists GetAllUsers;
+drop procedure if exists GetUserByEmail
+DROP PROCEDURE IF EXISTS ValidateResetCode;
+DROP PROCEDURE IF EXISTS ResetPassword;
+DROP PROCEDURE IF EXISTS GetUserByEmail;
+DROP PROCEDURE IF EXISTS StorePasswordResetCode;
+DROP PROCEDURE IF EXISTS VerifyResetCode;
+drop procedure if exists CleanupResetCodes;
 
--- User Table
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY identity(1,1),
-    email NVARCHAR(255) UNIQUE NOT NULL CHECK (email LIKE '%@%._%'),
-    username NVARCHAR(100) UNIQUE NOT NULL,
-    password_hash NVARCHAR(255) NOT NULL,
-    profile_picture NVARCHAR(255) CHECK (profile_picture LIKE '%.svg' OR profile_picture LIKE '%.png' OR profile_picture LIKE '%.jpg'),
-    description NVARCHAR(1000),
-    developer BIT DEFAULT 0,
-    created_at DATETIME DEFAULT GETDATE(),
+    user_id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50) COLLATE SQL_Latin1_General_CP1254_CS_AS NOT NULL UNIQUE, -- case sensitivity for usernames
+    email NVARCHAR(100) COLLATE SQL_Latin1_General_CP1254_CS_AS NOT NULL UNIQUE, -- case sensitivity for emails
+    hashed_password NVARCHAR(255) NOT NULL,
+    developer BIT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
     last_login DATETIME NULL
 );
 
--- Create GetAllUsers stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetAllUsers
-AS
-BEGIN
-    SELECT user_id, email, username, profile_picture, description, developer, created_at, last_login
-    FROM Users
-    ORDER BY username;
-END
-GO
+CREATE TABLE UserSessions (
+    session_id UNIQUEIDENTIFIER PRIMARY KEY,
+    user_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),  
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
 
--- Create GetUserById stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetUserById
-    @user_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT 
-        user_id,
-        email,
-        username,
-        password_hash,
-        profile_picture,
-        description,
-        developer,
-        created_at,
-        last_login
-    FROM Users
-    WHERE user_id = @user_id;
-END
-GO
-
--- Create GetUserFriends stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetUserFriends
-    @user_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT 
-        f.friend_id,
-        u.username,
-        u.email,
-        u.profile_picture,
-        u.description,
-        u.developer,
-        u.created_at,
-        u.last_login
-    FROM Friendships f
-    JOIN Users u ON f.friend_id = u.user_id
-    WHERE f.user_id = @user_id
-    ORDER BY u.username;
-END
-GO
-
--- Create AddFriend stored procedure
-GO
-CREATE OR ALTER PROCEDURE AddFriend
-    @user_id INT,
-    @friend_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    INSERT INTO Friendships (user_id, friend_id)
-    VALUES (@user_id, @friend_id);
-END
-GO
-
--- Create RemoveFriend stored procedure
-GO
-CREATE OR ALTER PROCEDURE RemoveFriend
-    @user_id INT,
-    @friend_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    DELETE FROM Friendships
-    WHERE user_id = @user_id AND friend_id = @friend_id;
-END
-GO
-
--- Create CheckFriendship stored procedure
-GO
-CREATE OR ALTER PROCEDURE CheckFriendship
-    @user_id INT,
-    @friend_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT COUNT(*) as friendship_count
-    FROM Friendships
-    WHERE user_id = @user_id AND friend_id = @friend_id;
-END
-GO
-
--- Create GetFriendCount stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetFriendCount
-    @user_id INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT COUNT(*) as friend_count
-    FROM Friendships
-    WHERE user_id = @user_id;
-END
-GO
 
 -- Achievements Table
 CREATE TABLE Achievements (
@@ -224,182 +113,415 @@ CREATE TABLE Feature_User (
     FOREIGN KEY (feature_id) REFERENCES Features(feature_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-INSERT INTO Users (email, username, password_hash, profile_picture, description, developer, last_login) VALUES
-('alice@example.com', 'AliceGamer', 'hashed_password_1', 'alice.png', 'Passionate gamer and developer.', 1, '2025-03-20 14:25:00'),
-('bob@example.com', 'BobTheBuilder', 'hashed_password_2', 'bob.jpg', 'Strategy game enthusiast.', 0, '2025-03-21 10:12:00'),
-('charlie@example.com', 'CharlieX', 'hashed_password_3', 'charlie.svg', 'Loves open-world RPGs.', 0, '2025-03-22 18:45:00'),
-('diana@example.com', 'DianaRocks', 'hashed_password_4', 'diana.png', 'Competitive FPS player.', 0, '2025-03-19 22:30:00'),
-('eve@example.com', 'Eve99', 'hashed_password_5', 'eve.jpg', 'Indie game developer.', 1, '2025-03-23 08:05:00'),
-('frank@example.com', 'FrankTheTank', 'hashed_password_6', 'frank.svg', 'MOBA and strategy geek.', 0, '2025-03-24 16:20:00'),
-('grace@example.com', 'GraceSpeed', 'hashed_password_7', 'grace.png', 'Speedrunner and puzzle solver.', 0, '2025-03-25 11:40:00'),
-('harry@example.com', 'HarryWizard', 'hashed_password_8', 'harry.jpg', 'Lover of fantasy games.', 0, '2025-03-20 20:15:00'),
-('ivy@example.com', 'IvyNinja', 'hashed_password_9', 'ivy.svg', 'Stealth and action-adventure expert.', 0, '2025-03-22 09:30:00'),
-('jack@example.com', 'JackHacks', 'hashed_password_10', 'jack.png', 'Cybersecurity and hacking sim fan.', 1, '2025-03-24 23:55:00');
-
-select * from Users;
-
-SELECT COUNT(*) FROM Users;
-
--- Create Friendships table
-CREATE TABLE Friendships (
-    friendship_id INT IDENTITY(1,1) PRIMARY KEY,
+-- Password Reset Codes Table
+CREATE TABLE PasswordResetCodes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
-    friend_id INT NOT NULL,
-    CONSTRAINT FK_Friendships_User FOREIGN KEY (user_id) REFERENCES Users(user_id),
-    CONSTRAINT FK_Friendships_Friend FOREIGN KEY (friend_id) REFERENCES Users(user_id),
-    CONSTRAINT UQ_Friendship UNIQUE (user_id, friend_id),
-    CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
+    reset_code NVARCHAR(6) NOT NULL,
+    expiration_time DATETIME NOT NULL,
+    used BIT DEFAULT 0,
+	email nvarchar(255),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
--- Add indexes for better query performance
-CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
-CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
+INSERT INTO Users (email, username, hashed_password, developer, last_login) VALUES
+('alice@example.com', 'AliceGamer', 'hashed_password_1', 1, '2025-03-20 14:25:00'),
+('bob@example.com', 'BobTheBuilder', 'hashed_password_2', 0, '2025-03-21 10:12:00'),
+('charlie@example.com', 'CharlieX', 'hashed_password_3', 0, '2025-03-22 18:45:00'),
+('diana@example.com', 'DianaRocks', 'hashed_password_4', 0, '2025-03-19 22:30:00'),
+('eve@example.com', 'Eve99', 'hashed_password_5', 1, '2025-03-23 08:05:00'),
+('frank@example.com', 'FrankTheTank', 'hashed_password_6', 0, '2025-03-24 16:20:00'),
+('grace@example.com', 'GraceSpeed', 'hashed_password_7', 0, '2025-03-25 11:40:00'),
+('harry@example.com', 'HarryWizard', 'hashed_password_8', 0, '2025-03-20 20:15:00'),
+('ivy@example.com', 'IvyNinja', 'hashed_password_9', 0, '2025-03-22 09:30:00'),
+('jack@example.com', 'JackHacks', 'hashed_password_10', 1, '2025-03-24 23:55:00');
 
--- Add some mock data for testing
-INSERT INTO Friendships (user_id, friend_id)
-VALUES 
-    (1, 2),
-    (1, 3),
-    (2, 3),
-    (2, 4);
-GO
+INSERT INTO Users (email, username, hashed_password, developer, last_login) VALUES
+('maracocaina77@gmail.com', 'Mara', 'hashed_password_1', 0, '2025-03-20 14:25:00');
 
-CREATE OR ALTER PROCEDURE GetAllFriendships
-AS
-BEGIN
-    SELECT 
-        f.friendship_id,
-        f.user_id,
-        u1.username as user_username,
-        f.friend_id,
-        u2.username as friend_username
-    FROM Friendships f
-    JOIN Users u1 ON f.user_id = u1.user_id
-    JOIN Users u2 ON f.friend_id = u2.user_id
-    ORDER BY f.user_id, f.friend_id;
-END
-GO
+go 
 
-GO
-CREATE OR ALTER PROCEDURE GetAllUsers
+CREATE PROCEDURE CheckUserExists
+    @email NVARCHAR(100),
+    @username NVARCHAR(50)
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Check for existing email and username
+    SELECT 
+        CASE 
+            WHEN EXISTS (SELECT 1 FROM Users WHERE Email = @email) THEN 'EMAIL_EXISTS'
+            WHEN EXISTS (SELECT 1 FROM Users WHERE Username = @username) THEN 'USERNAME_EXISTS'
+            ELSE NULL
+        END AS ErrorType;
+END;
+go
+
+CREATE PROCEDURE CreateUser
+    @username NVARCHAR(50),
+    @email NVARCHAR(100),
+    @hashed_password NVARCHAR(255),
+    @developer BIT
+AS
+BEGIN
+    INSERT INTO Users (username, email, hashed_password, developer)
+    VALUES (@username, @email, @hashed_password, @developer);
+
     SELECT 
         user_id,
-        email,
         username,
-        password_hash,
-        profile_picture,
-        description,
+        email,
+        hashed_password,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = SCOPE_IDENTITY();
+END;
+go
+
+CREATE PROCEDURE DeleteUser
+    @userId INT
+AS
+BEGIN
+    DELETE FROM Users
+    WHERE user_id = @userId;
+END 
+
+go
+
+CREATE PROCEDURE GetAllUsers
+AS
+BEGIN
+    SELECT 
+        user_id,
+        username,
+        email,
         developer,
         created_at,
         last_login
     FROM Users
     ORDER BY username;
-END
+END 
 
--- Create GetFriendshipsForUser stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetFriendshipsForUser
+go
+
+CREATE PROCEDURE GetUserByEmailOrUsername
+    @EmailOrUsername NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT user_id, username, email, hashed_password, developer, created_at, last_login
+    FROM Users
+    WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
+END 
+go
+CREATE PROCEDURE GetUserById
+    @userId INT
+AS
+BEGIN
+    SELECT 
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @userId;
+END 
+
+go
+CREATE PROCEDURE UpdateLastLogin
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
+
+    UPDATE Users
+    SET last_login = GETDATE()
+    WHERE user_id = @user_id;
 
     SELECT 
-        f.friendship_id,
-        f.user_id,
-        f.friend_id,
-        u.username as friend_username,
-        u.profile_picture as friend_profile_picture
-    FROM Friendships f
-    JOIN Users u ON f.friend_id = u.user_id
-    WHERE f.user_id = @user_id
-    ORDER BY u.username;
-END
-GO
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @user_id;
+END 
 
--- Create GetFriendshipCountForUser stored procedure
-GO
-CREATE OR ALTER PROCEDURE GetFriendshipCountForUser
+go
+CREATE PROCEDURE UpdateUser
+    @user_id INT,
+    @email NVARCHAR(100),
+    @username NVARCHAR(50),
+    @developer BIT
+AS
+BEGIN
+    UPDATE Users
+    SET 
+        email = @email,
+        username = @username,
+        developer = @developer
+    WHERE user_id = @user_id;
+
+    SELECT 
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @user_id;
+END 
+
+go
+
+CREATE PROCEDURE CreateSession
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT COUNT(*) as friend_count
-    FROM Friendships
-    WHERE user_id = @user_id;
+    -- Delete any existing sessions for this user
+    DELETE FROM UserSessions WHERE user_id = @user_id;
+
+    -- Create new session with 2-hour expiration
+    INSERT INTO UserSessions (user_id, session_id, created_at, expires_at)
+    VALUES (
+        @user_id,
+        NEWID(),
+        GETDATE(),
+        DATEADD(HOUR, 2, GETDATE())
+    );
+
+    -- Return the session details
+    SELECT 
+        us.session_id,
+        us.created_at,
+        us.expires_at,
+        u.user_id,
+        u.username,
+        u.email,
+        u.developer,
+        u.created_at as user_created_at,
+        u.last_login
+    FROM UserSessions us
+    JOIN Users u ON us.user_id = u.user_id
+    WHERE us.user_id = @user_id;
+END; 
+
+go
+CREATE PROCEDURE DeleteSession
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM UserSessions WHERE session_id = @session_id;
+END; 
+go
+
+CREATE PROCEDURE GetSessionById
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT session_id, user_id, created_at, expires_at
+    FROM UserSessions
+    WHERE session_id = @session_id;
+END 
+
+go
+
+CREATE PROCEDURE GetUserFromSession
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if session exists and is not expired
+    IF EXISTS (
+        SELECT 1 
+        FROM UserSessions 
+        WHERE session_id = @session_id 
+        AND expires_at > GETDATE()
+    )
+    BEGIN
+        -- Return user details
+        SELECT 
+            u.user_id,
+            u.username,
+            u.email,
+            u.developer,
+            u.created_at,
+            u.last_login
+        FROM UserSessions us
+        JOIN Users u ON us.user_id = u.user_id
+        WHERE us.session_id = @session_id;
+    END
+    ELSE
+    BEGIN
+        -- If session is expired or doesn't exist, delete it
+        DELETE FROM UserSessions WHERE session_id = @session_id;
+    END
+END; 
+
+go
+CREATE PROCEDURE LoginUser
+    @EmailOrUsername NVARCHAR(100),
+    @Password NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Get user data including password hash
+    SELECT user_id,
+        username,
+        email,
+        hashed_password,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
+END 
+go
+
+
+-- Validate Reset Code
+CREATE PROCEDURE ValidateResetCode
+    @email NVARCHAR(255),
+    @reset_code NVARCHAR(6)
+AS
+BEGIN
+    DECLARE @isValid BIT = 0;
+    
+    -- Check if the code exists, is not used, and hasn't expired
+    IF EXISTS (
+        SELECT 1 
+        FROM PasswordResetCodes 
+        WHERE email = @email 
+        AND reset_code = @reset_code 
+        AND used = 0 
+        AND expiration_time > GETDATE()
+    )
+    BEGIN
+        -- Mark the code as used
+        UPDATE PasswordResetCodes 
+        SET used = 1 
+        WHERE email = @email 
+        AND reset_code = @reset_code;
+        
+        SET @isValid = 1;
+    END
+    
+    SELECT @isValid AS isValid;
 END
 GO
 
--- Insert Frames
-INSERT INTO Features (name, value, description, type, source) VALUES
-('Golden Frame', 1000, 'A luxurious golden frame for your profile picture', 'frame', 'golden_frame.png'),
-('Rainbow Frame', 800, 'A colorful rainbow frame that changes colors', 'frame', 'rainbow_frame.png'),
-('Neon Frame', 500, 'A bright neon frame that glows', 'frame', 'neon_frame.png'),
-('Ice Frame', 300, 'A cool ice-themed frame', 'frame', 'ice_frame.png');
 
--- Insert Emojis
-INSERT INTO Features (name, value, description, type, source) VALUES
-('Happy Sun', 100, 'A bright and cheerful sun emoji', 'emoji', 'happy_sun.png'),
-('Cool Cat', 150, 'A cat wearing sunglasses', 'emoji', 'cool_cat.png'),
-('Gaming Pro', 200, 'A gaming-themed emoji', 'emoji', 'gaming_pro.png'),
-('Party Time', 120, 'A party celebration emoji', 'emoji', 'party.png');
+CREATE PROCEDURE StorePasswordResetCode     
+    @userId int,
+    @resetCode nvarchar(6),
+    @expirationTime datetime
+AS
+BEGIN
+    INSERT INTO PasswordResetCodes (user_id, reset_code, expiration_time)
+    VALUES (@userId, @resetCode, @expirationTime)
+END
 
--- Insert Pets
-INSERT INTO Features (name, value, description, type, source) VALUES
-('Dragon Pet', 2000, 'A cute baby dragon that follows your cursor', 'pet', 'dragon_pet.png'),
-('Pixel Cat', 1500, 'A retro-style pixel cat companion', 'pet', 'pixel_cat.png'),
-('Robot Buddy', 1800, 'A helpful robot assistant', 'pet', 'robot_buddy.png'),
-('Magic Phoenix', 2500, 'A majestic phoenix that leaves fire trails', 'pet', 'phoenix.png');
+go
+CREATE PROCEDURE VerifyResetCode
+    @email nvarchar(255),
+    @resetCode nvarchar(6)
+AS
+BEGIN
+    DECLARE @userId int
+    SELECT @userId = user_id FROM Users WHERE email = @email
 
--- Insert Hats
-INSERT INTO Features (name, value, description, type, source) VALUES
-('Crown', 1000, 'A royal crown for your profile picture', 'hat', 'crown.png'),
-('Wizard Hat', 800, 'A magical wizard hat with stars', 'hat', 'wizard_hat.png'),
-('Pirate Hat', 600, 'An adventurous pirate hat', 'hat', 'pirate_hat.png'),
-('Top Hat', 400, 'A classy top hat', 'hat', 'top_hat.png');
+    IF EXISTS (
+        SELECT 1 
+        FROM PasswordResetCodes 
+        WHERE user_id = @userId 
+        AND reset_code = @resetCode 
+        AND expiration_time > GETUTCDATE()
+        AND used = 0
+    )
+        SELECT 1 as Result
+    ELSE
+        SELECT 0 as Result
+END
 
--- Associate features with users (assuming user IDs 1-3 exist)
--- User 1's equipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(1, 1, 1),  -- Golden Frame equipped
-(1, 5, 1),  -- Happy Sun emoji equipped
-(1, 9, 1),  -- Dragon Pet equipped
-(1, 13, 1); -- Crown equipped
+SELECT @result AS VerificationResult;
 
--- User 1's unequipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(1, 2, 0),  -- Rainbow Frame owned but not equipped
-(1, 6, 0),  -- Cool Cat emoji owned but not equipped
-(1, 10, 0); -- Pixel Cat owned but not equipped
 
--- User 2's equipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(2, 3, 1),  -- Neon Frame equipped
-(2, 7, 1),  -- Gaming Pro emoji equipped
-(2, 11, 1), -- Robot Buddy equipped
-(2, 14, 1); -- Wizard Hat equipped
+go
 
--- User 2's unequipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(2, 4, 0),  -- Ice Frame owned but not equipped
-(2, 8, 0),  -- Party Time emoji owned but not equipped
-(2, 12, 0); -- Magic Phoenix owned but not equipped
+CREATE PROCEDURE ResetPassword
+    @email nvarchar(255),
+    @resetCode nvarchar(6),
+    @newPassword nvarchar(max)
+AS
+BEGIN
+    BEGIN TRANSACTION
+    
+    DECLARE @userId int
+    SELECT @userId = user_id FROM Users WHERE email = @email
 
--- User 3's equipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(3, 2, 1),  -- Rainbow Frame equipped
-(3, 6, 1),  -- Cool Cat emoji equipped
-(3, 10, 1), -- Pixel Cat equipped
-(3, 15, 1); -- Pirate Hat equipped
+    IF EXISTS (
+        SELECT 1 
+        FROM PasswordResetCodes 
+        WHERE user_id = @userId 
+        AND reset_code = @resetCode 
+        AND expiration_time > GETUTCDATE()
+        AND used = 0
+    )
+    BEGIN
+        UPDATE Users 
+        SET hashed_password = @newPassword 
+        WHERE user_id = @userId
 
--- User 3's unequipped items
-INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES
-(3, 1, 0),  -- Golden Frame owned but not equipped
-(3, 5, 0),  -- Happy Sun emoji owned but not equipped
-(3, 9, 0);  -- Dragon Pet owned but not equipped
+        --UPDATE PasswordResetCodes 
+       -- SET used = 1 
+       -- WHERE user_id = @userId 
+        --AND reset_code = @resetCode
 
+		-- Delete the used reset code
+        DELETE FROM PasswordResetCodes
+        WHERE user_id = @UserId
+        AND reset_code = @ResetCode
+
+        COMMIT
+        SELECT 1 as Result
+    END
+    ELSE
+    BEGIN
+        ROLLBACK
+        SELECT 0 as Result
+    END
+END
+go 
+CREATE PROCEDURE CleanupResetCodes
+AS
+BEGIN
+    -- Delete expired codes
+    DELETE FROM PasswordResetCodes 
+    WHERE expiration_time < GETUTCDATE()
+END
+GO
+
+go
+CREATE PROCEDURE GetUserByEmail
+    @email NVARCHAR(255)
+AS
+BEGIN
+    SELECT * FROM Users
+    WHERE email = @email
+END

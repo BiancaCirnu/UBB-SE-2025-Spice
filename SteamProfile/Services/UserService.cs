@@ -1,8 +1,11 @@
 ﻿using SteamProfile.Models;
 using SteamProfile.Repositories;
+using SteamProfile.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using BCrypt.Net;
 using System.Diagnostics;
 
 namespace SteamProfile.Services
@@ -10,52 +13,12 @@ namespace SteamProfile.Services
     public class UserService
     {
         private readonly UsersRepository _usersRepository;
-        private int? _currentUserId;
+        private readonly SessionService _sessionService;
 
-        public UserService(UsersRepository usersRepository)
+        public UserService(UsersRepository usersRepository, SessionService sessionService)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
-            InitializeCurrentUser();
-        }
-
-        private void InitializeCurrentUser()
-        {
-            try
-            {
-                Debug.WriteLine("Starting InitializeCurrentUser");
-                var users = GetAllUsers();
-                Debug.WriteLine($"Found {users.Count} users");
-
-                if (users.Any())
-                {
-                    // For development, use AliceGamer as the default user since she's a developer
-                    var defaultUser = users.FirstOrDefault(u => u.Username == "AliceGamer");
-                    if (defaultUser != null)
-                    {
-                        Debug.WriteLine($"Found AliceGamer with ID {defaultUser.UserId}");
-                        _currentUserId = defaultUser.UserId;
-                    }
-                    else
-                    {
-                        var firstUser = users.First();
-                        Debug.WriteLine($"AliceGamer not found, using first user with ID {firstUser.UserId}");
-                        _currentUserId = firstUser.UserId;
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("No users found in database");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in InitializeCurrentUser: {ex.Message}");
-                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-                }
-            }
+            _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
         }
 
         public List<User> GetAllUsers()
@@ -112,40 +75,65 @@ namespace SteamProfile.Services
             _usersRepository.DeleteUser(userId);
         }
 
-        public User GetCurrentUser()
+ 
+      
+   
+        public User GetUserByEmail(string email)
         {
-            try
-            {
-                Debug.WriteLine($"Getting current user. CurrentUserId: {_currentUserId}");
-                if (_currentUserId == null)
-                {
-                    Debug.WriteLine("No current user set, initializing");
-                    InitializeCurrentUser();
-                    if (_currentUserId == null)
-                    {
-                        Debug.WriteLine("Still no current user after initialization");
-                        throw new InvalidOperationException("No users found in the database.");
-                    }
-                }
+            return _usersRepository.GetUserByEmail(email);
+        }
 
-                var user = GetUserById(_currentUserId.Value);
-                Debug.WriteLine($"Retrieved current user: {user?.Username ?? "null"}");
-                return user;
-            }
-            catch (Exception ex)
+        public void ValidateUserAndEmail(string email, string username)
+        {
+            // Check if user already exists
+            var errorType = _usersRepository.CheckUserExists(email, username);
+
+            if (!string.IsNullOrEmpty(errorType))
             {
-                Debug.WriteLine($"Error in GetCurrentUser: {ex.Message}");
-                if (ex.InnerException != null)
+                switch (errorType)
                 {
-                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    case "EMAIL_EXISTS":
+                        throw new EmailAlreadyExistsException(email);
+                    case "USERNAME_EXISTS":
+                        throw new UsernameAlreadyTakenException(username);
+                    default:
+                        throw new UserValidationException($"Unknown validation error: {errorType}");
                 }
-                throw;
             }
         }
 
-        public void SetCurrentUser(int userId)
+
+        public User? Login(string emailOrUsername, string password)
         {
-            _currentUserId = userId;
+            var user = _usersRepository.VerifyCredentials(emailOrUsername);
+            if (user != null)
+            {
+                if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
+                { 
+                    _sessionService.CreateNewSession(user);
+
+                    // update last login time for user
+                    _usersRepository.UpdateLastLogin(user.UserId);
+                }
+                else
+                    return null;
+            }
+            return user;
+        }
+
+        public void Logout()
+        {
+            _sessionService.EndSession();
+        }
+
+        public User? GetCurrentUser()
+        {
+            return _sessionService.GetCurrentUser();
+        }
+
+        public bool IsUserLoggedIn()
+        {
+            return _sessionService.IsUserLoggedIn();
         }
     }
 }

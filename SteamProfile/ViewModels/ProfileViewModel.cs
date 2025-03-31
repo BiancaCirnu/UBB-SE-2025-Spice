@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
+using SteamProfile.Views;
+using Microsoft.UI.Xaml;
 
 namespace SteamProfile.ViewModels
 {
@@ -135,8 +137,8 @@ namespace SteamProfile.ViewModels
                     {
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
-                        Bio = currentUser.Description ?? string.Empty;
-                        ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
+                     //   Bio = currentUser.DescrBiption ?? string.Empty;
+                      //  ProfilePicture = currentUser.ProfilePicture ?? string.Empty;
 
                         // Set IsOwner based on the parameter
                         IsOwner = isOwner;

@@ -1,20 +1,29 @@
-﻿using SteamProfile.Services;
-using SteamProfile.ViewModels.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
+using SteamProfile.Views;
 
 namespace SteamProfile.ViewModels
 {
-    public class ConfigurationsViewModel : BaseViewModel
+    public partial class ConfigurationsViewModel : ObservableObject
     {
-        private readonly UserService _userService;
-        
-        public ConfigurationsViewModel(UserService userService)
+        private readonly Frame _frame;
+
+        public ConfigurationsViewModel(Frame frame)
         {
-            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _frame = frame;
+        }
+
+        [RelayCommand]
+        private void NavigateToFeatures()
+        {
+            _frame.Navigate(typeof(FeaturesPage));
+        }
+
+        [RelayCommand]
+        private void NavigateToProfile()
+        {
+            _frame.Navigate(typeof(ProfilePage));
         }
     }
 }

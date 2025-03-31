@@ -6,13 +6,14 @@ namespace SteamProfile.Views
 {
     public sealed partial class UsersPage : Page
     {
-        private readonly UsersViewModel _viewModel;
+        public UsersViewModel _viewModel { get; }
 
         public UsersPage()
         {
+            _viewModel = UsersViewModel.Instance;
             this.InitializeComponent();
             _viewModel = UsersViewModel.Instance;
             this.DataContext = _viewModel;
         }
     }
-}
+} 

@@ -27,7 +27,7 @@
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <FontIcon Glyph="&#xE710;"/>
                     <TextBlock Text="Add Random User"/>
-                </StackPanel>
+                        </StackPanel>
             </Button>
         </StackPanel>
 

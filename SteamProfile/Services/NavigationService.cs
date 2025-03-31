@@ -31,26 +31,33 @@ namespace SteamProfile.Services
             {
                 return _frame.Navigate(pageType);
             }
-            return false;
+                return false;
+
+            return _frame.Navigate(pageType);
         }
 
         public bool Navigate(Type pageType, object parameter)
         {
             if (_frame != null)
-            {
+        {
                 return _frame.Navigate(pageType, parameter);
             }
-            return false;
+                return false;
+
+            return _frame.Navigate(pageType, parameter);
         }
 
         public bool GoBack()
         {
             if (_frame != null && _frame.CanGoBack)
-            {
-                _frame.GoBack();
-                return true;
-            }
+        {
+            if (_frame == null || !_frame.CanGoBack)
+                return false;
+
+            _frame.GoBack();
+            return true;
+        }
             return false;
         }
     }
-}
+} 
