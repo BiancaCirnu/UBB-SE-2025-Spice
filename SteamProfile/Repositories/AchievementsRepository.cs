@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Security.Cryptography.Certificates;
 
 namespace SteamProfile.Repositories
 {
@@ -143,6 +144,29 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public int GetAchievementByTypeAndCount(string type, int count)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@type", type),
+                    new SqlParameter("@count", count)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetAchievementId", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving achievement ID.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
+            }
+        }
+
         public List<AchievementWithStatus> GetAchievementsWithStatusForUser(int userId)
         {
             try
@@ -175,6 +199,95 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException("Error retrieving achievements with status for user.", ex);
             }
         }
+
+        public int GetNumberOfSoldGames(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfSoldGames", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of sold games.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of sold games.", ex);
+            }
+        }
+
+        public int GetNumberOfFriends(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of friends.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of friends.", ex);
+            }
+        }
+
+        public int GetNumberOfOwnedGames(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfOwnedGames", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of owned games.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of owned games.", ex);
+            }
+        }
+
+        public int GetNumberOfReviews(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviews", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of reviews.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews.", ex);
+            }
+        }
+
 
         private static List<Achievement> MapDataTableToAchievements(DataTable dataTable)
         {

@@ -52,6 +52,8 @@ namespace SteamProfile.ViewModels
         [RelayCommand]
         public void LoadAchievements()
         {
+            _achievementsService.UnlockAchievementForUser(1);
+
             var allAchievements = _achievementsService.GetAchievementsWithStatusForUser(1); // Example userId
 
             AllAchievements.Clear();
@@ -76,5 +78,6 @@ namespace SteamProfile.ViewModels
                 collection.Add(achievement);
             }
         }
+
     }
 }
