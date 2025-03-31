@@ -16,6 +16,14 @@ namespace SteamProfile.ViewModels
         public DateOnly CreatedAt { get; set; }
     }
 
+    public class UpdateCollectionParams
+    {
+        public int CollectionId { get; set; }
+        public string Name { get; set; }
+        public string CoverPicture { get; set; }
+        public bool IsPublic { get; set; }
+    }
+
     public partial class CollectionsViewModel : ObservableObject
     {
         private readonly CollectionsService _collectionsService;
@@ -178,6 +186,28 @@ namespace SteamProfile.ViewModels
             {
                 Debug.WriteLine($"Error creating collection: {ex.Message}");
                 ErrorMessage = "Error creating collection. Please try again.";
+            }
+        }
+
+        [RelayCommand]
+        private void UpdateCollection(UpdateCollectionParams parameters)
+        {
+            try
+            {
+                Debug.WriteLine($"Updating collection: {parameters.Name}");
+                _collectionsService.UpdateCollection(
+                    parameters.CollectionId,
+                    _userId,
+                    parameters.Name,
+                    parameters.CoverPicture,
+                    parameters.IsPublic
+                );
+                LoadCollections(); // Reload collections after update
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error updating collection: {ex.Message}");
+                ErrorMessage = "Error updating collection. Please try again.";
             }
         }
     }

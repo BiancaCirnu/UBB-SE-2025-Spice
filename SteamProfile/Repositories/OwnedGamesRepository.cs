@@ -101,13 +101,18 @@ namespace SteamProfile.Repositories
             try
             {
                 Debug.WriteLine("Starting to map DataTable to OwnedGames");
-                var games = dataTable.AsEnumerable().Select(row => new OwnedGame
+                var games = dataTable.AsEnumerable().Select(row => 
                 {
-                    GameId = Convert.ToInt32(row["game_id"]),
-                    UserId = Convert.ToInt32(row["user_id"]),
-                    Title = row["title"].ToString(),
-                    Description = row["description"]?.ToString(),
-                    CoverPicture = row["cover_picture"]?.ToString()
+                    var coverPicture = row["cover_picture"]?.ToString();
+                    Debug.WriteLine($"Loading game with cover picture: {coverPicture}");
+                    return new OwnedGame
+                    {
+                        GameId = Convert.ToInt32(row["game_id"]),
+                        UserId = Convert.ToInt32(row["user_id"]),
+                        Title = row["title"].ToString(),
+                        Description = row["description"]?.ToString(),
+                        CoverPicture = coverPicture
+                    };
                 }).ToList();
                 Debug.WriteLine($"Successfully mapped {games.Count} owned games");
                 return games;

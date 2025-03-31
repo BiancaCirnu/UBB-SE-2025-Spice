@@ -70,19 +70,37 @@ namespace SteamProfile.Repositories
         {
             try
             {
+                Debug.WriteLine($"Repository: Getting collection with ID {collectionId}");
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@collection_id", collectionId)
+                    new SqlParameter("@collectionId", collectionId),
+                    new SqlParameter("@user_id", 1) // TODO: Get actual user ID
                 };
+
+                Debug.WriteLine("Repository: Executing GetCollectionById stored procedure");
                 var dataTable = _dataLink.ExecuteReader("GetCollectionById", parameters);
-                return dataTable.Rows.Count > 0 ? MapDataRowToCollection(dataTable.Rows[0]) : null;
+                
+                if (dataTable == null || dataTable.Rows.Count == 0)
+                {
+                    Debug.WriteLine($"Repository: No collection found with ID {collectionId}");
+                    return null;
+                }
+
+                var collection = MapDataRowToCollection(dataTable.Rows[0]);
+                Debug.WriteLine($"Repository: Successfully retrieved collection {collectionId}");
+                return collection;
             }
             catch (SqlException ex)
             {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Error Number: {ex.Number}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("Database error while retrieving collection by ID.", ex);
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while retrieving collection by ID.", ex);
             }
         }
@@ -91,55 +109,74 @@ namespace SteamProfile.Repositories
         {
             try
             {
+                Debug.WriteLine($"Repository: Getting games for collection {collectionId}");
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@collection_id", collectionId)
                 };
-                var dataTable = _dataLink.ExecuteReader("GetGamesInCollection", parameters);
-                var gameIds = dataTable.AsEnumerable()
-                    .Select(row => Convert.ToInt32(row["game_id"]))
-                    .ToList();
 
-                var games = new List<OwnedGame>();
-                foreach (var gameId in gameIds)
+                Debug.WriteLine("Repository: Executing GetGamesInCollection stored procedure");
+                var dataTable = _dataLink.ExecuteReader("GetGamesInCollection", parameters);
+                Debug.WriteLine($"Repository: Got {dataTable?.Rows?.Count ?? 0} rows from database");
+
+                if (dataTable == null || dataTable.Rows.Count == 0)
                 {
-                    var game = _ownedGamesRepository.GetOwnedGameById(gameId, 1); // TODO: Get actual user ID
-                    if (game != null)
-                    {
-                        games.Add(game);
-                    }
+                    Debug.WriteLine("Repository: No games found in collection");
+                    return new List<OwnedGame>();
                 }
+
+                var games = dataTable.AsEnumerable().Select(row => new OwnedGame
+                {
+                    GameId = Convert.ToInt32(row["game_id"]),
+                    UserId = Convert.ToInt32(row["user_id"]),
+                    Title = row["title"].ToString(),
+                    Description = row["description"].ToString(),
+                    CoverPicture = row["cover_picture"]?.ToString()
+                }).ToList();
+
+                Debug.WriteLine($"Repository: Mapped {games.Count} games");
                 return games;
             }
             catch (SqlException ex)
             {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Error Number: {ex.Number}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("Database error while retrieving games in collection.", ex);
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while retrieving games in collection.", ex);
             }
         }
 
-        public void AddGameToCollection(int collectionId, int gameId)
+        public void AddGameToCollection(int collectionId, int gameId, int userId)
         {
             try
             {
+                Debug.WriteLine($"Repository: Adding game {gameId} to collection {collectionId} for user {userId}");
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@collection_id", collectionId),
                     new SqlParameter("@game_id", gameId)
                 };
+
+                Debug.WriteLine("Repository: Executing AddGameToCollection stored procedure");
                 _dataLink.ExecuteNonQuery("AddGameToCollection", parameters);
+                Debug.WriteLine("Repository: Successfully added game to collection");
             }
             catch (SqlException ex)
             {
-                Debug.WriteLine($"SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("Database error while adding game to collection.", ex);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while adding game to collection.", ex);
             }
         }
@@ -320,6 +357,126 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public void UpdateCollection(int collectionId, int userId, string name, string coverPicture, bool isPublic)
+        {
+            try
+            {
+                Debug.WriteLine($"Repository: Updating collection {collectionId} for user {userId}");
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@collection_id", collectionId),
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@name", name),
+                    new SqlParameter("@cover_picture", coverPicture),
+                    new SqlParameter("@is_public", isPublic),
+                    new SqlParameter("@created_at", DateOnly.FromDateTime(DateTime.Now).ToDateTime(TimeOnly.MinValue))
+                };
+
+                Debug.WriteLine("Repository: Executing UpdateCollection stored procedure");
+                _dataLink.ExecuteReader("UpdateCollection", parameters);
+                Debug.WriteLine("Repository: Successfully updated collection");
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Error Number: {ex.Number}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("Database error while updating collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("An unexpected error occurred while updating collection.", ex);
+            }
+        }
+
+        public List<Collection> GetPublicCollectionsForUser(int userId)
+        {
+            try
+            {
+                Debug.WriteLine($"Repository: Getting public collections for user {userId}");
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId)
+                };
+
+                Debug.WriteLine("Repository: Executing GetPublicCollectionsForUser stored procedure");
+                var dataTable = _dataLink.ExecuteReader("GetPublicCollectionsForUser", parameters);
+                Debug.WriteLine($"Repository: Got {dataTable?.Rows?.Count ?? 0} rows from database");
+
+                if (dataTable == null || dataTable.Rows.Count == 0)
+                {
+                    Debug.WriteLine("Repository: No public collections found for user");
+                    return new List<Collection>();
+                }
+
+                var collections = MapDataTableToCollections(dataTable);
+                Debug.WriteLine($"Repository: Mapped {collections.Count} public collections");
+                return collections;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Error Number: {ex.Number}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("Database error while retrieving public collections.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("An unexpected error occurred while retrieving public collections.", ex);
+            }
+        }
+
+        public List<OwnedGame> GetGamesNotInCollection(int collectionId, int userId)
+        {
+            try
+            {
+                Debug.WriteLine($"Repository: Getting games not in collection {collectionId} for user {userId}");
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@collection_id", collectionId),
+                    new SqlParameter("@user_id", userId)
+                };
+
+                Debug.WriteLine("Repository: Executing GetGamesNotInCollection stored procedure");
+                var dataTable = _dataLink.ExecuteReader("GetGamesNotInCollection", parameters);
+                Debug.WriteLine($"Repository: Got {dataTable?.Rows?.Count ?? 0} rows from database");
+
+                if (dataTable == null || dataTable.Rows.Count == 0)
+                {
+                    Debug.WriteLine("Repository: No games found outside collection");
+                    return new List<OwnedGame>();
+                }
+
+                var games = dataTable.AsEnumerable().Select(row => new OwnedGame
+                {
+                    GameId = Convert.ToInt32(row["game_id"]),
+                    UserId = Convert.ToInt32(row["user_id"]),
+                    Title = row["title"].ToString(),
+                    Description = row["description"].ToString(),
+                    CoverPicture = row["cover_picture"]?.ToString()
+                }).ToList();
+
+                Debug.WriteLine($"Repository: Mapped {games.Count} games");
+                return games;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("Database error while getting games not in collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("An unexpected error occurred while getting games not in collection.", ex);
+            }
+        }
+
         private static List<Collection> MapDataTableToCollections(DataTable dataTable)
         {
             try
@@ -356,6 +513,13 @@ namespace SteamProfile.Repositories
                 IsPublic = Convert.ToBoolean(row["is_public"]),
                 CreatedAt = DateOnly.FromDateTime(Convert.ToDateTime(row["created_at"]))
             };
+        }
+
+        public class RepositoryException : Exception
+        {
+            public RepositoryException(string message) : base(message) { }
+            public RepositoryException(string message, Exception innerException)
+                : base(message, innerException) { }
         }
     }
 }

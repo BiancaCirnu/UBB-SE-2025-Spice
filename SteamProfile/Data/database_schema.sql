@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
 DROP TABLE IF EXISTS Users;
 DROP TABLE IF EXISTS Friendships;
+DROP TABLE IF EXISTS OwnedGames;
 
 
 -- User Table
@@ -175,33 +176,33 @@ SELECT COUNT(*) FROM Users;
 -- SHOOTERS (game_id 1–3)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(1, 'Call of Duty: MWIII', 'First-person military shooter', 'codmw3.jpg'),
-(1, 'Overwatch 2', 'Team-based hero shooter', 'overwatch2.png'),
-(2, 'Counter-Strike 2', 'Tactical shooter', 'cs2.jpg');
+(1, 'Call of Duty: MWIII', 'First-person military shooter', '/Assets/Games/codmw3.png'),
+(1, 'Overwatch 2', 'Team-based hero shooter', '/Assets/Games/overwatch2.png'),
+(1, 'Counter-Strike 2', 'Tactical shooter', '/Assets/Games/cs2.png');
 
 -- SPORTS (game_id 4–6)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(1, 'FIFA 25', 'Football simulation', 'fifa25.png'),
-(2, 'NBA 2K25', 'Basketball simulation', 'nba2k25.jpg'),
-(2, 'Tony Hawk Pro Skater', 'Skateboarding sports game', 'thps.png');
+(1, 'FIFA 25', 'Football simulation', '/Assets/Games/fifa25.png'),
+(1, 'NBA 2K25', 'Basketball simulation', '/Assets/Games/nba2k25.png'),
+(1, 'Tony Hawk Pro Skater', 'Skateboarding sports game', '/Assets/Games/thps.png');
 
 -- CHILL (game_id 7)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(3, 'Stardew Valley', 'Relaxing farming game', 'stardewvalley.jpg');
+(1, 'Stardew Valley', 'Relaxing farming game', '/Assets/Games/stardewvalley.png');
 
 -- PETS (game_id 8–10)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(1, 'The Sims 4: Cats & Dogs', 'Life sim with pets', 'sims4pets.png'),
-(2, 'Nintendogs', 'Pet care simulation', 'nintendogs.jpg'),
-(3, 'Pet Hotel', 'Manage a hotel for pets', 'pethotel.png');
+(1, 'The Sims 4: Cats & Dogs', 'Life sim with pets', '/Assets/Games/sims4pets.png'),
+(1, 'Nintendogs', 'Pet care simulation', '/Assets/Games/nintendogs.png'),
+(1, 'Pet Hotel', 'Manage a hotel for pets', '/Assets/Games/pethotel.png');
 
 -- X-Mas (game_id 11)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(3, 'Christmas Wonderland', 'Festive hidden object game', 'xmas.jpg');
+(1, 'Christmas Wonderland', 'Festive hidden object game', '/Assets/Games/xmas.png');
 
 select * from OwnedGames;
 
@@ -210,12 +211,12 @@ SELECT COUNT(*) FROM OwnedGames;
 -- Assume collection_id 1–6
 INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
 VALUES
-(1, 'All Owned Games', 'allgames.jpg', 1, '2022-02-21'),
-(1, 'Shooters', 'shooters.png', 1, '2025-03-21'),
-(1, 'Sports', 'sports.png', 1, '2023-03-21'),
-(1, 'Chill Games', 'chill.png', 1, '2024-03-21'),
-(1, 'Pets', 'pets.png', 0, '2025-01-21'),
-(1, 'X-Mas', 'xmas.png', 0, '2025-02-21');
+(1, 'All Owned Games', '/Assets/Collections/allgames.jpg', 1, '2022-02-21'),
+(1, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
+(1, 'Sports', '/Assets/Collections/sports.jpg', 1, '2023-03-21'),
+(1, 'Chill Games', '/Assets/Collections/chill.jpg', 1, '2024-03-21'),
+(1, 'Pets', '/Assets/Collections/pets.jpg', 0, '2025-01-21'),
+(1, 'X-Mas', '/Assets/Collections/xmas.jpg', 0, '2025-02-21');
 
 select * from Collections;
 

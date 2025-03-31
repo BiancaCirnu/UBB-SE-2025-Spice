@@ -19,11 +19,28 @@ namespace SteamProfile.Views
     public sealed partial class ProfilePage : Page
     {
         private readonly ProfileViewModel _viewModel;
+        private int _userId;
+
         public ProfilePage()
         {
             this.InitializeComponent();
             _viewModel = new ProfileViewModel(App.UserService);
             this.DataContext = _viewModel;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter is int userId)
+            {
+                _userId = userId;
+                UserIdText.Text = _userId.ToString();
+            }
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.GoBack();
         }
     }
 }

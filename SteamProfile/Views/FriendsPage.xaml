@@ -43,43 +43,47 @@
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="models:Friendship">
-                            <Border Width="200" 
-                                    Height="200" 
-                                    CornerRadius="10" 
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    Margin="10">
-                                <Grid Padding="16">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
+                        <DataTemplate x:Key="FriendItemTemplate" x:DataType="models:Friendship">
+                            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    CornerRadius="8"
+                                    Padding="12"
+                                    Margin="12,12,12,12">
+                                <StackPanel Spacing="12">
+                                    <!-- Profile Picture -->
+                                    <Grid Height="170" Width="120">
+                                        <Image Source="{Binding FriendProfilePicture}"
+                                               Stretch="UniformToFill"
+                                               Height="120"
+                                               Width="120"
+                                               HorizontalAlignment="Center"/>
+                                    </Grid>
 
-                                    <Button Style="{StaticResource TransparentButtonStyle}"
-                                            Click="ViewProfile_Click"
-                                            CommandParameter="{Binding FriendId}">
-                                        <StackPanel Grid.Row="0" Spacing="8">
-                                            <Ellipse Width="80" Height="80">
-                                                <Ellipse.Fill>
-                                                    <ImageBrush ImageSource="{Binding FriendProfilePicture}"/>
-                                                </Ellipse.Fill>
-                                            </Ellipse>
-                                            <TextBlock Text="{Binding FriendUsername}"
-                                                     FontSize="24" 
-                                                     FontWeight="Bold"
-                                                     TextAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
+                                    <!-- Username -->
+                                    <TextBlock Text="{Binding FriendUsername}"
+                                             Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                             TextWrapping="NoWrap"
+                                             TextTrimming="CharacterEllipsis"
+                                             TextAlignment="Center"/>
 
-                                    <StackPanel Grid.Row="1" 
-                                              VerticalAlignment="Bottom"
+                                    <!-- Buttons Stack -->
+                                    <StackPanel Orientation="Horizontal" 
+                                              HorizontalAlignment="Center"
                                               Spacing="8">
-                                        <Button Content="Remove Friend"
+                                        <!-- View Button -->
+                                        <Button Content="View"
+                                                Click="ViewFriend_Click"
+                                                Tag="{Binding FriendId}"
+                                                Style="{StaticResource AccentButtonStyle}"
+                                                MinWidth="100"/>
+
+                                        <!-- Remove Button -->
+                                        <Button Content="Remove"
                                                 Click="RemoveFriend_Click"
-                                                CommandParameter="{Binding FriendshipId}"
-                                                Style="{StaticResource AccentButtonStyle}"/>
+                                                Tag="{Binding FriendshipId}"
+                                                Style="{StaticResource AccentButtonStyle}"
+                                                MinWidth="100"/>
                                     </StackPanel>
-                                </Grid>
+                                </StackPanel>
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

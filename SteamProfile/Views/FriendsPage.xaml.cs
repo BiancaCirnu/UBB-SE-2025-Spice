@@ -33,27 +33,17 @@ namespace SteamProfile.Views
 
         private void RemoveFriend_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.CommandParameter is int friendshipId)
+            if (sender is Button button && button.Tag is int friendshipId)
             {
-                try
-                {
-                    _viewModel.RemoveFriend(friendshipId);
-                }
-                catch (Exception ex)
-                {
-                    // Handle any errors
-                    Debug.WriteLine($"Error removing friend: {ex.Message}");
-                }
+                _viewModel.RemoveFriend(friendshipId);
             }
         }
 
-        private void ViewProfile_Click(object sender, RoutedEventArgs e)
+        private void ViewFriend_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.CommandParameter is int friendId)
+            if (sender is Button button && button.Tag is int userId)
             {
-                Debug.WriteLine($"Navigating to profile page for friend ID: {friendId}");
-                // TODO: When profile pages are implemented, navigate to the profile page
-                // Frame.Navigate(typeof(ProfilePage), friendId);
+                Frame.Navigate(typeof(ProfilePage), userId);
             }
         }
     }

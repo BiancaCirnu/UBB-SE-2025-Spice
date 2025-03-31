@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using SteamProfile.ViewModels;
+using SteamProfile.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,11 +39,89 @@ namespace SteamProfile.Views
             _viewModel.LoadCollectionsCommand.Execute(null);
         }
 
+        private void ViewCollection_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is Collection collection)
+            {
+                Frame.Navigate(typeof(CollectionGamesPage), (collection.CollectionId, collection.Name));
+            }
+        }
+
         private void DeleteCollection_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.CommandParameter is int collectionId)
             {
                 _viewModel.DeleteCollectionCommand.Execute(collectionId);
+            }
+        }
+
+        private async void EditCollection_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.CommandParameter is Collection collection)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = "Edit Collection",
+                    PrimaryButtonText = "Save",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var panel = new StackPanel { Spacing = 10 };
+                
+                var nameTextBox = new TextBox
+                {
+                    Header = "Collection Name",
+                    Text = collection.Name,
+                    PlaceholderText = "Enter collection name"
+                };
+
+                var coverPictureTextBox = new TextBox
+                {
+                    Header = "Cover Picture URL",
+                    Text = collection.CoverPicture,
+                    PlaceholderText = "Enter cover picture URL (picture.(jpg/png/svg))"
+                };
+
+                var isPublicToggle = new ToggleSwitch
+                {
+                    Header = "Public Collection",
+                    IsOn = collection.IsPublic
+                };
+
+                panel.Children.Add(nameTextBox);
+                panel.Children.Add(coverPictureTextBox);
+                panel.Children.Add(isPublicToggle);
+
+                dialog.Content = panel;
+
+                var result = await dialog.ShowAsync();
+
+                if (result == ContentDialogResult.Primary)
+                {
+                    try
+                    {
+                        _viewModel.UpdateCollectionCommand.Execute(new UpdateCollectionParams
+                        {
+                            CollectionId = collection.CollectionId,
+                            Name = nameTextBox.Text,
+                            CoverPicture = coverPictureTextBox.Text,
+                            IsPublic = isPublicToggle.IsOn
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        var errorDialog = new ContentDialog
+                        {
+                            Title = "Error",
+                            Content = "Failed to update collection. Please try again.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await errorDialog.ShowAsync();
+                    }
+                }
             }
         }
 
@@ -68,7 +147,7 @@ namespace SteamProfile.Views
             var coverPictureTextBox = new TextBox
             {
                 Header = "Cover Picture URL",
-                PlaceholderText = "Enter cover picture URL (pictureName.(jpg/png/svg))"
+                PlaceholderText = "Enter cover picture URL"
             };
 
             var isPublicToggle = new ToggleSwitch

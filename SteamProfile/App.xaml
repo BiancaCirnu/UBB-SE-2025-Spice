@@ -29,6 +29,7 @@
             </Style>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <converters:DateOnlyToStringConverter x:Key="DateOnlyToStringConverter"/>
+            <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

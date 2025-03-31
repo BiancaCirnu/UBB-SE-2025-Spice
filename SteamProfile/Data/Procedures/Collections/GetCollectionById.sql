@@ -1,5 +1,6 @@
 CREATE PROCEDURE GetCollectionById
-    @collectionId INT
+    @collectionId INT,
+    @user_id INT
 AS
 BEGIN
     SELECT 
@@ -11,4 +12,5 @@ BEGIN
         created_at
     FROM Collections
     WHERE collection_id = @collectionId
+    AND user_id = @user_id
 END

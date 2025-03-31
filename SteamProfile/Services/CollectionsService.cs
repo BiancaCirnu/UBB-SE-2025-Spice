@@ -75,29 +75,26 @@ namespace SteamProfile.Services
             }
         }
 
-        public List<OwnedGame> GetGamesInCollection(int collectionId, int userId)
+        public List<OwnedGame> GetGamesInCollection(int collectionId)
         {
             try
             {
-                Debug.WriteLine($"Getting games in collection {collectionId} for user {userId}");
+                Debug.WriteLine($"Service: Getting games for collection {collectionId}");
                 var games = _collectionsRepository.GetGamesInCollection(collectionId);
-                
-                // Verify that each game belongs to the user
-                var userGames = _ownedGamesService.GetAllOwnedGames(userId);
-                var validGames = games.Where(g => userGames.Any(ug => ug.GameId == g.GameId)).ToList();
-                
-                Debug.WriteLine($"Successfully retrieved {validGames.Count} valid games from collection {collectionId}");
-                return validGames;
+                Debug.WriteLine($"Service: Retrieved {games?.Count ?? 0} games from repository");
+                return games;
             }
             catch (RepositoryException ex)
             {
-                Debug.WriteLine($"Repository error: {ex.Message}");
-                throw new ServiceException("Failed to retrieve games in collection.", ex);
+                Debug.WriteLine($"Service: Repository error getting games: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("Failed to retrieve games from database", ex);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Unexpected error: {ex.Message}");
-                throw new ServiceException("An unexpected error occurred while retrieving games in collection.", ex);
+                Debug.WriteLine($"Service: Unexpected error getting games: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("An unexpected error occurred while retrieving games", ex);
             }
         }
 
@@ -105,27 +102,19 @@ namespace SteamProfile.Services
         {
             try
             {
-                Debug.WriteLine($"Adding game {gameId} to collection {collectionId} for user {userId}");
-                
-                // Verify that the game belongs to the user
-                var game = _ownedGamesService.GetOwnedGameById(gameId, userId);
-                if (game == null)
-                {
-                    throw new ServiceException($"Game {gameId} does not belong to user {userId}");
-                }
-
-                _collectionsRepository.AddGameToCollection(collectionId, gameId);
-                Debug.WriteLine($"Successfully added game {gameId} to collection {collectionId}");
+                Debug.WriteLine($"Service: Adding game {gameId} to collection {collectionId} for user {userId}");
+                _collectionsRepository.AddGameToCollection(collectionId, gameId, userId);
+                Debug.WriteLine($"Service: Successfully added game {gameId} to collection {collectionId}");
             }
-            catch (RepositoryException ex)
+            catch (CollectionsRepository.RepositoryException ex)
             {
-                Debug.WriteLine($"Repository error: {ex.Message}");
-                throw new ServiceException("Failed to add game to collection.", ex);
+                Debug.WriteLine($"Service: Repository error: {ex.Message}");
+                throw new ServiceException("Failed to add game to collection", ex);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Unexpected error: {ex.Message}");
-                throw new ServiceException("An unexpected error occurred while adding game to collection.", ex);
+                Debug.WriteLine($"Service: Unexpected error: {ex.Message}");
+                throw new ServiceException("An unexpected error occurred", ex);
             }
         }
 
@@ -184,6 +173,56 @@ namespace SteamProfile.Services
                 Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
                 throw new ServiceException("An unexpected error occurred while creating collection", ex);
             }
+        }
+
+        public void UpdateCollection(int collectionId, int userId, string name, string coverPicture, bool isPublic)
+        {
+            try
+            {
+                Debug.WriteLine($"Service: Updating collection {collectionId} for user {userId}");
+                _collectionsRepository.UpdateCollection(collectionId, userId, name, coverPicture, isPublic);
+                Debug.WriteLine("Service: Collection updated successfully");
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Service: Repository error updating collection: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("Failed to update collection in database", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Service: Unexpected error updating collection: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("An unexpected error occurred while updating collection", ex);
+            }
+        }
+
+        public List<Collection> GetPublicCollectionsForUser(int userId)
+        {
+            try
+            {
+                Debug.WriteLine($"Service: Getting public collections for user {userId}");
+                var collections = _collectionsRepository.GetPublicCollectionsForUser(userId);
+                Debug.WriteLine($"Service: Retrieved {collections?.Count ?? 0} public collections from repository");
+                return collections;
+            }
+            catch (RepositoryException ex)
+            {
+                Debug.WriteLine($"Service: Repository error getting public collections: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("Failed to retrieve public collections from database", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Service: Unexpected error getting public collections: {ex.Message}");
+                Debug.WriteLine($"Service: Stack trace: {ex.StackTrace}");
+                throw new ServiceException("An unexpected error occurred while retrieving public collections", ex);
+            }
+        }
+
+        public List<OwnedGame> GetGamesNotInCollection(int collectionId, int userId)
+        {
+            return _collectionsRepository.GetGamesNotInCollection(collectionId, userId);
         }
 
         public class ServiceException : Exception
