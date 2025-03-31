@@ -1,3 +1,4 @@
+go
 CREATE PROCEDURE GetAllUsers
 AS
 BEGIN

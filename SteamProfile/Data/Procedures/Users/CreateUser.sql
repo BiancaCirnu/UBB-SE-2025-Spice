@@ -1,3 +1,4 @@
+go
 CREATE PROCEDURE CreateUser
     @email NVARCHAR(255),
     @username NVARCHAR(255),
@@ -40,6 +41,7 @@ BEGIN
         @developer,
         GETDATE()
     )
+
 
     -- Return the newly created user
     SELECT 

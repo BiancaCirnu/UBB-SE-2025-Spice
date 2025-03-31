@@ -85,8 +85,8 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@username", user.Username),
                     new SqlParameter("@email", user.Email),
+                    new SqlParameter("@username", user.Username),
                     new SqlParameter("@password", user.Password),
                     new SqlParameter("@description", (object?)user.Description ?? DBNull.Value),
                     new SqlParameter("@developer", user.IsDeveloper),

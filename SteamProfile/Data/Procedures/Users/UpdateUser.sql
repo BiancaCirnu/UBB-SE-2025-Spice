@@ -1,3 +1,4 @@
+go
 CREATE PROCEDURE UpdateUser
     @user_id INT,
     @email NVARCHAR(255) = NULL,

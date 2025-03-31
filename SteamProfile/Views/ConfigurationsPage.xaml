@@ -10,6 +10,10 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="30">
+            <Button Content="Account Settings" Click="AccountSettings_Click" HorizontalAlignment="Stretch" FontSize="30"/>
+            <Button Content="Modify Profile" Click="ModifyProfile_Click" HorizontalAlignment="Stretch" FontSize="30"/>
+            <Button Content="Cancel" Click="Cancel_Click" HorizontalAlignment="Stretch" FontSize="30"/>
+        </StackPanel>
     </Grid>
 </Page>

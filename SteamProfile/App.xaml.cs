@@ -72,5 +72,7 @@ namespace SteamProfile
             
             rootFrame.Navigate(typeof(LoginPage));
         }
+
+        private Window? m_window;
     }
 }
