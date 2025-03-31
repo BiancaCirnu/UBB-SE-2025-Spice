@@ -1,4 +1,4 @@
-CREATE PROCEDURE GetAchievementId
+CREATE or Alter PROCEDURE GetAchievementId
 	@type NVARCHAR(50),
 	@count int
 AS

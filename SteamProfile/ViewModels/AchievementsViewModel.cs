@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Models;
 using SteamProfile.Services;
+using SteamProfile.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -78,6 +80,7 @@ namespace SteamProfile.ViewModels
                 collection.Add(achievement);
             }
         }
+       
 
     }
 }

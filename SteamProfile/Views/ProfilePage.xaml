@@ -32,7 +32,12 @@
                     HorizontalAlignment="Center"
                     Width="200"
                     Margin="0,0,0,10"/>
-
+            <Button Content="Achievements"
+                    Click="AchievementsButton_Click"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Width="200"
+                    Margin="0,0,0,10"/>
             <Button Content="Logout"
                     Command="{x:Bind ViewModel.LogoutCommand, Mode=OneWay}"
                     Style="{ThemeResource TextBlockButtonStyle}"

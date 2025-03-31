@@ -45,5 +45,9 @@ namespace SteamProfile.Views
             // Direct navigation to ConfigurationsPage
             this.Frame.Navigate(typeof(ConfigurationsPage));
         }
+        private void AchievementsButton_Click (object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(AchievementsPage));
+        }
     }
 }

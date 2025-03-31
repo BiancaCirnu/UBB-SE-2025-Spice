@@ -10,14 +10,15 @@ using System.Linq;
 using SteamProfile.Exceptions;
 using SteamProfile.Validators;
 using SteamProfile.Repositories;
+using Windows.UI.WebUI;
 
 namespace SteamProfile.ViewModels
 {
     public partial class RegisterViewModel : ObservableObject
     {
+        private readonly WalletService _walletService;
         private readonly UserService _userService;
         private readonly Frame _frame;
-        private readonly WalletRepository _walletRepository;
 
         [ObservableProperty]
         private string username;
@@ -40,6 +41,7 @@ namespace SteamProfile.ViewModels
 
         public RegisterViewModel(Frame frame)
         {
+            _walletService = App.WalletService;
             _userService = App.UserService;
             _frame = frame;
         }
@@ -91,11 +93,11 @@ namespace SteamProfile.ViewModels
 
 
                 var createdUser = _userService.CreateUser(user);
-                _walletRepository.AddNewWallet(createdUser.UserId);
 
                 if (createdUser != null)
                 {
                     // Navigate to login page on successful registration
+                    _walletService.CreateWallet(createdUser.UserId);
                     _frame.Navigate(typeof(LoginPage));
                 }
                 else

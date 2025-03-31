@@ -138,5 +138,6 @@
             </StackPanel>
 
         </StackPanel>
+        <Button Click="BackToProfile" Content="Go Back"/>
     </Grid>
 </Page>

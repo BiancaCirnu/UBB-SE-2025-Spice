@@ -39,7 +39,10 @@ namespace SteamProfile.Services
            return (_walletRepository.GetPointsFromWallet(_userService.GetCurrentUser().UserId));
         }
 
-
+        public void CreateWallet(int userId)
+        {
+            _walletRepository.AddNewWallet(userId);
+        }
         public void PurchasePoints(PointsOffer offer)
         {
             if (offer == null)

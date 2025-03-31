@@ -26,5 +26,10 @@ namespace SteamProfile.Views
             _viewModel = AchievementsViewModel.Instance;
             this.DataContext = _viewModel;
         }
+
+        private void BackToProfile(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ProfilePage));
+        }
     }
 }

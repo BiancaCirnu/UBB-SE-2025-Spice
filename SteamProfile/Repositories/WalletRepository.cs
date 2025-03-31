@@ -20,7 +20,6 @@ namespace SteamProfile.Repositories
         {
             _dataLink = datalink ?? throw new ArgumentNullException(nameof(datalink));
         }
-
         public Wallet GetWallet(int walletId)
         {
             try
@@ -92,9 +91,9 @@ namespace SteamProfile.Repositories
             {
                 SqlParameter[] parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", walletid)
+                    new SqlParameter("@user_id", walletid)
                 };
-                var datatable = _dataLink.ExecuteReader("CreateWallet");
+                var datatable = _dataLink.ExecuteReader("CreateWallet", parameters);
             }
             catch (Exception ex)
             {
@@ -107,9 +106,9 @@ namespace SteamProfile.Repositories
             {
                 SqlParameter[] parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", walletId)
+                    new SqlParameter("@user_id", walletId)
                 };
-                var datatable = _dataLink.ExecuteReader("RemoveWallet");
+                var datatable = _dataLink.ExecuteReader("RemoveWallet", parameters);
             }
             catch (Exception ex)
             {

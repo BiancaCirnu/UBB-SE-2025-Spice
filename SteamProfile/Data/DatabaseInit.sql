@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS Feature_User;
-DROP TABLE IF EXISTS User_Achievement;
+DROP TABLE IF EXISTS UserAchievements;
 DROP TABLE IF EXISTS OwnedGames_Collection;
 DROP TABLE IF EXISTS Wallet;
 DROP TABLE IF EXISTS Collections;
 DROP TABLE IF EXISTS Features;
 DROP TABLE IF EXISTS Achievements;
+DROP TABLE IF EXISTS UserSessions;
 DROP TABLE IF EXISTS Users;
 drop table if exists PasswordResetCodes;
 
@@ -40,36 +41,13 @@ CREATE TABLE UserSessions (
 -- Achievements Table
 CREATE TABLE Achievements (
     achievement_id INT PRIMARY KEY identity(1,1),
-    type NVARCHAR(100) NOT NULL,
+	achievement_name char(30),
+	description char(100),
+    achievement_type  NVARCHAR(100) NOT NULL,
     points INT NOT NULL CHECK (points >= 0),
-    icon NVARCHAR(255) CHECK (icon LIKE '%.svg' OR icon LIKE '%.png' OR icon LIKE '%.jpg' OR icon LIKE '%.jpg')
 );
--- Create Achievements table
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Achievements')
-BEGIN
-    CREATE TABLE Achievements (
-        achievement_id INT IDENTITY(1,1) PRIMARY KEY,
-        description NVARCHAR(MAX),
-		achievement_type NVARCHAR(MAX), 
-		points int,
-        icon_url NVARCHAR(MAX),
-        created_at DATETIME NOT NULL DEFAULT GETDATE()
-    );
-END
 
 
--- Create UserAchievements table (junction table)
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'UserAchievements')
--- Create Features table
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'U' AND name = 'Features')
-BEGIN
-    CREATE TABLE Features (
-        feature_id INT IDENTITY(1,1) PRIMARY KEY,
-        name NVARCHAR(255) NOT NULL,
-        description NVARCHAR(MAX),
-        created_at DATETIME NOT NULL DEFAULT GETDATE()
-    );
-END
 -- Features Table
 CREATE TABLE Features (
     feature_id INT PRIMARY KEY identity(1,1),
@@ -106,16 +84,6 @@ CREATE TABLE OwnedGames_Collection (
     FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- User_Achievement Table
-CREATE TABLE User_Achievement (
-    user_id INT NOT NULL,
-    achievement_id INT NOT NULL,
-    date_unlocked DATETIME DEFAULT GETDATE(),
-    PRIMARY KEY (user_id, achievement_id),
-    FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (achievement_id) REFERENCES Achievements(achievement_id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 -- Feature_User Table
 CREATE TABLE Feature_User (
     user_id INT NOT NULL,
@@ -136,7 +104,6 @@ CREATE TABLE PasswordResetCodes (
 	email nvarchar(255),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
-
 INSERT INTO Users (email, username, hashed_password, developer, last_login) VALUES
 ('alice@example.com', 'AliceGamer', 'hashed_password_1', 1, '2025-03-20 14:25:00'),
 ('bob@example.com', 'BobTheBuilder', 'hashed_password_2', 0, '2025-03-21 10:12:00'),
@@ -608,6 +575,15 @@ begin
 	where user_id = @userId
 end
 go
+create or alter procedure CreateWallet @user_id int as
+begin
+	insert into Wallet (user_id, points, money_for_games)
+	values (@user_id,0,0)
+
+	update Wallet
+	set user_id = wallet_id
+	where wallet_id = (select max(wallet_id) from Wallet)
+end
 
 
 ------Create table PointsOffers ----
@@ -671,9 +647,12 @@ exec createWallet @user_id = 6;
 exec createWallet @user_id = 7;
 exec createWallet @user_id = 8;
 exec createWallet @user_id = 9;
-exec createWallet @user_id = 10;
 exec createWallet @user_id = 11;
 
+drop table users
+drop table Wallet
+select* from wallet
+select* from users
 -- Add more :r commands for other stored procedures as they are created
 -- :r Data\Procedures\Achievements\...
 -- :r Data\Procedures\Collections\...

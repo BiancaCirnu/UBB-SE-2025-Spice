@@ -93,7 +93,6 @@ namespace SteamProfile.Repositories
                 {
                     throw new RepositoryException("Failed to create user.");
                 }
-
                 return MapDataRowToUser(dataTable.Rows[0]);
             }
             catch (DatabaseOperationException ex)
