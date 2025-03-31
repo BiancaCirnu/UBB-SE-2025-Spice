@@ -59,7 +59,7 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@user_id", userId)
                 };
 
-                var dataTable = _dataLink.ExecuteReader("GetFriendCount", parameters);
+                var dataTable = _dataLink.ExecuteReader("GetFriendshipCountForUser", parameters);
                 return Convert.ToInt32(dataTable.Rows[0]["friend_count"]);
             }
             catch (Data.DatabaseOperationException ex)

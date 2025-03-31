@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BCrypt.Net;
 using System.Diagnostics;
+using SteamProfile.Utils;
 
 namespace SteamProfile.Services
 {
@@ -62,6 +63,10 @@ namespace SteamProfile.Services
 
         public User CreateUser(User user)
         {
+            ValidateUserAndEmail(user.Email, user.Username);
+
+            // Hash the password before passing it to the repository
+            user.Password = PasswordHasher.HashPassword(user.Password);
             return _usersRepository.CreateUser(user);
         }
 
@@ -74,9 +79,6 @@ namespace SteamProfile.Services
         {
             _usersRepository.DeleteUser(userId);
         }
-
- 
-      
    
         public User GetUserByEmail(string email)
         {
@@ -108,7 +110,7 @@ namespace SteamProfile.Services
             var user = _usersRepository.VerifyCredentials(emailOrUsername);
             if (user != null)
             {
-                if (Utils.PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
+                if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
                 { 
                     _sessionService.CreateNewSession(user);
 
