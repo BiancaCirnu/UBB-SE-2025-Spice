@@ -244,6 +244,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Update="Assets\download.jpg">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Page Update="Views\FriendsPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
