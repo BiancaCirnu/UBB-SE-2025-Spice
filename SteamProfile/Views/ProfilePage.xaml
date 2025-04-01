@@ -42,7 +42,8 @@
             <!-- Add this Image for the background -->
             <Image Source="{x:Bind ViewModel.EquippedBackgroundSource, Mode=OneWay}"
                    Stretch="UniformToFill"
-                   Opacity="0.3"/>
+                   Opacity="0.3"
+                   Visibility="{x:Bind ViewModel.HasEquippedBackground, Mode=OneWay}"/>
 
             <!-- Profile Info Section -->
             <Grid Grid.Row="0">
@@ -65,30 +66,33 @@
                         <Ellipse Height="180" Width="180" VerticalAlignment="Center">
                             <Ellipse.Fill>
                                 <ImageBrush Stretch="UniformToFill" 
-                                            ImageSource="ms-appx:///Assets/default-profile.png"/>
+                                            ImageSource="{x:Bind ViewModel.ProfilePicture, Mode=OneWay}"/>
                             </Ellipse.Fill>
                         </Ellipse>
                         
-                        <!-- Frame around profile picture -->
+                        <!-- Frame around profile picture - only show if source is not empty/transparent -->
                         <Image Source="{x:Bind ViewModel.EquippedFrameSource, Mode=OneWay}"
                                Stretch="Uniform"
-                               HorizontalAlignment="Center"/>
+                               HorizontalAlignment="Center"
+                               Visibility="{x:Bind ViewModel.HasEquippedFrame, Mode=OneWay}"/>
                         
-                        <!-- Hat positioned at the top -->
+                        <!-- Hat positioned at the top - only show if source is not empty/transparent -->
                         <Image Source="{x:Bind ViewModel.EquippedHatSource, Mode=OneWay}"
                                Height="100" 
                                Width="100"
                                VerticalAlignment="Top"
                                HorizontalAlignment="Center"
-                               Margin="0,-30,0,0"/>
+                               Margin="0,-30,0,0"
+                               Visibility="{x:Bind ViewModel.HasEquippedHat, Mode=OneWay}"/>
                         
-                        <!-- Pet positioned at bottom right -->
+                        <!-- Pet positioned at bottom right - only show if source is not empty/transparent -->
                         <Image Source="{x:Bind ViewModel.EquippedPetSource, Mode=OneWay}"
                                Height="100" 
                                Width="100"
                                VerticalAlignment="Bottom"
                                HorizontalAlignment="Right"
-                               Margin="0,0,-30,-30"/>
+                               Margin="0,0,-30,-30"
+                               Visibility="{x:Bind ViewModel.HasEquippedPet, Mode=OneWay}"/>
                     </Grid>
 
                     <!-- Username and Friends Row -->
@@ -106,7 +110,8 @@
                             <Image Source="{x:Bind ViewModel.EquippedEmojiSource, Mode=OneWay}"
                                    Width="32" 
                                    Height="32"
-                                   VerticalAlignment="Center"/>
+                                   VerticalAlignment="Center"
+                                   Visibility="{x:Bind ViewModel.HasEquippedEmoji, Mode=OneWay}"/>
                         </StackPanel>
 
                         <!-- Friends Count Button -->

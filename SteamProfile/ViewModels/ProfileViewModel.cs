@@ -100,6 +100,21 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private string _equippedBackgroundSource = string.Empty;
 
+        [ObservableProperty]
+        private bool _hasEquippedFrame;
+
+        [ObservableProperty]
+        private bool _hasEquippedHat;
+
+        [ObservableProperty]
+        private bool _hasEquippedPet;
+
+        [ObservableProperty]
+        private bool _hasEquippedEmoji;
+
+        [ObservableProperty]
+        private bool _hasEquippedBackground;
+
         private static CollectionsRepository _collectionsRepository;
 
         public static bool IsInitialized => _instance != null;
@@ -258,7 +273,12 @@ namespace SteamProfile.ViewModels
                         if (userProfile != null)
                         {
                             Bio = userProfile.Bio ?? string.Empty;
-                            ProfilePicture = userProfile.ProfilePicture ?? string.Empty;
+                            // Add ms-appx:/// prefix if it's not already there
+                            ProfilePicture = userProfile.ProfilePicture != null 
+                                ? (userProfile.ProfilePicture.StartsWith("ms-appx:///") 
+                                    ? userProfile.ProfilePicture 
+                                    : $"ms-appx:///{userProfile.ProfilePicture}")
+                                : "ms-appx:///Assets/default-profile.png";
                         }
 
                             // Process equipped features
@@ -345,6 +365,13 @@ namespace SteamProfile.ViewModels
                 EquippedPetSource = string.Empty;
                 EquippedEmojiSource = string.Empty;
                 EquippedBackgroundSource = string.Empty;
+                
+                // Reset visibility flags
+                HasEquippedFrame = false;
+                HasEquippedHat = false;
+                HasEquippedPet = false;
+                HasEquippedEmoji = false;
+                HasEquippedBackground = false;
 
                 Debug.WriteLine($"Processing {equippedFeatures?.Count ?? 0} equipped features");
 
@@ -388,22 +415,27 @@ namespace SteamProfile.ViewModels
                                 {
                                     case "frame":
                                         EquippedFrameSource = source;
+                                        HasEquippedFrame = true;
                                         Debug.WriteLine($"Set frame: {source}");
                                         break;
                                     case "hat":
                                         EquippedHatSource = source;
+                                        HasEquippedHat = true;
                                         Debug.WriteLine($"Set hat: {source}");
                                         break;
                                     case "pet":
                                         EquippedPetSource = source;
+                                        HasEquippedPet = true;
                                         Debug.WriteLine($"Set pet: {source}");
                                         break;
                                     case "emoji":
                                         EquippedEmojiSource = source;
+                                        HasEquippedEmoji = true;
                                         Debug.WriteLine($"Set emoji: {source}");
                                         break;
                                     case "background":
                                         EquippedBackgroundSource = source;
+                                        HasEquippedBackground = true;
                                         Debug.WriteLine($"Set background: {source}");
                                         break;
                                     default:
