@@ -110,6 +110,8 @@ namespace SteamProfile.ViewModels
             }
         }
 
+        public static event EventHandler<int> FeatureEquipStatusChanged;
+
         public FeaturesViewModel(FeaturesService featuresService, Frame frame)
         {
             _featuresService = featuresService;
@@ -361,6 +363,9 @@ namespace SteamProfile.ViewModels
                 
                 if (success)
                 {
+                    // Notify that a feature was equipped
+                    FeatureEquipStatusChanged?.Invoke(this, _userService.GetCurrentUser().UserId);
+                    
                     StatusMessage = "Feature equipped successfully";
                     StatusColor = new SolidColorBrush(Colors.Green);
                     

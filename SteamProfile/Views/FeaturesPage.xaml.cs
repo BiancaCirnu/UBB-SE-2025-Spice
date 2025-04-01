@@ -151,6 +151,9 @@ namespace SteamProfile.Views
 
         private void BackToProfileButton_Click(object sender, RoutedEventArgs e)
         {
+            // Get the current user ID from the service or ViewModel
+            int userId = App.UserService.GetCurrentUser().UserId;
+
             // If we can navigate back (in case we came from Profile)
             if (this.Frame.CanGoBack)
             {
@@ -158,8 +161,8 @@ namespace SteamProfile.Views
             }
             else
             {
-                // Navigate directly to ProfilePage
-                this.Frame.Navigate(typeof(ProfilePage));
+                // Navigate directly to ProfilePage with the user ID
+                this.Frame.Navigate(typeof(ProfilePage), userId);
             }
         }
     }

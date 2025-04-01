@@ -44,11 +44,7 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@profile_id", profile.ProfileId),
                     new SqlParameter("@user_id", profile.UserId),
                     new SqlParameter("@profile_picture", (object?)profile.ProfilePicture ?? DBNull.Value),
-                    new SqlParameter("@bio", (object?)profile.Bio ?? DBNull.Value),
-                    new SqlParameter("@equipped_frame", (object?)profile.EquippedFrame ?? DBNull.Value),
-                    new SqlParameter("@equipped_hat", (object?)profile.EquippedHat ?? DBNull.Value),
-                    new SqlParameter("@equipped_pet", (object?)profile.EquippedPet ?? DBNull.Value),
-                    new SqlParameter("@equipped_emoji", (object?)profile.EquippedEmoji ?? DBNull.Value)
+                    new SqlParameter("@bio", (object?)profile.Bio ?? DBNull.Value)
                 };
 
                 var dataTable = _dataLink.ExecuteReader("UpdateUserProfile", parameters);
@@ -86,10 +82,6 @@ namespace SteamProfile.Repositories
                 UserId = Convert.ToInt32(row["user_id"]),
                 ProfilePicture = row["profile_picture"] as string,
                 Bio = row["bio"] as string,
-                EquippedFrame = row["equipped_frame"] as string,
-                EquippedHat = row["equipped_hat"] as string,
-                EquippedPet = row["equipped_pet"] as string,
-                EquippedEmoji = row["equipped_emoji"] as string,
                 LastModified = Convert.ToDateTime(row["last_modified"])
             };
         }

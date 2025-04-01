@@ -20,6 +20,7 @@ using SteamProfile.Services;
 using System.Threading.Tasks;
 using SteamProfile.Views;
 using SteamProfile.Services;
+using Microsoft.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -34,6 +35,7 @@ namespace SteamProfile.Views
         public ProfileViewModel ViewModel { get; private set; }
         //private bool _isOwnProfile;
         private int _userId;
+        private bool _isNavigatingAway = false;
 
         public ProfilePage()
         {
@@ -42,33 +44,36 @@ namespace SteamProfile.Views
                 InitializeComponent();
                 Debug.WriteLine("ProfilePage initialized.");
 
-                // Initialize the ViewModel with the UI thread's dispatcher
-                var dataLink = DataLink.Instance;
-                Debug.WriteLine("DataLink instance obtained.");
+                // Only initialize the ViewModel if it hasn't been initialized yet
+                if (ProfileViewModel.IsInitialized)
+                {
+                    Debug.WriteLine("Using existing ProfileViewModel instance.");
+                    ViewModel = ProfileViewModel.Instance;
+                }
+                else
+                {
+                    // Initialize the ViewModel with the UI thread's dispatcher
+                    var dataLink = DataLink.Instance;
+                    Debug.WriteLine("DataLink instance obtained.");
 
-                //var friendshipsRepository = new FriendshipsRepository(dataLink);
-                var friendsService = App.FriendsService;
-                Debug.WriteLine("FriendshipsRepository and FriendsService initialized.");
+                    var friendsService = App.FriendsService;
+                    Debug.WriteLine("FriendshipsRepository and FriendsService initialized.");
 
-                // Add the UserProfileRepository parameter
-                ProfileViewModel.Initialize(
-                    App.UserService, 
-                    friendsService, 
-                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
-                    App.UserProfileRepository,
-                    App.CollectionsRepository
-                );
-                Debug.WriteLine("ProfileViewModel initialized with services.");
-
-                ViewModel = ProfileViewModel.Instance;
-                DataContext = ProfileViewModel.Instance; // Ensure this is set correctly
-
-                // By default, assume we're viewing someone else's profile
-                //  _isOwnProfile = true;
-                Debug.WriteLine("Assuming we're viewing someone else's profile.");
-
-                // Load the profile data
-               // _ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                    // Add the UserProfileRepository parameter
+                    ProfileViewModel.Initialize(
+                        App.UserService, 
+                        friendsService, 
+                        Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
+                        App.UserProfileRepository,
+                        App.CollectionsRepository,
+                        App.FeaturesService
+                    );
+                    Debug.WriteLine("ProfileViewModel initialized with services.");
+                    
+                    ViewModel = ProfileViewModel.Instance;
+                }
+                
+                DataContext = ViewModel; // Ensure this is set correctly
                 Debug.WriteLine("Profile data loading initiated.");
             }
             catch (Exception ex)
@@ -84,24 +89,45 @@ namespace SteamProfile.Views
             }
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            _isNavigatingAway = true;
+            Debug.WriteLine("Navigated away from ProfilePage");
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             Debug.WriteLine("Navigated to ProfilePage.");
 
+            // Make sure we have a ViewModel instance
+            ViewModel = ProfileViewModel.Instance;
+            DataContext = ViewModel;
+
             // If we receive a parameter, it indicates whose profile we're viewing
             if (e.Parameter != null)
             {
-                // If the parameter is true, it means we're viewing our own profile
+                // Use the parameter as the user ID
                 _userId = (int)e.Parameter;
-                Debug.WriteLine($"Navigating to profile of user: {_userId}");
-                Debug.WriteLine($"ProfileViewModel Instance: {ProfileViewModel.Instance != null}");
-
-                // nu ar tb sa fie nevoie de asta nu stiu ce se intampla
-                ViewModel = ProfileViewModel.Instance;
-                DataContext = ProfileViewModel.Instance; // Ensure this is set correctly
-
-                _ = ViewModel.LoadProfileAsync(_userId);  // ??!!
+                Debug.WriteLine($"Using user ID from navigation parameter: {_userId}");
+                
+                // Load the profile data
+                _ = ViewModel.LoadProfileAsync(_userId);
+            }
+            // If no parameter but we're returning to the page and ViewModel has a user ID
+            else if (ViewModel.UserId > 0)
+            {
+                // Use the user ID stored in the ViewModel
+                _userId = ViewModel.UserId;
+                Debug.WriteLine($"Using stored user ID from ViewModel: {_userId}");
+                
+                // Load the profile data
+                _ = ViewModel.LoadProfileAsync(_userId);
+            }
+            else
+            {
+                Debug.WriteLine("No user ID available - cannot load profile");
             }
         }
 
@@ -109,6 +135,7 @@ namespace SteamProfile.Views
         {
             try
             {
+                // Create a new dialog instance each time
                 ContentDialog errorDialog = new ContentDialog
                 {
                     Title = "Error",
@@ -133,6 +160,58 @@ namespace SteamProfile.Views
         private void AchievementsButton_Click (object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AchievementsPage));
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            // If we have a valid user ID, refresh the profile
+            if (_userId > 0)
+            {
+                _ = ViewModel.LoadProfileAsync(_userId);
+            }
+        }
+    }
+
+    public class StringToColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is string frameString && !string.IsNullOrEmpty(frameString))
+            {
+                // You can implement logic to convert frame identifiers to colors
+                // For example: "rare" -> Gold, "epic" -> Purple, etc.
+                switch (frameString.ToLowerInvariant())
+                {
+                    case "common": return new SolidColorBrush(Colors.Gray);
+                    case "rare": return new SolidColorBrush(Colors.CornflowerBlue);
+                    case "epic": return new SolidColorBrush(Colors.Purple);
+                    case "legendary": return new SolidColorBrush(Colors.Gold);
+                    default: return new SolidColorBrush(Colors.White);
+                }
+            }
+            return new SolidColorBrush(Colors.Transparent);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BoolToOpacityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is bool boolValue)
+            {
+                return boolValue ? 1.0 : 0.3;
+            }
+            return 0.3;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
     }
 }
