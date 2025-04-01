@@ -84,13 +84,13 @@ namespace SteamProfile.Repositories
             {
                 ProfileId = Convert.ToInt32(row["profile_id"]),
                 UserId = Convert.ToInt32(row["user_id"]),
-                ProfilePicture = row["profile_picture"] as string,
-                Bio = row["bio"] as string,
-                EquippedFrame = row["equipped_frame"] as string,
-                EquippedHat = row["equipped_hat"] as string,
-                EquippedPet = row["equipped_pet"] as string,
-                EquippedEmoji = row["equipped_emoji"] as string,
-                LastModified = Convert.ToDateTime(row["last_modified"])
+                ProfilePicture = row["profile_picture"] != DBNull.Value ? row["profile_picture"] as string : null,
+                Bio = row["bio"] != DBNull.Value ? row["bio"] as string : null,
+                EquippedFrame = row["equipped_frame"] != DBNull.Value ? row["equipped_frame"] as string : null,
+                EquippedHat = row["equipped_hat"] != DBNull.Value ? row["equipped_hat"] as string : null,
+                EquippedPet = row["equipped_pet"] != DBNull.Value ? row["equipped_pet"] as string : null,
+                EquippedEmoji = row["equipped_emoji"] != DBNull.Value ? row["equipped_emoji"] as string : null,
+                LastModified = row["last_modified"] != DBNull.Value ? Convert.ToDateTime(row["last_modified"]) : DateTime.MinValue
             };
         }
     }

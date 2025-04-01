@@ -1,4 +1,4 @@
-﻿Create or alter procedure ChangeEmailForUserId @userId int, @newEmail char(50) as
+﻿Create or alter procedure ChangeEmailForUserId @user_id int, @newEmail char(50) as
 begin
 	update Users
 	set email = @newEmail 

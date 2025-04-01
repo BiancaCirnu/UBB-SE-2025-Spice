@@ -1,5 +1,5 @@
 go
-CREATE PROCEDURE GetUserById
+CREATE or alter PROCEDURE GetUserById
     @userId INT
 AS
 BEGIN
