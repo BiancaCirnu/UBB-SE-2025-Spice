@@ -1,35 +1,66 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using SteamProfile.Services;
-using SteamProfile.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using SteamProfile.ViewModels.ConfigurationsViewModels;
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
+using System;
+using System.Threading.Tasks;
 namespace SteamProfile.Views.ConfigurationsView
 {
     public sealed partial class AccountSettingsPage : Page
     {
-        private AccountSettingsViewModel ViewModel { get; set; }
-
+        public AccountSettingsViewModel ViewModel { get; private set; }
         public AccountSettingsPage()
         {
-            InitializeComponent();
-            ViewModel = new AccountSettingsViewModel(); // Ensure ViewModel is not null
+            this.InitializeComponent();
+            ViewModel = new AccountSettingsViewModel(this.Frame);
+            ViewModel.RequestPasswordConfirmation += ViewModel_RequestPasswordConfirmation;
             DataContext = ViewModel;
         }
 
+        private async void ViewModel_RequestPasswordConfirmation(object sender, EventArgs e)
+        {
+            await ShowPasswordConfirmationDialog();
+        }
+
+        private void PasswordConfirmationDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            string password = ConfirmPasswordBox.Password;
+            if (string.IsNullOrEmpty(password))
+            {
+                args.Cancel = true;
+                ViewModel.PasswordConfirmationError = "Password cannot be empty";
+                ViewModel.PasswordConfirmationErrorVisibility = Visibility.Visible;
+                return;
+            }
+
+            if (!ViewModel.VerifyPassword(password))
+            {
+                args.Cancel = true;
+                ViewModel.PasswordConfirmationError = "Incorrect password";
+                ViewModel.PasswordConfirmationErrorVisibility = Visibility.Visible;
+                return;
+            }
+
+            ViewModel.CurrentPassword = password;
+            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
+
+            ViewModel.ExecutePendingAction();
+        }
+
+        private void PasswordConfirmationDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
+
+            ConfirmPasswordBox.Password = string.Empty;
+
+            ViewModel.CancelPendingAction();
+        }
+
+        public async Task<ContentDialogResult> ShowPasswordConfirmationDialog()
+        {
+            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
+            ConfirmPasswordBox.Password = string.Empty;
+
+            return await PasswordConfirmationDialog.ShowAsync();
+        }
     }
 }
