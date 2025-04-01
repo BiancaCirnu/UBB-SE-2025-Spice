@@ -1,6 +1,7 @@
 ﻿using SteamProfile.Data;
 
 using SteamProfile.Models;
+using SteamProfile.Utils;
 using System;
 using System.Collections.Generic;
 using System.Data;

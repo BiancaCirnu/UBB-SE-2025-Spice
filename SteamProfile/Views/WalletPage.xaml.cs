@@ -38,7 +38,7 @@ namespace SteamProfile.Views
         }
         private void GoBack(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(ConfigurationsPage));
+            Frame.GoBack();
         }
 
 

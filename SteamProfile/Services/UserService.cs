@@ -125,22 +125,39 @@ namespace SteamProfile.Services
 
         internal bool UpdateUserUsername(string username, string currentPassword)
         {
-            throw new NotImplementedException();
+            if (this.VerifyUserPassword(currentPassword))
+            {
+                _usersRepository.ChangeUsername(GetCurrentUser().UserId, username);
+                return true;
+            }
+            return false;
         }
 
         internal bool UpdateUserPassword(string password, string currentPassword)
         {
-            throw new NotImplementedException();
+            if (this.VerifyUserPassword(currentPassword))
+            {
+                _usersRepository.ChangePassword(GetCurrentUser().UserId, password);
+                return true;
+            }
+            return false;
         }
 
         internal bool UpdateUserEmail(string email, string currentPassword)
         {
-            throw new NotImplementedException();
+            if (this.VerifyUserPassword(currentPassword))
+            {
+                _usersRepository.ChangeEmail(GetCurrentUser().UserId, email);
+                return true;
+            }
+            return false;
         }
 
         internal bool VerifyUserPassword(string password)
         {
-            throw new NotImplementedException();
+            if (PasswordHasher.VerifyPassword(password, this.GetCurrentUser().Password))
+                return true;
+            return false;
         }
     }
 }

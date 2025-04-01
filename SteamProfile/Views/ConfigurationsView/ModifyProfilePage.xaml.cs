@@ -24,6 +24,9 @@ namespace SteamProfile.Views.ConfigurationsView
             DataContext = ViewModel;
 
         }
-
+        private void GoBack(object sender, RoutedEventArgs e)
+        {
+            Frame.GoBack();
+        }
     }
 }

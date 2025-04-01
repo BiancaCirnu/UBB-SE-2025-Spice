@@ -1,66 +1,100 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using SteamProfile.ViewModels.ConfigurationsViewModels;
 using System;
-using System.Threading.Tasks;
+
 namespace SteamProfile.Views.ConfigurationsView
 {
     public sealed partial class AccountSettingsPage : Page
     {
-        public AccountSettingsViewModel ViewModel { get; private set; }
+        private AccountSettingsViewModel ViewModel { get; set; }
+        private ContentDialog passwordConfirmationDialog;
+        
         public AccountSettingsPage()
         {
             this.InitializeComponent();
-            ViewModel = new AccountSettingsViewModel(this.Frame);
-            ViewModel.RequestPasswordConfirmation += ViewModel_RequestPasswordConfirmation;
+            ViewModel = new AccountSettingsViewModel();
             DataContext = ViewModel;
+            ViewModel.RequestPasswordConfirmation += ViewModel_RequestPasswordConfirmation;
         }
 
         private async void ViewModel_RequestPasswordConfirmation(object sender, EventArgs e)
         {
-            await ShowPasswordConfirmationDialog();
+            // Create the password confirmation dialog
+            passwordConfirmationDialog = new ContentDialog
+            {
+                Title = "Confirm Password",
+                Content = CreatePasswordConfirmationContent(),
+                PrimaryButtonText = "Confirm",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            // Show the dialog and handle the result
+            var result = await passwordConfirmationDialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                ViewModel.ExecutePendingAction();
+            }
+            else
+            {
+                ViewModel.CancelPendingAction();
+            }
         }
 
-        private void PasswordConfirmationDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private StackPanel CreatePasswordConfirmationContent()
         {
-            string password = ConfirmPasswordBox.Password;
-            if (string.IsNullOrEmpty(password))
+            var panel = new StackPanel { Spacing = 10 };
+
+            var messageTextBlock = new TextBlock
             {
-                args.Cancel = true;
-                ViewModel.PasswordConfirmationError = "Password cannot be empty";
-                ViewModel.PasswordConfirmationErrorVisibility = Visibility.Visible;
-                return;
+                Text = "Please enter your current password to confirm this action:",
+                TextWrapping = TextWrapping.Wrap
+            };
+            panel.Children.Add(messageTextBlock);
+
+            var passwordBox = new PasswordBox
+            {
+                PlaceholderText = "Current password"
+            };
+
+            // Bind the password to the ViewModel's CurrentPassword property
+            passwordBox.PasswordChanged += (s, e) =>
+            {
+                ViewModel.CurrentPassword = passwordBox.Password;
+            };
+
+            panel.Children.Add(passwordBox);
+
+            var errorTextBlock = new TextBlock
+            {
+                Text = "Incorrect password",
+                Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red),
+                Visibility = Visibility.Collapsed
+            };
+            panel.Children.Add(errorTextBlock);
+
+            return panel;
+        }
+
+        // Use the Unloaded event instead of overriding OnUnloaded
+        private void AccountSettingsPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            // Unsubscribe from events to prevent memory leaks
+            if (ViewModel != null)
+            {
+                ViewModel.RequestPasswordConfirmation -= ViewModel_RequestPasswordConfirmation;
             }
 
-            if (!ViewModel.VerifyPassword(password))
-            {
-                args.Cancel = true;
-                ViewModel.PasswordConfirmationError = "Incorrect password";
-                ViewModel.PasswordConfirmationErrorVisibility = Visibility.Visible;
-                return;
-            }
-
-            ViewModel.CurrentPassword = password;
-            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
-
-            ViewModel.ExecutePendingAction();
+            // Unsubscribe from the Unloaded event itself
+            this.Unloaded -= AccountSettingsPage_Unloaded;
         }
-
-        private void PasswordConfirmationDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private void GoBack(object sender, RoutedEventArgs e)
         {
-            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
-
-            ConfirmPasswordBox.Password = string.Empty;
-
-            ViewModel.CancelPendingAction();
-        }
-
-        public async Task<ContentDialogResult> ShowPasswordConfirmationDialog()
-        {
-            ViewModel.PasswordConfirmationErrorVisibility = Visibility.Collapsed;
-            ConfirmPasswordBox.Password = string.Empty;
-
-            return await PasswordConfirmationDialog.ShowAsync();
+            Frame.GoBack();
         }
     }
 }

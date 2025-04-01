@@ -41,10 +41,6 @@ namespace SteamProfile.ViewModels
         {
             _frame.Navigate(typeof(AccountSettingsPage));
         }
-        [RelayCommand]
-        private void NavigateToWallet()
-        {
-            _frame.Navigate(typeof(WalletPage));
-        }
+        
     }
 }

@@ -41,7 +41,7 @@ namespace SteamProfile
         static App()
         {
             var dataLink = DataLink.Instance;
-            var navigationService = NavigationService.Instance ;
+            var navigationService = NavigationService.Instance;
 
             var achievementsRepository = new AchievementsRepository(dataLink);
             var featuresRepository = new FeaturesRepository(dataLink);
@@ -79,7 +79,6 @@ namespace SteamProfile
         }
 
         public Window MainWindow { get; set; }
-        public static object NavigationService { get; internal set; }
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {

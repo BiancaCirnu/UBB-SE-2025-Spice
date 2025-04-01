@@ -55,7 +55,7 @@
                         Height="40" 
                         Command="{Binding SaveChanges}"
                         IsEnabled="{x:Bind ViewModel.CanSave, Mode=OneWay}"/>
-                <Button Content="Cancel" Width="130" Height="40" Command="{Binding ViewModel.BackToConfig}"/>
+                <Button Content="Go Back" Width="130" Height="40" Click="GoBack"/>
             </StackPanel>
         </StackPanel>
     </Grid>
