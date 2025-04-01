@@ -177,20 +177,20 @@ SELECT COUNT(*) FROM Users;
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
 (1, 'Call of Duty: MWIII', 'First-person military shooter', '/Assets/Games/codmw3.png'),
-(1, 'Overwatch 2', 'Team-based hero shooter', '/Assets/Games/overwatch2.png'),
-(1, 'Counter-Strike 2', 'Tactical shooter', '/Assets/Games/cs2.png');
+(2, 'Overwatch 2', 'Team-based hero shooter', '/Assets/Games/overwatch2.png'),
+(3, 'Counter-Strike 2', 'Tactical shooter', '/Assets/Games/cs2.png');
 
 -- SPORTS (game_id 4–6)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
 (1, 'FIFA 25', 'Football simulation', '/Assets/Games/fifa25.png'),
-(1, 'NBA 2K25', 'Basketball simulation', '/Assets/Games/nba2k25.png'),
-(1, 'Tony Hawk Pro Skater', 'Skateboarding sports game', '/Assets/Games/thps.png');
+(2, 'NBA 2K25', 'Basketball simulation', '/Assets/Games/nba2k25.png'),
+(3, 'Tony Hawk Pro Skater', 'Skateboarding sports game', '/Assets/Games/thps.png');
 
 -- CHILL (game_id 7)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(1, 'Stardew Valley', 'Relaxing farming game', '/Assets/Games/stardewvalley.png');
+(2, 'Stardew Valley', 'Relaxing farming game', '/Assets/Games/stardewvalley.png');
 
 -- PETS (game_id 8–10)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
@@ -212,8 +212,8 @@ SELECT COUNT(*) FROM OwnedGames;
 INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
 VALUES
 (1, 'All Owned Games', '/Assets/Collections/allgames.jpg', 1, '2022-02-21'),
-(1, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
-(1, 'Sports', '/Assets/Collections/sports.jpg', 1, '2023-03-21'),
+(2, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
+(2, 'Sports', '/Assets/Collections/sports.jpg', 1, '2023-03-21'),
 (1, 'Chill Games', '/Assets/Collections/chill.jpg', 1, '2024-03-21'),
 (1, 'Pets', '/Assets/Collections/pets.jpg', 0, '2025-01-21'),
 (1, 'X-Mas', '/Assets/Collections/xmas.jpg', 0, '2025-02-21');
