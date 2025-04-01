@@ -1,5 +1,4 @@
-﻿
-CREATE OR ALTER PROCEDURE CreateUserProfile
+﻿CREATE OR ALTER PROCEDURE CreateUserProfile
     @user_id INT
 AS
 BEGIN
