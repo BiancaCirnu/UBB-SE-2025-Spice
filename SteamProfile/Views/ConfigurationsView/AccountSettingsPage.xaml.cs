@@ -27,7 +27,7 @@ namespace SteamProfile.Views.ConfigurationsView
         public AccountSettingsPage()
         {
             InitializeComponent();
-            ViewModel = new AccountSettingsViewModel(); // Ensure ViewModel is not null
+            ViewModel = new AccountSettingsViewModel(App.UserService); // Ensure ViewModel is not null
             DataContext = ViewModel;
         }
 

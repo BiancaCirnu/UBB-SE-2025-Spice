@@ -2,6 +2,8 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using SteamProfile.Services;
+using SteamProfile.Views;
 using System;
 using System.Threading.Tasks;
 
@@ -23,6 +25,13 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         [ObservableProperty]
         private string _errorMessage;
+
+        private readonly UserService _userService;
+
+        public AccountSettingsViewModel(UserService userService)
+        {
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+        }
 
         [RelayCommand]
         private async Task UpdateUsernameAsync()
@@ -64,10 +73,12 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             }
         }
 
+
         [RelayCommand]
         private void Logout()
         {
-            // Logic to log out user
+            _userService.Logout();
+            NavigationService.Instance.Navigate(typeof(LoginPage));
         }
 
         [RelayCommand]
