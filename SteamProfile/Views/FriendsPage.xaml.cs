@@ -26,12 +26,10 @@ namespace SteamProfile.Views
         public FriendsPage()
         {
             InitializeComponent();
-            _viewModel = new FriendsViewModel(App.FriendsService);
+            _viewModel = new FriendsViewModel(App.FriendsService,App.UserService);
             DataContext = _viewModel;
             _viewModel.LoadFriends(); // Load friends immediately when page is created
         }
-
-
 
         private void RemoveFriend_Click(object sender, RoutedEventArgs e)
         {

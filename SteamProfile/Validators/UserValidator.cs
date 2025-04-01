@@ -16,7 +16,7 @@ namespace SteamProfile.Validators
             bool hasUpperCase = password.Any(char.IsUpper);
             bool hasLowerCase = password.Any(char.IsLower);
             bool hasDigit = password.Any(char.IsDigit);
-            bool hasSpecialChar = password.Any(ch => "@$!%*?&".Contains(ch));
+            bool hasSpecialChar = password.Any(ch => "@_.,/%^#$!%*?&".Contains(ch));
 
             return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
         }

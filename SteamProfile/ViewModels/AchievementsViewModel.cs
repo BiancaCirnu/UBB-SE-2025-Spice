@@ -82,7 +82,17 @@ namespace SteamProfile.ViewModels
                 collection.Add(achievement);
             }
         }
-       
+
+        [RelayCommand]
+        private void BackToProfile()
+        {
+            // Get the current user's ID from the UserService
+            int currentUserId = _userService.GetCurrentUser().UserId; // Adjust this line based on your UserService implementation
+
+            // Navigate back to the Profile page with the current user ID
+            NavigationService.Instance.Navigate(typeof(ProfilePage), currentUserId);
+        }
+
 
     }
 }

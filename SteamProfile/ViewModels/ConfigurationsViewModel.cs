@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Services;
 using SteamProfile.Views;
 using SteamProfile.Views.ConfigurationsView;
+using System;
 
 namespace SteamProfile.ViewModels
 {
@@ -12,9 +13,10 @@ namespace SteamProfile.ViewModels
         private readonly Frame _frame;
         private readonly UserService _userService;
 
-        public ConfigurationsViewModel(Frame frame)
+        public ConfigurationsViewModel(Frame frame, UserService userService)
         {
             _frame = frame;
+            _userService = userService ?? throw new NullReferenceException(nameof(userService));
         }
 
         [RelayCommand]
@@ -26,7 +28,7 @@ namespace SteamProfile.ViewModels
         [RelayCommand]
         private void NavigateToProfile()
         {
-            _frame.Navigate(typeof(ProfilePage));
+            _frame.Navigate(typeof(ProfilePage),_userService.GetCurrentUser().UserId);
         }
         [RelayCommand]
         private void NavigateToProfileSettings()

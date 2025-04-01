@@ -9,6 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Padding="20" HorizontalAlignment="Center">
+
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
 
             <!-- Achievements Title -->
@@ -138,6 +139,12 @@
             </StackPanel>
 
         </StackPanel>
-        <Button Click="BackToProfile" Content="Go Back"/>
+
+        <Button Content="Back to Profile"
+                Command="{x:Bind ViewModel.BackToProfileCommand}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="10"/>
+
     </Grid>
 </Page>

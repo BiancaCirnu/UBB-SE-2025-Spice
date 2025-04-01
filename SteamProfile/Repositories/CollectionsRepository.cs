@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace SteamProfile.Repositories
 {
@@ -65,7 +66,28 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException("An unexpected error occurred while retrieving collections.", ex);
             }
         }
+        public List<Collection> GetLastThreeCollectionsForUser(int userId)
+        {
+            try
+            {
+                // Retrieve all collections for the user
+                var allCollections = GetAllCollections(userId);
 
+                // Order by CreatedAt descending and take the last three collections
+                var lastThreeCollections = allCollections
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(3)
+                    .ToList();
+
+                Debug.WriteLine($"Repository: Retrieved last 3 collections for user {userId}");
+                return lastThreeCollections;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Repository: Unexpected Error while getting last three collections: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving the last three collections.", ex);
+            }
+        }
         public Collection GetCollectionById(int collectionId)
         {
             try
@@ -104,7 +126,7 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException("An unexpected error occurred while retrieving collection by ID.", ex);
             }
         }
-
+  
         public List<OwnedGame> GetGamesInCollection(int collectionId)
         {
             try
