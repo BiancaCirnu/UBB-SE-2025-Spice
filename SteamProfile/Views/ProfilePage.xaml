@@ -293,7 +293,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </StackPanel>
+        </StackPanel>
             </Grid>
         </Grid>
     </Grid>

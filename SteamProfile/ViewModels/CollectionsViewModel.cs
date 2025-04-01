@@ -5,6 +5,7 @@ using SteamProfile.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 
 namespace SteamProfile.ViewModels
 {
@@ -28,9 +29,6 @@ namespace SteamProfile.ViewModels
     {
         private readonly CollectionsService _collectionsService;
         private readonly UserService _userService;
-
-        //[ObservableProperty]
-        //private bool _isAllOwnedGamesCollection;
 
         [ObservableProperty]
         private ObservableCollection<Collection> _collections = new();
@@ -61,21 +59,30 @@ namespace SteamProfile.ViewModels
 
                 var collections = _collectionsService.GetAllCollections(_userService.GetCurrentUser().UserId);
                 Debug.WriteLine($"Retrieved {collections?.Count ?? 0} collections from service");
-                
-                Collections.Clear();
-                if (collections != null)
+
+                if (collections == null || collections.Count == 0)
                 {
-                    foreach (var collection in collections)
-                    {
-                        Collections.Add(collection);
-                    }
-                    Debug.WriteLine($"Added {Collections.Count} collections to ObservableCollection");
-                }
-                else
-                {
-                    Debug.WriteLine("Collections list is null");
+                    Debug.WriteLine("Collections list is empty or null");
                     ErrorMessage = "No collections found.";
+                    Collections.Clear();
+                    return;
                 }
+
+                // Ensure UI updates properly by assigning a new ObservableCollection instance
+                Collections = new ObservableCollection<Collection>(
+                    collections.Select(collection => new Collection
+                    {
+                        CollectionId = collection.CollectionId,
+                        Name = collection.Name ?? "Unnamed Collection",
+                        CoverPicture = string.IsNullOrEmpty(collection.CoverPicture)
+                            ? "ms-appx:///Assets/Placeholder.png"
+                            : collection.CoverPicture,
+                        CreatedAt = collection.CreatedAt,
+                        IsAllOwnedGamesCollection = collection.IsAllOwnedGamesCollection
+                    })
+                );
+
+                Debug.WriteLine($"Added {Collections.Count} collections to ObservableCollection");
             }
             catch (Exception ex)
             {

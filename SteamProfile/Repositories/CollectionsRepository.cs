@@ -88,6 +88,7 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException("An unexpected error occurred while retrieving the last three collections.", ex);
             }
         }
+
         public Collection GetCollectionById(int collectionId)
         {
             try

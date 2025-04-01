@@ -27,6 +27,7 @@ namespace SteamProfile.Models
         public DateOnly CreatedAt { get; set; }
 
         public List<OwnedGame> Games { get; set; } = new List<OwnedGame>();
+        public bool IsAllOwnedGamesCollection { get; internal set; } = false;
 
         public void AddGame(OwnedGame game)
         {
