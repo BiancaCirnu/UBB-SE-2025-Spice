@@ -89,7 +89,7 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public Collection GetCollectionById(int collectionId)
+        public Collection GetCollectionById(int collectionId, int userId)
         {
             try
             {
@@ -97,7 +97,7 @@ namespace SteamProfile.Repositories
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@collectionId", collectionId),
-                    new SqlParameter("@user_id", 1) // TODO: Get actual user ID
+                    new SqlParameter("@user_id", userId)
                 };
 
                 Debug.WriteLine("Repository: Executing GetCollectionById stored procedure");

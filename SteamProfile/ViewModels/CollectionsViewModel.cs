@@ -29,9 +29,8 @@ namespace SteamProfile.ViewModels
     {
         private readonly CollectionsService _collectionsService;
         private readonly UserService _userService;
-
-        [ObservableProperty]
-        private ObservableCollection<Collection> _collections = new();
+        private readonly int _userId;
+        private ObservableCollection<Collection> _collections;
 
         [ObservableProperty]
         private Collection _selectedCollection;
@@ -42,10 +41,31 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private bool _isLoading;
 
+        public ObservableCollection<Collection> Collections
+        {
+            get => _collections;
+            set
+            {
+                if (_collections != value)
+                {
+                    _collections = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public CollectionsViewModel(CollectionsService collectionsService, UserService userService)
         {
             _collectionsService = collectionsService ?? throw new ArgumentNullException(nameof(collectionsService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _userId = _userService.GetCurrentUser().UserId;
+            _collections = new ObservableCollection<Collection>();
+            LoadCollections();
+        }
+
+        // Constructor overload for when services are not directly provided
+        public CollectionsViewModel() : this(App.CollectionsService, App.UserService)
+        {
         }
 
         [RelayCommand]
@@ -57,7 +77,7 @@ namespace SteamProfile.ViewModels
                 ErrorMessage = string.Empty;
                 Debug.WriteLine("Loading collections...");
 
-                var collections = _collectionsService.GetAllCollections(_userService.GetCurrentUser().UserId);
+                var collections = _collectionsService.GetAllCollections(_userId);
                 Debug.WriteLine($"Retrieved {collections?.Count ?? 0} collections from service");
 
                 if (collections == null || collections.Count == 0)
@@ -68,21 +88,12 @@ namespace SteamProfile.ViewModels
                     return;
                 }
 
-                // Ensure UI updates properly by assigning a new ObservableCollection instance
-                Collections = new ObservableCollection<Collection>(
-                    collections.Select(collection => new Collection
-                    {
-                        CollectionId = collection.CollectionId,
-                        Name = collection.Name ?? "Unnamed Collection",
-                        CoverPicture = string.IsNullOrEmpty(collection.CoverPicture)
-                            ? "ms-appx:///Assets/Placeholder.png"
-                            : collection.CoverPicture,
-                        CreatedAt = collection.CreatedAt,
-                        IsAllOwnedGamesCollection = collection.IsAllOwnedGamesCollection
-                    })
-                );
-
-                Debug.WriteLine($"Added {Collections.Count} collections to ObservableCollection");
+                Collections.Clear();
+                foreach (var collection in collections)
+                {
+                    Collections.Add(collection);
+                }
+                Debug.WriteLine($"Added {collections.Count} collections to ObservableCollection");
             }
             catch (Exception ex)
             {
@@ -102,7 +113,7 @@ namespace SteamProfile.ViewModels
             try
             {
                 Debug.WriteLine($"Deleting collection {collectionId}");
-                _collectionsService.DeleteCollection(collectionId, _userService.GetCurrentUser().UserId);
+                _collectionsService.DeleteCollection(collectionId, _userId);
                 LoadCollections(); // Reload collections after deletion
             }
             catch (Exception ex)
@@ -146,7 +157,7 @@ namespace SteamProfile.ViewModels
                 }
 
                 Debug.WriteLine($"Adding game {gameId} to collection {SelectedCollection.Name}");
-                _collectionsService.AddGameToCollection(SelectedCollection.CollectionId, gameId, _userService.GetCurrentUser().UserId);
+                _collectionsService.AddGameToCollection(SelectedCollection.CollectionId, gameId, _userId);
                 LoadCollections(); // Reload collections to update the UI
             }
             catch (Exception ex)
@@ -185,7 +196,7 @@ namespace SteamProfile.ViewModels
             {
                 Debug.WriteLine($"Creating collection: {parameters.Name}");
                 _collectionsService.CreateCollection(
-                    _userService.GetCurrentUser().UserId,
+                    _userId,
                     parameters.Name,
                     parameters.CoverPicture,
                     parameters.IsPublic,
@@ -208,7 +219,7 @@ namespace SteamProfile.ViewModels
                 Debug.WriteLine($"Updating collection: {parameters.Name}");
                 _collectionsService.UpdateCollection(
                     parameters.CollectionId,
-                    _userService.GetCurrentUser().UserId,
+                    _userId,
                     parameters.Name,
                     parameters.CoverPicture,
                     parameters.IsPublic

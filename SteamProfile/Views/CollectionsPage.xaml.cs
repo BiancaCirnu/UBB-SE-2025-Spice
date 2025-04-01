@@ -192,16 +192,7 @@ namespace SteamProfile.Views
 
         private void BackToProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            // If we can navigate back (in case we came from Profile)
-            if (this.Frame.CanGoBack)
-            {
-                this.Frame.GoBack();
-            }
-            else
-            {
-                // Navigate directly to ProfilePage
-                this.Frame.Navigate(typeof(ProfilePage));
-            }
+            Frame.Navigate(typeof(ProfilePage), App.UserService.GetCurrentUser().UserId);
         }
     }
 }

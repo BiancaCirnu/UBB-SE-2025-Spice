@@ -570,7 +570,7 @@ END
 -- SHOOTERS (game_id 1–3)
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
-(1, 'Call of Duty: MWIII', 'First-person military shooter', '/Assets/Games/codmw3.png'),
+(2, 'Call of Duty: MWIII', 'First-person military shooter', '/Assets/Games/codmw3.png'),
 (1, 'Overwatch 2', 'Team-based hero shooter', '/Assets/Games/overwatch2.png'),
 (1, 'Counter-Strike 2', 'Tactical shooter', '/Assets/Games/cs2.png');
 
@@ -590,7 +590,7 @@ VALUES
 INSERT INTO OwnedGames (user_id, title, description, cover_picture)
 VALUES
 (1, 'The Sims 4: Cats & Dogs', 'Life sim with pets', '/Assets/Games/sims4pets.png'),
-(1, 'Nintendogs', 'Pet care simulation', '/Assets/Games/nintendogs.png'),
+(2, 'Nintendogs', 'Pet care simulation', '/Assets/Games/nintendogs.png'),
 (1, 'Pet Hotel', 'Manage a hotel for pets', '/Assets/Games/pethotel.png');
 
 -- X-Mas (game_id 11)
@@ -606,10 +606,10 @@ SELECT COUNT(*) FROM OwnedGames;
 INSERT INTO Collections (user_id, name, cover_picture, is_public, created_at)
 VALUES
 (1, 'All Owned Games', '/Assets/Collections/allgames.jpg', 1, '2022-02-21'),
-(1, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
+(2, 'Shooters', '/Assets/Collections/shooters.jpg', 1, '2025-03-21'),
 (1, 'Sports', '/Assets/Collections/sports.jpg', 1, '2023-03-21'),
 (1, 'Chill Games', '/Assets/Collections/chill.jpg', 1, '2024-03-21'),
-(1, 'Pets', '/Assets/Collections/pets.jpg', 0, '2025-01-21'),
+(2, 'Pets', '/Assets/Collections/pets.jpg', 0, '2025-01-21'),
 (1, 'X-Mas', '/Assets/Collections/xmas.jpg', 0, '2025-02-21');
 
 select * from Collections;
