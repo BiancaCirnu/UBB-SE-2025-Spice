@@ -13,6 +13,12 @@ using CommunityToolkit.Mvvm.Input;
 using SteamProfile.ViewModels.Base;
 using Microsoft.UI.Xaml.Controls;
 using SteamProfile.Views;
+using System.ComponentModel.DataAnnotations;
+using SteamProfile.Validators;
+using CommunityToolkit.WinUI.UI.Controls.TextToolbarSymbols;
+using Microsoft.UI.Xaml.Media.Animation;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Windows.ApplicationModel.Contacts;
 
 namespace SteamProfile.ViewModels
 {
@@ -246,10 +252,10 @@ namespace SteamProfile.ViewModels
                 }
 
                 // Then validate password requirements
-                var (isValid, errorMessage) = ValidatePassword(NewPassword);
+                var isValid = UserValidator.IsPasswordValid(NewPassword);
                 if (!isValid)
                 {
-                    StatusMessage = errorMessage;
+                    StatusMessage = "Invalid password! Password must be at least 8 characters long and contain at least one lowercase letter, one uppercase letter, one number, and one special character(@_.,/% ^#$!%*?&).";
                     StatusColor = new SolidColorBrush(Colors.Red);
                     return;
                 }
@@ -259,10 +265,9 @@ namespace SteamProfile.ViewModels
                 {
                     _passwordResetService.ResetPassword(Email, ResetCode, NewPassword);
                     _passwordResetService.CleanupExpiredCodes();
-                    
                     StatusMessage = "Password reset successful. You can now login with your new password.";
                     StatusColor = new SolidColorBrush(Colors.Green);
-                    
+
                     // Raise the password reset success event
                     PasswordResetSuccess?.Invoke(this, EventArgs.Empty);
                 }

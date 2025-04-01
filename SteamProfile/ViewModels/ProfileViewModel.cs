@@ -280,9 +280,19 @@ namespace SteamProfile.ViewModels
         {
             NavigationService.Instance.Navigate(typeof(Views.FriendsPage), UserId);
         }
+
+        [RelayCommand]
+        private void BackToProfile()
+        {
+            // Get the current user's ID from the UserService
+            int currentUserId = _userService.GetCurrentUser().UserId; // Adjust this line based on your UserService implementation
+
+            // Navigate back to the Profile page with the current user ID
+            NavigationService.Instance.Navigate(typeof(ProfilePage), currentUserId);
+        }
     }
 
-    public static class DispatcherQueueExtensions
+    public static partial class DispatcherQueueExtensions
     {
         public static Task EnqueueAsync(this DispatcherQueue dispatcher, Action action)
         {
@@ -305,4 +315,6 @@ namespace SteamProfile.ViewModels
             return tcs.Task;
         }
     }
-}
+          
+
+    }

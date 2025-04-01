@@ -29,8 +29,10 @@
         <!-- Left Sidebar -->
         <Grid Grid.Column="0" Background="#2D2D2D">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/> <!-- Profile Info -->
-                <RowDefinition Height="*"/> <!-- Achievements -->
+                <RowDefinition Height="Auto"/>
+                <!-- Profile Info -->
+                <RowDefinition Height="*"/>
+                <!-- Achievements -->
             </Grid.RowDefinitions>
 
             <!-- Profile Info Section -->
@@ -38,8 +40,10 @@
                 <!-- Profile Picture and Basic Info -->
                 <Grid Height="300" Background="#333333">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/> <!-- Profile Picture Row -->
-                        <RowDefinition Height="Auto"/> <!-- Username and Friends Row -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Profile Picture Row -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Username and Friends Row -->
                     </Grid.RowDefinitions>
 
                     <!-- Profile Picture Row -->
@@ -102,6 +106,7 @@
                                 </StackPanel>
                             </Border>
                         </Button>
+
                     </StackPanel>
                 </Grid>
 
@@ -187,11 +192,21 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!-- Back Button -->
+            <Button Grid.Row="0"
+                    Content="Go Back to Profile Page"
+                    Command="{x:Bind ViewModel.BackToProfileCommand}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="10"
+                    Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+
             <!-- Top right buttons -->
-            <StackPanel Grid.Row="0" 
+            <StackPanel Grid.Row="1" 
                       Orientation="Horizontal" 
                       HorizontalAlignment="Right"
                       Margin="0,20,20,20">
@@ -231,34 +246,33 @@
                              Glyph="&#xE713;"
                              Foreground="White"/>
                 </Button>
-        </StackPanel>
+            </StackPanel>
 
             <!-- Collections Header -->
-            <TextBlock Grid.Row="1" 
-          Text="Collections"
-          Foreground="White"
-          FontSize="24"
-          Margin="0,0,0,20"/>
+            <TextBlock Grid.Row="2" 
+                      Text="Collections"
+                      Foreground="White"
+                      FontSize="24"
+                      Margin="0,0,0,20"/>
 
             <!-- Collections Grid -->
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="3">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <!-- Add Collection Button -->
                     <Border Background="#E6D5B8" 
-                Width="200" Height="150"
-                Margin="10"
-                Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
+                            Width="200" Height="150"
+                            Margin="10"
+                            Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
                         <Button Style="{StaticResource TransparentButton}"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    Command="{x:Bind ViewModel.AddCollectionCommand}">
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Command="{x:Bind ViewModel.AddCollectionCommand}">
                             <TextBlock Text="+" 
-                           FontSize="48" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"/>
+                                      FontSize="48" 
+                                      HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
                         </Button>
                     </Border>
-
                     <!-- Collections Grid -->
                     <ItemsControl ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}">
                         <ItemsControl.ItemsPanel>
@@ -269,12 +283,12 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Background="#E6D5B8" 
-                            Width="200" Height="150"
-                            Margin="10">
+                                        Width="200" Height="150"
+                                        Margin="10">
                                     <Image Source="{Binding CoverPicture}" 
-                               Stretch="Uniform" 
-                               HorizontalAlignment="Center" 
-                               VerticalAlignment="Center"/>
+                                          Stretch="Uniform" 
+                                          HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

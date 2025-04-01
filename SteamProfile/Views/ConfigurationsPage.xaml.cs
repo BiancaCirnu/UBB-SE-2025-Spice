@@ -30,7 +30,7 @@ namespace SteamProfile.Views
 
         private void ConfigurationsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            ViewModel = new ConfigurationsViewModel(this.Frame);
+            ViewModel = new ConfigurationsViewModel(this.Frame, App.UserService);
             this.DataContext = ViewModel;
         }
       
