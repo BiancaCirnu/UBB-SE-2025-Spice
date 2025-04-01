@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:SteamProfile.ViewModels"
     xmlns:controls="using:SteamProfile.Views.Controls"
+    xmlns:local="using:SteamProfile.Converters"
     mc:Ignorable="d"
     Background="#1A1A1A">
 
@@ -18,6 +19,9 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="8"/>
         </Style>
+        
+        <!-- Add the converter if it's missing -->
+        <local:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
     </Page.Resources>
 
     <Grid>
@@ -33,6 +37,11 @@
                 <RowDefinition Height="*"/> <!-- Achievements -->
             </Grid.RowDefinitions>
 
+            <!-- Add this Image for the background -->
+            <Image Source="{x:Bind ViewModel.EquippedBackgroundSource, Mode=OneWay}"
+                   Stretch="UniformToFill"
+                   Opacity="0.3"/>
+
             <!-- Profile Info Section -->
             <Grid Grid.Row="0">
                 <!-- Profile Picture and Basic Info -->
@@ -42,32 +51,41 @@
                         <RowDefinition Height="Auto"/> <!-- Username and Friends Row -->
                     </Grid.RowDefinitions>
 
-                    <!-- Profile Picture Row -->
-                    <StackPanel Grid.Row="0" 
-                              Orientation="Horizontal" 
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"
-                              Margin="0,20,0,10">
-                        <!-- Pet Feature -->
-                        <Grid Width="100" Height="100" Margin="0,0,20,0"
-                              VerticalAlignment="Center">
-                            <Image Source="{x:Bind ViewModel.EquippedPet, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
-                                   Width="100" Height="100"
-                                   Stretch="Uniform"/>
-                        </Grid>
-
-                        <!-- Profile Picture with Frame and Hat -->
-                        <Grid Width="150" Height="150">
-                            <!-- Frame would go here -->
-                            <PersonPicture Width="150" Height="150"/>
-                            <!-- Hat would be positioned at the top of the PersonPicture -->
-                            <Image Source="{x:Bind ViewModel.EquippedHat, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
-                                   Width="60" Height="60"
-                                   VerticalAlignment="Top"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,-20,0,0"/>
-                        </Grid>
-                    </StackPanel>
+                    <!-- Profile container with all features -->
+                    <Grid Grid.Row="0" Height="200" Width="200"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Margin="0,20,0,10">
+                        
+                        <!-- Profile picture in an ellipse -->
+                        <Ellipse Height="180" Width="180" VerticalAlignment="Center">
+                            <Ellipse.Fill>
+                                <ImageBrush Stretch="UniformToFill" 
+                                            ImageSource="ms-appx:///Assets/default-profile.png"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        
+                        <!-- Frame around profile picture -->
+                        <Image Source="{x:Bind ViewModel.EquippedFrameSource, Mode=OneWay}"
+                               Stretch="Uniform"
+                               HorizontalAlignment="Center"/>
+                        
+                        <!-- Hat positioned at the top -->
+                        <Image Source="{x:Bind ViewModel.EquippedHatSource, Mode=OneWay}"
+                               Height="100" 
+                               Width="100"
+                               VerticalAlignment="Top"
+                               HorizontalAlignment="Center"
+                               Margin="0,-30,0,0"/>
+                        
+                        <!-- Pet positioned at bottom right -->
+                        <Image Source="{x:Bind ViewModel.EquippedPetSource, Mode=OneWay}"
+                               Height="100" 
+                               Width="100"
+                               VerticalAlignment="Bottom"
+                               HorizontalAlignment="Right"
+                               Margin="0,0,-30,-30"/>
+                    </Grid>
 
                     <!-- Username and Friends Row -->
                     <StackPanel Grid.Row="1" 
@@ -81,11 +99,13 @@
                             <TextBlock Text="{x:Bind ViewModel.Username, Mode=OneWay}"
                                      Foreground="White"
                                      FontSize="24"/>
-                            <Image Source="{x:Bind ViewModel.EquippedEmoji, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
-                                   Width="30" Height="30"/>
+                            <Image Source="{x:Bind ViewModel.EquippedEmojiSource, Mode=OneWay}"
+                                   Width="32" 
+                                   Height="32"
+                                   VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <!-- Friends Count -->
+                        <!-- Friends Count Button -->
                         <Button Style="{StaticResource TransparentButton}"
                                 Padding="0"
                                 Command="{x:Bind ViewModel.ShowFriendsCommand, Mode=OneWay}"

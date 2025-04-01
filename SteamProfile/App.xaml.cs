@@ -61,14 +61,12 @@ namespace SteamProfile
             CollectionsService = new CollectionsService(collectionsRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
             SessionService = new SessionService(sessionRepository);
-            UserService = new UserService(usersRepository, SessionService);  
-            WalletService = new WalletService(walletRepository, UserService);
             UserService = new UserService(usersRepository, SessionService);
+            WalletService = new WalletService(walletRepository, UserService);
             FriendsService = new FriendsService(friendshipsRepository, UserService);
             OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
-            FeaturesService = new FeaturesService(featuresRepository, UserService);
 
         }
 

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using SteamProfile.Views;
 using Microsoft.UI.Xaml;
 using SteamProfile.Repositories;
+using System.Collections.Generic;
 
 namespace SteamProfile.ViewModels
 {
@@ -22,6 +23,7 @@ namespace SteamProfile.ViewModels
         private readonly FriendsService _friendsService;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly UserProfilesRepository _userProfileRepository;
+        private readonly FeaturesService _featuresService;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -84,17 +86,23 @@ namespace SteamProfile.ViewModels
         private bool _hasSpecialAchievement;
 
         [ObservableProperty]
-        private string _equippedFrame = string.Empty;
+        private string _equippedFrameSource = string.Empty;
 
         [ObservableProperty]
-        private string _equippedHat = string.Empty;
+        private string _equippedHatSource = string.Empty;
 
         [ObservableProperty]
-        private string _equippedPet = "ms-appx:///Assets/100_achievement.jpeg"; // Using the dog image for now
+        private string _equippedPetSource = string.Empty;
 
         [ObservableProperty]
-        private string _equippedEmoji = string.Empty;
+        private string _equippedEmojiSource = string.Empty;
+
+        [ObservableProperty]
+        private string _equippedBackgroundSource = string.Empty;
+
         private static CollectionsRepository _collectionsRepository;
+
+        public static bool IsInitialized => _instance != null;
 
         public static ProfileViewModel Instance
         {
@@ -113,13 +121,14 @@ namespace SteamProfile.ViewModels
             FriendsService friendsService, 
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
-            CollectionsRepository collectionsRepository)
+            CollectionsRepository collectionsRepository,
+            FeaturesService featuresService)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository, featuresService);
         }
 
         public ProfileViewModel(
@@ -127,42 +136,123 @@ namespace SteamProfile.ViewModels
             FriendsService friendsService, 
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
-            CollectionsRepository collectionsRepository)
+            CollectionsRepository collectionsRepository,
+            FeaturesService featuresService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
             _userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
             _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
+            _featuresService = featuresService ?? throw new ArgumentNullException(nameof(featuresService));
+            
+            // Register for feature equipped/unequipped events
+            FeaturesViewModel.FeatureEquipStatusChanged += async (sender, userId) => 
+            {
+                // Only refresh if it's the current user's profile being displayed
+                if (userId == UserId)
+                {
+                    await RefreshEquippedFeaturesAsync();
+                }
+            };
         }
 
         public async Task LoadProfileAsync(int user_id)
         {
             try
             {
-                
                 await _dispatcherQueue.EnqueueAsync(() => IsLoading = true);
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
-                // Load both user and profile data on a background thread
-                var currentUser = await Task.Run(() => _userService.GetUserById(user_id));
-                var userProfile = await Task.Run(() => 
-                    _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
+                Debug.WriteLine($"Loading profile for user {user_id}");
 
+                // Added safety check for invalid user ID
+                if (user_id <= 0)
+                {
+                    Debug.WriteLine($"Invalid user ID: {user_id}");
+                    await _dispatcherQueue.EnqueueAsync(() => 
+                    {
+                        ErrorMessage = "Invalid user ID provided.";
+                        IsLoading = false;
+                    });
+                    return;
+                }
+                
+                // Load user first, with careful error handling
+                User currentUser = null;
+                try
+                {
+                    // Instead of using Task.Run, try direct call to reduce complexity
+                    currentUser = _userService.GetUserById(user_id);
+                    
+                    if (currentUser == null)
+                    {
+                        Debug.WriteLine($"User with ID {user_id} not found");
+                        await _dispatcherQueue.EnqueueAsync(() => 
+                        {
+                            ErrorMessage = "User not found.";
+                            IsLoading = false;
+                        });
+                        return;
+                    }
+                    
+                    Debug.WriteLine($"Retrieved user: {currentUser.Username}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error getting user: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    }
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
                 await _dispatcherQueue.EnqueueAsync(() =>
-                {
-                    if (currentUser != null)
                     {
-                        if (user_id == _userService.GetCurrentUser().UserId)
-                            IsOwner = true;
-                        else IsOwner = false;
+                        ErrorMessage = "Failed to load user data.";
+                        IsLoading = false;
+                    });
+                    return;
+                }
 
-                        // Basic user info from Users table
+                // Continue with rest of the method only if we successfully got a user
+                try
+                {
+                    // Get user profile (optional - can proceed without)
+                    UserProfile userProfile = null;
+                    try
+                    {
+                        userProfile = _userProfileRepository.GetUserProfileByUserId(currentUser.UserId);
+                        Debug.WriteLine($"Retrieved profile ID: {userProfile?.ProfileId.ToString() ?? "null"}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error getting user profile: {ex.Message}");
+                        // Continue without profile info
+                    }
+
+                    // Get equipped features (safer direct call instead of Task.Run)
+                    List<Feature> equippedFeatures = new List<Feature>();
+                    try
+                    {
+                        equippedFeatures = _featuresService.GetUserEquippedFeatures(currentUser.UserId);
+                        Debug.WriteLine($"Retrieved {equippedFeatures.Count} equipped features");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error getting equipped features: {ex.Message}");
+                        // Continue with empty features list
+                    }
+
+                    // Update UI with retrieved data
+                    await _dispatcherQueue.EnqueueAsync(() =>
+                    {
+                        if (currentUser != null)
+                        {
+                            IsOwner = user_id == _userService.GetCurrentUser().UserId;
                         UserId = currentUser.UserId;
-                        Username = currentUser.Username;
-
-                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner}");
+                            Username = currentUser.Username ?? string.Empty;
+                            Debug.WriteLine($"Current user {Username}; isOwner = {IsOwner}");
 
                         // Profile info from UserProfiles table
                         if (userProfile != null)
@@ -171,13 +261,21 @@ namespace SteamProfile.ViewModels
                             ProfilePicture = userProfile.ProfilePicture ?? string.Empty;
                         }
 
-                        // Set IsOwner based on the parameter
-                        //IsOwner = isOwner;
+                            // Process equipped features
+                            ProcessEquippedFeatures(equippedFeatures);
 
                         // Load friend count
+                            try
+                            {
                         FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error getting friend count: {ex.Message}");
+                                FriendCount = 0;
+                            }
 
-                        // Set some test achievement values
+                            // Set achievement values
                         HasGameplayAchievement = true;
                         HasCollectionAchievement = false;
                         HasSocialAchievement = true;
@@ -187,59 +285,170 @@ namespace SteamProfile.ViewModels
                         HasEventAchievement = true;
                         HasSpecialAchievement = false;
 
-                        // TODO: Load these from their respective services
+                            // Default values
                         Money = 0;
                         Points = 0;
                         CoverPhoto = "default_cover.png";
 
-
-                        // Get the last three collections
+                            // Load collections
+                            try
+                            {
                         var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
                         Collections.Clear();
-
-                        
-                       
                         foreach (var collection in lastThreeCollections)
                         {
                             Collections.Add(collection);
                         }
-
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error loading collections: {ex.Message}");
+                            }
                     }
                     IsLoading = false;
                 });
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error loading profile: {ex.Message}");
+                    Debug.WriteLine($"Error in profile loading process: {ex.Message}");
                 if (ex.InnerException != null)
                 {
                     Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
                 }
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
                     ErrorMessage = "Failed to load profile data. Please try again later.";
                     IsLoading = false;
                 });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Critical error in LoadProfileAsync: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
-        //private async Task LoadFriendCountAsync()
-        //{
-        //    try
-        //    {
-        //        var count = _friendsService.GetFriendshipCount(UserId);
-        //        await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Error loading friend count: {ex.Message}");
-        //        if (ex.InnerException != null)
-        //        {
-        //            Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-        //        }
-        //    }
-        //}
+        private void ProcessEquippedFeatures(List<Feature> equippedFeatures)
+        {
+            try
+            {
+                // Reset all equipped features
+                EquippedFrameSource = string.Empty;
+                EquippedHatSource = string.Empty;
+                EquippedPetSource = string.Empty;
+                EquippedEmojiSource = string.Empty;
+                EquippedBackgroundSource = string.Empty;
+
+                Debug.WriteLine($"Processing {equippedFeatures?.Count ?? 0} equipped features");
+
+                // Process each equipped feature with better error handling
+                if (equippedFeatures != null)
+                {
+                    foreach (var feature in equippedFeatures)
+                    {
+                        if (feature == null)
+                        {
+                            Debug.WriteLine("Skipping null feature");
+                            continue;
+                        }
+                            
+                        Debug.WriteLine($"Processing feature: ID={feature.FeatureId}, Type={feature.Type}, Source={feature.Source}, Equipped={feature.Equipped}");
+                        
+                        if (feature.Equipped)
+                        {
+                            try
+                            {
+                                // Use ms-appx path format for images
+                                string source = feature.Source;
+                                if (string.IsNullOrEmpty(source))
+                                {
+                                    Debug.WriteLine($"Skipping feature {feature.FeatureId} with empty source");
+                                    continue;
+                                }
+                                    
+                                if (!source.StartsWith("ms-appx:///"))
+                                {
+                                    source = $"ms-appx:///{source}";
+                                }
+
+                                if (string.IsNullOrEmpty(feature.Type))
+                                {
+                                    Debug.WriteLine($"Skipping feature {feature.FeatureId} with empty type");
+                                    continue;
+                                }
+
+                                switch (feature.Type.ToLower())
+                                {
+                                    case "frame":
+                                        EquippedFrameSource = source;
+                                        Debug.WriteLine($"Set frame: {source}");
+                                        break;
+                                    case "hat":
+                                        EquippedHatSource = source;
+                                        Debug.WriteLine($"Set hat: {source}");
+                                        break;
+                                    case "pet":
+                                        EquippedPetSource = source;
+                                        Debug.WriteLine($"Set pet: {source}");
+                                        break;
+                                    case "emoji":
+                                        EquippedEmojiSource = source;
+                                        Debug.WriteLine($"Set emoji: {source}");
+                                        break;
+                                    case "background":
+                                        EquippedBackgroundSource = source;
+                                        Debug.WriteLine($"Set background: {source}");
+                                        break;
+                                    default:
+                                        Debug.WriteLine($"Unknown feature type: {feature.Type}");
+                                        break;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Error processing feature {feature.FeatureId}: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                
+                // Set default pet if none equipped
+                if (string.IsNullOrEmpty(EquippedPetSource))
+                {
+                    EquippedPetSource = "ms-appx:///Assets/100_achievement.jpeg";
+                    Debug.WriteLine("Using default pet image");
+                }
+
+                // For image display, ensure empty sources don't cause binding errors
+                if (string.IsNullOrEmpty(EquippedFrameSource))
+                    EquippedFrameSource = "ms-appx:///Assets/transparent.png";  // Create a 1x1 transparent PNG 
+                if (string.IsNullOrEmpty(EquippedHatSource))
+                    EquippedHatSource = "ms-appx:///Assets/transparent.png";
+                if (string.IsNullOrEmpty(EquippedEmojiSource))
+                    EquippedEmojiSource = "ms-appx:///Assets/transparent.png";
+                if (string.IsNullOrEmpty(EquippedBackgroundSource))
+                    EquippedBackgroundSource = "ms-appx:///Assets/transparent.png";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in ProcessEquippedFeatures: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Set defaults in case of error
+                EquippedPetSource = "ms-appx:///Assets/100_achievement.jpeg";
+            }
+        }
 
         [RelayCommand]
         private void Configuration()
@@ -279,6 +488,29 @@ namespace SteamProfile.ViewModels
         private void ShowFriends()
         {
             NavigationService.Instance.Navigate(typeof(Views.FriendsPage), UserId);
+        }
+
+        public async Task RefreshEquippedFeaturesAsync()
+        {
+            try
+            {
+                Debug.WriteLine($"Refreshing equipped features for user {UserId}");
+                
+                // Get the updated equipped features
+                var equippedFeatures = _featuresService.GetUserEquippedFeatures(UserId);
+                
+                // Process and update the UI
+                await _dispatcherQueue.EnqueueAsync(() =>
+                {
+                    ProcessEquippedFeatures(equippedFeatures);
+                });
+                
+                Debug.WriteLine("Equipped features refreshed successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error refreshing equipped features: {ex.Message}");
+            }
         }
     }
 
