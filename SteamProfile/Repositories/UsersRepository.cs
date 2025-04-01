@@ -236,8 +236,8 @@ namespace SteamProfile.Repositories
             return new User
             {
                 UserId = Convert.ToInt32(row["user_id"]),
-                Email = row["email"].ToString(),
                 Username = row["username"].ToString(),
+                Email = row["email"].ToString(),
                 IsDeveloper = row["developer"] != DBNull.Value ? Convert.ToBoolean(row["developer"]) : false,
                 CreatedAt = row["created_at"] != DBNull.Value ? Convert.ToDateTime(row["created_at"]) : DateTime.MinValue,
                 LastLogin = row["last_login"] != DBNull.Value ? row["last_login"] as DateTime? : null

@@ -1,4 +1,4 @@
-﻿CREATE PROCEDURE GetUserProfileByUserId
+﻿CREATE or alter PROCEDURE GetUserProfileByUserId
     @user_id INT
 AS
 BEGIN
