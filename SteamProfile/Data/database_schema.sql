@@ -699,8 +699,6 @@ INSERT INTO Features (name, value, description, type, source) VALUES
 INSERT INTO Features (name, value, description, type, source) VALUES
 ('Violet Background', 7, 'Violet Background', 'background', 'Assets/Features/Backgrounds/violet.jpg');
 
-END
-
 select * from Wallet
 
 -------- WALLET PROCEDURES-------------
@@ -811,3 +809,378 @@ exec createWallet @user_id = 10;
 exec createWallet @user_id = 11;
 
 select * from Wallet
+
+
+
+
+
+USE [profile]
+GO
+/****** Object:  Table [dbo].[UserProfiles]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserProfiles](
+	[profile_id] [int] IDENTITY(1,1) NOT NULL,
+	[user_id] [int] NOT NULL,
+	[profile_picture] [nvarchar](255) NULL,
+	[bio] [nvarchar](1000) NULL,
+	[equipped_frame] [nvarchar](255) NULL,
+	[equipped_hat] [nvarchar](255) NULL,
+	[equipped_pet] [nvarchar](255) NULL,
+	[equipped_emoji] [nvarchar](255) NULL,
+	[last_modified] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[profile_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[user_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Users]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Users](
+	[user_id] [int] IDENTITY(1,1) NOT NULL,
+	[username] [nvarchar](50) NOT NULL,
+	[email] [nvarchar](100) NOT NULL,
+	[hashed_password] [nvarchar](255) NOT NULL,
+	[developer] [bit] NOT NULL,
+	[created_at] [datetime] NOT NULL,
+	[last_login] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[user_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[email] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[username] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserSessions]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserSessions](
+	[session_id] [uniqueidentifier] NOT NULL,
+	[user_id] [int] NOT NULL,
+	[created_at] [datetime] NOT NULL,
+	[expires_at] [datetime] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[session_id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[UserProfiles] ADD  DEFAULT (getdate()) FOR [last_modified]
+GO
+ALTER TABLE [dbo].[Users] ADD  DEFAULT ((0)) FOR [developer]
+GO
+ALTER TABLE [dbo].[Users] ADD  DEFAULT (getdate()) FOR [created_at]
+GO
+ALTER TABLE [dbo].[UserSessions] ADD  DEFAULT (getdate()) FOR [created_at]
+GO
+ALTER TABLE [dbo].[UserProfiles]  WITH CHECK ADD FOREIGN KEY([user_id])
+REFERENCES [dbo].[Users] ([user_id])
+GO
+ALTER TABLE [dbo].[UserSessions]  WITH CHECK ADD FOREIGN KEY([user_id])
+REFERENCES [dbo].[Users] ([user_id])
+GO
+ALTER TABLE [dbo].[UserProfiles]  WITH CHECK ADD CHECK  (([profile_picture] like '%.svg' OR [profile_picture] like '%.png' OR [profile_picture] like '%.jpg'))
+GO
+/****** Object:  StoredProcedure [dbo].[CreateSession]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[CreateSession]
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Delete any existing sessions for this user
+    DELETE FROM UserSessions WHERE user_id = @user_id;
+
+    -- Create new session with 2-hour expiration
+    INSERT INTO UserSessions (user_id, session_id, created_at, expires_at)
+    VALUES (
+        @user_id,
+        NEWID(),
+        GETDATE(),
+        DATEADD(HOUR, 2, GETDATE())
+    );
+
+    -- Return the session details
+    SELECT 
+        us.session_id,
+        us.created_at,
+        us.expires_at,
+        u.user_id,
+        u.username,
+        u.email,
+        u.developer,
+        u.created_at as user_created_at,
+        u.last_login
+    FROM UserSessions us
+    JOIN Users u ON us.user_id = u.user_id
+    WHERE us.user_id = @user_id;
+END; 
+GO
+/****** Object:  StoredProcedure [dbo].[CreateUser]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[CreateUser]
+    @username NVARCHAR(50),
+    @email NVARCHAR(100),
+    @hashed_password NVARCHAR(255),
+    @developer BIT
+AS
+BEGIN
+    INSERT INTO Users (username, email, hashed_password, developer)
+    VALUES (@username, @email, @hashed_password, @developer);
+
+    SELECT 
+        user_id,
+        username,
+        email,
+        hashed_password,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = SCOPE_IDENTITY();
+END;
+GO
+/****** Object:  StoredProcedure [dbo].[CreateUserProfile]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE   PROCEDURE [dbo].[CreateUserProfile]
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO UserProfiles (user_id)
+    VALUES (@user_id);
+
+    SELECT 
+        profile_id,
+        user_id,
+        profile_picture,
+        bio,
+        equipped_frame,
+        equipped_hat,
+        equipped_pet,
+        equipped_emoji,
+        last_modified
+    FROM UserProfiles
+    WHERE profile_id = SCOPE_IDENTITY();
+END;
+
+GO
+/****** Object:  StoredProcedure [dbo].[DeleteSession]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[DeleteSession]
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM UserSessions WHERE session_id = @session_id;
+END; 
+GO
+/****** Object:  StoredProcedure [dbo].[GetAllUsers]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetAllUsers]
+AS
+BEGIN
+    SELECT 
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    ORDER BY username;
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[GetSessionById]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetSessionById]
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT session_id, user_id, created_at, expires_at
+    FROM UserSessions
+    WHERE session_id = @session_id;
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[GetUserByEmail]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetUserByEmail]
+    @email NVARCHAR(255)
+AS
+BEGIN
+    SELECT * FROM Users
+    WHERE email = @email
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GetUserByEmailOrUsername]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetUserByEmailOrUsername]
+    @EmailOrUsername NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT user_id, username, email, hashed_password, developer, created_at, last_login
+    FROM Users
+    WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[GetUserById]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetUserById]
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @user_id;
+END 
+GO
+/****** Object:  StoredProcedure [dbo].[GetUserFromSession]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetUserFromSession]
+    @session_id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check if session exists and is not expired
+    IF EXISTS (
+        SELECT 1 
+        FROM UserSessions 
+        WHERE session_id = @session_id 
+        AND expires_at > GETDATE()
+    )
+    BEGIN
+        -- Return user details
+        SELECT 
+            u.user_id,
+            u.username,
+            u.email,
+            u.developer,
+            u.created_at,
+            u.last_login
+        FROM UserSessions us
+        JOIN Users u ON us.user_id = u.user_id
+        WHERE us.session_id = @session_id;
+    END
+    ELSE
+    BEGIN
+        -- If session is expired or doesn't exist, delete it
+        DELETE FROM UserSessions WHERE session_id = @session_id;
+    END
+END; 
+GO
+/****** Object:  StoredProcedure [dbo].[GetUserProfileByUserId]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetUserProfileByUserId]
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        profile_id,
+        user_id,
+        profile_picture,
+        bio,
+        equipped_frame,
+        equipped_hat,
+        equipped_pet,
+        equipped_emoji,
+        last_modified
+    FROM UserProfiles
+    WHERE user_id = @user_id;
+END; 
+
+GO
+/****** Object:  StoredProcedure [dbo].[UpdateLastLogin]    Script Date: 01.04.2025 12:18:10 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[UpdateLastLogin]
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Users
+    SET last_login = GETDATE()
+    WHERE user_id = @user_id;
+
+    SELECT 
+        user_id,
+        username,
+        email,
+        developer,
+        created_at,
+        last_login
+    FROM Users
+    WHERE user_id = @user_id;
+END 
+GO
