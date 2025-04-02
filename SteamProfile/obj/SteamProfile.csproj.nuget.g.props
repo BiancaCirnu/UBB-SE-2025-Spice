@@ -5,12 +5,12 @@
     <RestoreTool Condition=" '$(RestoreTool)' == '' ">NuGet</RestoreTool>
     <ProjectAssetsFile Condition=" '$(ProjectAssetsFile)' == '' ">$(MSBuildThisFileDirectory)project.assets.json</ProjectAssetsFile>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(UserProfile)\.nuget\packages\</NuGetPackageRoot>
-    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\Bianca\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages</NuGetPackageFolders>
+    <NuGetPackageFolders Condition=" '$(NuGetPackageFolders)' == '' ">C:\Users\eciobanu\.nuget\packages\;C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages</NuGetPackageFolders>
     <NuGetProjectStyle Condition=" '$(NuGetProjectStyle)' == '' ">PackageReference</NuGetProjectStyle>
     <NuGetToolVersion Condition=" '$(NuGetToolVersion)' == '' ">6.13.2</NuGetToolVersion>
   </PropertyGroup>
   <ItemGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <SourceRoot Include="C:\Users\Bianca\.nuget\packages\" />
+    <SourceRoot Include="C:\Users\eciobanu\.nuget\packages\" />
     <SourceRoot Include="C:\Program Files (x86)\Microsoft Visual Studio\Shared\NuGetPackages\" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
@@ -18,13 +18,13 @@
     <Import Project="$(NuGetPackageRoot)microsoft.windowsappsdk\1.4.231219000\buildTransitive\Microsoft.WindowsAppSDK.props" Condition="Exists('$(NuGetPackageRoot)microsoft.windowsappsdk\1.4.231219000\buildTransitive\Microsoft.WindowsAppSDK.props')" />
   </ImportGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
-    <PkgMicrosoft_WindowsAppSDK Condition=" '$(PkgMicrosoft_WindowsAppSDK)' == '' ">C:\Users\Bianca\.nuget\packages\microsoft.windowsappsdk\1.4.231219000</PkgMicrosoft_WindowsAppSDK>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Primitives Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Primitives)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.primitives\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Primitives>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Media Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Media)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.media\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Media>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Core Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Core)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.core\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Core>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Markdown Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Markdown)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.markdown\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Markdown>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Layout Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Layout)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.layout\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Layout>
-    <PkgCommunityToolkit_WinUI_UI_Controls_Input Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Input)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.input\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Input>
-    <PkgCommunityToolkit_WinUI_UI_Controls_DataGrid Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_DataGrid)' == '' ">C:\Users\Bianca\.nuget\packages\communitytoolkit.winui.ui.controls.datagrid\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_DataGrid>
+    <PkgMicrosoft_WindowsAppSDK Condition=" '$(PkgMicrosoft_WindowsAppSDK)' == '' ">C:\Users\eciobanu\.nuget\packages\microsoft.windowsappsdk\1.4.231219000</PkgMicrosoft_WindowsAppSDK>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Primitives Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Primitives)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.primitives\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Primitives>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Media Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Media)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.media\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Media>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Core Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Core)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.core\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Core>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Markdown Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Markdown)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.markdown\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Markdown>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Layout Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Layout)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.layout\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Layout>
+    <PkgCommunityToolkit_WinUI_UI_Controls_Input Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_Input)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.input\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_Input>
+    <PkgCommunityToolkit_WinUI_UI_Controls_DataGrid Condition=" '$(PkgCommunityToolkit_WinUI_UI_Controls_DataGrid)' == '' ">C:\Users\eciobanu\.nuget\packages\communitytoolkit.winui.ui.controls.datagrid\7.1.2</PkgCommunityToolkit_WinUI_UI_Controls_DataGrid>
   </PropertyGroup>
 </Project>

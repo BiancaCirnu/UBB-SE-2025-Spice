@@ -146,43 +146,79 @@
                 </Grid>
 
                 <!-- Achievement Icons Grid -->
-                <Grid Grid.Row="1">
+                <Grid Grid.Row="1" Margin="0,10">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="60"/>
-                        <RowDefinition Height="60"/>
-                        <RowDefinition Height="60"/>
-                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Achievement Icons -->
-                    <Grid Grid.Row="0" Grid.Column="0" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasGameplayAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="0" Grid.Column="1" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCollectionAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="1" Grid.Column="0" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasSocialAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="1" Grid.Column="1" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasMarketAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="2" Grid.Column="0" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCustomizationAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="2" Grid.Column="1" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasCommunityAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="3" Grid.Column="0" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasEventAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
-                    <Grid Grid.Row="3" Grid.Column="1" Margin="5">
-                        <Image Source="ms-appx:///Assets/100_achievement.jpeg" Stretch="Uniform" Opacity="{x:Bind ViewModel.HasSpecialAchievement, Mode=OneWay, Converter={StaticResource BoolToOpacityConverter}}"/>
-                    </Grid>
+                    <!-- Friendships Achievement -->
+                    <StackPanel Grid.Row="0" Grid.Column="0" 
+                                Margin="5" HorizontalAlignment="Center">
+                        <Border Width="80" Height="80" 
+                                Background="#2D2D2D" 
+                                CornerRadius="5">
+                            <Image Source="{x:Bind ViewModel.FriendshipsAchievement.Achievement.Icon, Mode=OneWay}" 
+                                   Opacity="{x:Bind ViewModel.FriendshipsAchievement.Opacity, Mode=OneWay}"/>
+                        </Border>
+                        <TextBlock Text="{x:Bind ViewModel.FriendshipsAchievement.Achievement.AchievementName, Mode=OneWay}" 
+                                  Foreground="White" 
+                                  TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <!-- Owned Games Achievement -->
+                    <StackPanel Grid.Row="0" Grid.Column="1" 
+                                Margin="5" HorizontalAlignment="Center">
+                        <Border Width="80" Height="80" 
+                                Background="#2D2D2D" 
+                                CornerRadius="5">
+                            <Image Source="{x:Bind ViewModel.OwnedGamesAchievement.Achievement.Icon, Mode=OneWay}" 
+                                   Opacity="{x:Bind ViewModel.OwnedGamesAchievement.Opacity, Mode=OneWay}"/>
+                        </Border>
+                        <TextBlock Text="{x:Bind ViewModel.OwnedGamesAchievement.Achievement.AchievementName, Mode=OneWay}" 
+                                  Foreground="White" 
+                                  TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <!-- Sold Games Achievement -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" 
+                                Margin="5" HorizontalAlignment="Center">
+                        <Border Width="80" Height="80" 
+                                Background="#2D2D2D" 
+                                CornerRadius="5">
+                            <Image Source="{x:Bind ViewModel.SoldGamesAchievement.Achievement.Icon, Mode=OneWay}" 
+                                   Opacity="{x:Bind ViewModel.SoldGamesAchievement.Opacity, Mode=OneWay}"/>
+                        </Border>
+                        <TextBlock Text="{x:Bind ViewModel.SoldGamesAchievement.Achievement.AchievementName, Mode=OneWay}" 
+                                  Foreground="White" 
+                                  TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <!-- Number of Reviews Achievement -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" 
+                                Margin="5" HorizontalAlignment="Center">
+                        <Border Width="80" Height="80" 
+                                Background="#2D2D2D" 
+                                CornerRadius="5">
+                            <Image Source="{x:Bind ViewModel.NumberOfReviewsAchievement.Achievement.Icon, Mode=OneWay}" 
+                                   Opacity="{x:Bind ViewModel.NumberOfReviewsAchievement.Opacity, Mode=OneWay}"/>
+                        </Border>
+                        <TextBlock Text="{x:Bind ViewModel.NumberOfReviewsAchievement.Achievement.AchievementName, Mode=OneWay}" 
+                                  Foreground="White" 
+                                  TextAlignment="Center"
+                                  TextWrapping="Wrap"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
                 </Grid>
             </Grid>
         </Grid>
@@ -293,7 +329,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-        </StackPanel>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

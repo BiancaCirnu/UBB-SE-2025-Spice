@@ -46,6 +46,7 @@ namespace SteamProfile
             var achievementsRepository = new AchievementsRepository(dataLink);
             var featuresRepository = new FeaturesRepository(dataLink);
             var usersRepository = new UsersRepository(dataLink);
+            var userProfilesRepository = new UserProfilesRepository(dataLink);
             var collectionsRepository = new CollectionsRepository(dataLink);
             var walletRepository = new WalletRepository(dataLink);
             var friendshipsRepository = new FriendshipsRepository(dataLink);

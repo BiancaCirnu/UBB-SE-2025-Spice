@@ -16,4 +16,4 @@ namespace SteamProfile.Models
         public string? EquippedEmoji { get; set; }
         public DateTime LastModified { get; set; }
     }
-}
+} 
