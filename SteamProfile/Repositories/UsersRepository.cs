@@ -113,7 +113,7 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@user_id", userId)
                 };
 
-                _dataLink.ExecuteNonQuery("DeleteWallet", parameters);
+                //_dataLink.ExecuteNonQuery("DeleteWallet", parameters);
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
                 // have to delete all their assigned data
