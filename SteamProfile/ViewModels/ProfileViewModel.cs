@@ -282,7 +282,7 @@ namespace SteamProfile.ViewModels
                         }
 
                             // Process equipped features
-                            ProcessEquippedFeatures(equippedFeatures);
+                          ProcessEquippedFeatures(equippedFeatures);
 
                         // Load friend count
                             try

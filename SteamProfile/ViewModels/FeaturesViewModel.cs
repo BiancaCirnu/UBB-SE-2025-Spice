@@ -14,6 +14,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using CommunityToolkit.Mvvm.Input;
 using SteamProfile.Views;
+using System.Diagnostics;
+using Microsoft.UI.Xaml.Media.Imaging;
+using SteamProfile.Repositories;
 
 namespace SteamProfile.ViewModels
 {
@@ -64,6 +67,7 @@ namespace SteamProfile.ViewModels
     {
         private readonly FeaturesService _featuresService;
         private readonly UserService _userService;
+        private readonly UserProfilesRepository _userProfilesRepository;
         private string _statusMessage = string.Empty;
         private Brush _statusColor;
         private FeatureDisplay _selectedFeature;
@@ -116,6 +120,7 @@ namespace SteamProfile.ViewModels
         {
             _featuresService = featuresService;
             _userService = featuresService.UserService;
+            _userProfilesRepository = App.UserProfileRepository;
             _frame = frame;
             _statusColor = new SolidColorBrush(Colors.Black);
             ShowOptionsCommand = new RelayCommand<FeatureDisplay>(ShowOptions);
@@ -308,9 +313,42 @@ namespace SteamProfile.ViewModels
             var user = _userService.GetCurrentUser();
             var userFeatures = _featuresService.GetUserEquippedFeatures(user.UserId);
             
+            // Get the user profile to access bio and profile picture
+            var userProfile = _userProfilesRepository.GetUserProfileByUserId(user.UserId);
+            
             // Create control and apply current features
             var profileControl = new ProfileInfoControl();
             profileControl.ApplyUserFeatures(user, userFeatures);
+            
+            // Set user bio
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.Bio))
+            {
+                profileControl.Description = userProfile.Bio;
+            }
+            else
+            {
+                profileControl.Description = "No bio available";
+            }
+            
+            // Set profile picture if available
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.ProfilePicture))
+            {
+                string picturePath = userProfile.ProfilePicture;
+                if (!picturePath.StartsWith("ms-appx:///"))
+                {
+                    picturePath = $"ms-appx:///{picturePath}";
+                }
+                
+                try
+                {
+                    profileControl.ProfilePicture = new BitmapImage(new Uri(picturePath));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error loading profile picture: {ex.Message}");
+                    // Use default picture - already set in control
+                }
+            }
             
             // Create a temporary feature object to preview
             var previewFeature = new Feature
