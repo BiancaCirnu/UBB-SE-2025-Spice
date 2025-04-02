@@ -53,6 +53,50 @@ DROP PROCEDURE IF EXISTS GetUnlockedAchievements;
 DROP PROCEDURE IF EXISTS GetUnlockedDataForAchievement;
 DROP PROCEDURE IF EXISTS IsAchievementUnlocked;
 DROP PROCEDURE IF EXISTS RemoveAchievement;
+DROP PROCEDURE IF EXISTS dbo.AddFriend;
+DROP PROCEDURE IF EXISTS AddGameToCollection;
+DROP PROCEDURE IF EXISTS AddMoney;
+DROP PROCEDURE IF EXISTS BuyPoints;
+DROP PROCEDURE IF EXISTS BuyWithMoney;
+DROP PROCEDURE IF EXISTS BuyWithPoints;
+DROP PROCEDURE IF EXISTS CascadeDeleteUser;
+DROP PROCEDURE IF EXISTS ChangeEmailForUserId;
+DROP PROCEDURE IF EXISTS ChangePassword;
+DROP PROCEDURE IF EXISTS ChangeUsername;
+DROP PROCEDURE IF EXISTS CreateCollection;
+DROP PROCEDURE IF EXISTS CreateUser;
+DROP PROCEDURE IF EXISTS CreateUserProfile;
+DROP PROCEDURE IF EXISTS CreateWallet;
+DROP PROCEDURE IF EXISTS DeleteCollection;
+DROP PROCEDURE IF EXISTS DeleteFriendshipsForUser;
+DROP PROCEDURE IF EXISTS DeleteWallet;
+DROP PROCEDURE IF EXISTS GetAchievementId;
+DROP PROCEDURE IF EXISTS GetAllCollections;
+DROP PROCEDURE IF EXISTS GetAllCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetAllFriendships;
+DROP PROCEDURE IF EXISTS GetAllOwnedGames;
+DROP PROCEDURE IF EXISTS GetAllPointsOffers;
+DROP PROCEDURE IF EXISTS GetFriendsForUser;
+DROP PROCEDURE IF EXISTS GetFriendshipCountForUser;
+DROP PROCEDURE IF EXISTS GetGamesInCollection;
+DROP PROCEDURE IF EXISTS GetOwnedGameById;
+DROP PROCEDURE IF EXISTS GetPointsOfferByID;
+DROP PROCEDURE IF EXISTS GetPrivateCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetPublicCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetUserByEmail;
+DROP PROCEDURE IF EXISTS GetUserById;
+DROP PROCEDURE IF EXISTS GetUserByUsername;
+DROP PROCEDURE IF EXISTS GetUserProfileByUserId;
+DROP PROCEDURE IF EXISTS GetWalletById;
+DROP PROCEDURE IF EXISTS MakeCollectionPrivate;
+DROP PROCEDURE IF EXISTS MakeCollectionPublic;
+DROP PROCEDURE IF EXISTS RemoveFriend;
+DROP PROCEDURE IF EXISTS RemoveGameFromCollection;
+DROP PROCEDURE IF EXISTS UpdateCollection;
+DROP PROCEDURE IF EXISTS UpdateUserProfileBio;
+DROP PROCEDURE IF EXISTS UpdateUserProfilePicture;
+DROP PROCEDURE IF EXISTS WinPoints;
+
 
 ----------------------------- USERS --------------------------------
 CREATE TABLE Users (
@@ -89,10 +133,12 @@ BEGIN
 END;
 
 go
-CREATE PROCEDURE DeleteUser
+CREATE or alter PROCEDURE DeleteUser
     @user_id INT
 AS
 BEGIN
+
+	exec DeleteFriendshipsForUser @user_id =@user_id
     DELETE FROM Users
     WHERE user_id = @user_id;
 END 
@@ -247,14 +293,14 @@ create or alter procedure ChangeUsername @user_id int, @newUsername char(50) as
 begin
 	update Users set username = @newUsername where user_id=@user_id
 end
-
+go
 ----------------------------- USER SESSIONS --------------------------------
 CREATE TABLE UserSessions (
     session_id UNIQUEIDENTIFIER PRIMARY KEY,
     user_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),  
     expires_at DATETIME NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
 go
@@ -369,12 +415,12 @@ END
 
 go
 CREATE PROCEDURE LogoutUser
-    @session_id INT
+    @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     DELETE FROM UserSessions WHERE session_id = @session_id;
 END;
-
+go
 ----------------------------- USER PROFILES --------------------------------
 CREATE TABLE UserProfiles (
     profile_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -386,7 +432,7 @@ CREATE TABLE UserProfiles (
     equipped_pet NVARCHAR(255),
     equipped_emoji NVARCHAR(255),
     last_modified DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
 go
@@ -482,7 +528,7 @@ CREATE TABLE PasswordResetCodes (
     expiration_time DATETIME NOT NULL,
     used BIT DEFAULT 0,
 	email nvarchar(255),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
 go
@@ -729,6 +775,8 @@ CREATE TABLE Friendships (
     CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
 );
 
+
+go
 -- Add indexes for better query performance
 CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
 CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
@@ -743,6 +791,10 @@ BEGIN
     VALUES (@user_id, @friend_id);
 END
 GO 
+create or alter procedure DeleteFriendshipsForUser @user_id int as 
+begin
+	delete from Friendships where @user_id = user_id or @user_id = friend_id
+end
 
 go
 CREATE OR ALTER PROCEDURE GetFriendsForUser
@@ -799,7 +851,7 @@ BEGIN
     JOIN Users u2 ON f.friend_id = u2.user_id
     ORDER BY f.user_id, f.friend_id;
 END
-
+go
 ----------------------------- COLLECTIONS --------------------------------
 CREATE TABLE Collections (
     collection_id INT PRIMARY KEY identity(1,1),
@@ -808,7 +860,7 @@ CREATE TABLE Collections (
     cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
     is_public BIT DEFAULT 1,
     created_at DATE DEFAULT CAST(GETDATE() AS DATE),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
 
 GO
@@ -866,24 +918,22 @@ BEGIN
 END
 
 SELECT * FROM Collections;
-
 go
 CREATE OR ALTER PROCEDURE DeleteCollection
     @user_id INT,
     @collection_id INT
 AS
 BEGIN
-    -- Check if collection exists
-    IF NOT EXISTS (SELECT 1 FROM Collections WHERE collection_id = @collection_id)
-    BEGIN
-        RAISERROR('Collection not found', 16, 1)
-        RETURN
-    END
+    SET NOCOUNT ON;
 
-    -- Delete the collection
-    DELETE FROM Collections
-    WHERE collection_id = @collection_id AND user_id = @user_id;
+    -- Delete associated records first (avoid foreign key constraint errors)
+    DELETE FROM OwnedGames_Collection WHERE collection_id = @collection_id;
+
+    -- Now delete the collection
+    DELETE FROM Collections WHERE collection_id = @collection_id AND user_id = @user_id;
 END
+GO
+
 GO 
 
 go
@@ -1001,11 +1051,12 @@ CREATE TABLE OwnedGames_Collection (
     collection_id INT NOT NULL,
     game_id INT NOT NULL,
     PRIMARY KEY (collection_id, game_id),
-    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id),
+    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) 
 );
+GO
 
-go
+
 CREATE OR ALTER PROCEDURE GetAllOwnedGames
 AS
 BEGIN
@@ -1141,24 +1192,11 @@ CREATE OR ALTER PROCEDURE RemoveGameFromCollection
     @game_id INT
 AS
 BEGIN
-    -- Check if collection exists
-    IF NOT EXISTS (SELECT 1 FROM Collections WHERE collection_id = @collection_id)
-    BEGIN
-        RAISERROR('Collection not found', 16, 1)
-        RETURN
-    END
-
-    -- Check if game exists
-    IF NOT EXISTS (SELECT 1 FROM OwnedGames WHERE game_id = @game_id)
-    BEGIN
-        RAISERROR('Game not found', 16, 1)
-        RETURN
-    END
-
-    -- Remove game from collection
-    DELETE FROM OwnedGames_Collection
-    WHERE collection_id = @collection_id AND game_id = @game_id
+    SET NOCOUNT ON;
+    DELETE FROM OwnedGames_Collection WHERE collection_id = @collection_id AND game_id = @game_id;
 END
+GO
+
 GO 
 
 ----------------------------- FEATURES --------------------------------
@@ -1541,3 +1579,6 @@ values ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews'
 update Achievements 
 set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
 where achievement_id > 0
+
+
+select * from Users
