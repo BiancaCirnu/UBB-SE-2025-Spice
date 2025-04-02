@@ -466,12 +466,8 @@ CREATE TABLE UserProfiles (
     user_id INT NOT NULL UNIQUE,
     profile_picture NVARCHAR(255) CHECK (profile_picture LIKE '%.svg' OR profile_picture LIKE '%.png' OR profile_picture LIKE '%.jpg'),
     bio NVARCHAR(1000),
-    equipped_frame NVARCHAR(255),
-    equipped_hat NVARCHAR(255),
-    equipped_pet NVARCHAR(255),
-    equipped_emoji NVARCHAR(255),
     last_modified DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
 go
@@ -489,10 +485,6 @@ BEGIN
         user_id,
         profile_picture,
         bio,
-        equipped_frame,
-        equipped_hat,
-        equipped_pet,
-        equipped_emoji,
         last_modified
     FROM UserProfiles
     WHERE profile_id = SCOPE_IDENTITY();
@@ -510,10 +502,6 @@ BEGIN
         user_id,
         profile_picture,
         bio,
-        equipped_frame,
-        equipped_hat,
-        equipped_pet,
-        equipped_emoji,
         last_modified
     FROM UserProfiles
     WHERE user_id = @user_id;
@@ -537,10 +525,6 @@ BEGIN
     SET 
         profile_picture = @profile_picture,
         bio = @bio,
-        equipped_frame = @equipped_frame,
-        equipped_hat = @equipped_hat,
-        equipped_pet = @equipped_pet,
-        equipped_emoji = @equipped_emoji,
         last_modified = GETDATE()
     WHERE profile_id = @profile_id AND user_id = @user_id;
 
@@ -549,10 +533,6 @@ BEGIN
         user_id,
         profile_picture,
         bio,
-        equipped_frame,
-        equipped_hat,
-        equipped_pet,
-        equipped_emoji,
         last_modified
     FROM UserProfiles
     WHERE profile_id = @profile_id;
@@ -560,6 +540,7 @@ END;
 
 
 ----------------------------- PASSWORD RESET CODES --------------------------------
+go
 CREATE TABLE PasswordResetCodes (
     id INT IDENTITY(1,1) PRIMARY KEY,
     user_id INT NOT NULL,
@@ -1603,3 +1584,13 @@ set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
 where achievement_id > 0
 go
 
+
+select * from Users
+
+select * from Features;
+select * from Friendships;
+
+
+select * from wallet;
+
+select * from UserProfiles;
