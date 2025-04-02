@@ -117,6 +117,15 @@ namespace SteamProfile.ViewModels
 
         private static CollectionsRepository _collectionsRepository;
 
+        [ObservableProperty]
+        private bool _isFriend = false;
+
+        [ObservableProperty]
+        private string _friendButtonText = "Add Friend";
+
+        [ObservableProperty]
+        private string _friendButtonStyle = "AccentButtonStyle";
+
         public static bool IsInitialized => _instance != null;
 
         public static ProfileViewModel Instance
@@ -182,35 +191,35 @@ namespace SteamProfile.ViewModels
                 Debug.WriteLine($"Loading profile for user {user_id}");
 
                 // Added safety check for invalid user ID
+
                 if (user_id <= 0)
                 {
                     Debug.WriteLine($"Invalid user ID: {user_id}");
-                    await _dispatcherQueue.EnqueueAsync(() => 
+                    await _dispatcherQueue.EnqueueAsync(() =>
                     {
                         ErrorMessage = "Invalid user ID provided.";
                         IsLoading = false;
                     });
                     return;
                 }
-                
                 // Load user first, with careful error handling
                 User currentUser = null;
                 try
                 {
-                    // Instead of using Task.Run, try direct call to reduce complexity
-                    currentUser = _userService.GetUserById(user_id);
-                    
+                   // Instead of using Task.Run, try direct call to reduce complexity
+                   currentUser = _userService.GetUserById(user_id);
+
                     if (currentUser == null)
                     {
                         Debug.WriteLine($"User with ID {user_id} not found");
-                        await _dispatcherQueue.EnqueueAsync(() => 
+                        await _dispatcherQueue.EnqueueAsync(() =>
                         {
                             ErrorMessage = "User not found.";
                             IsLoading = false;
                         });
                         return;
                     }
-                    
+
                     Debug.WriteLine($"Retrieved user: {currentUser.Username}");
                 }
                 catch (Exception ex)
@@ -222,23 +231,22 @@ namespace SteamProfile.ViewModels
                     }
                     Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                await _dispatcherQueue.EnqueueAsync(() =>
+                    await _dispatcherQueue.EnqueueAsync(() =>
                     {
                         ErrorMessage = "Failed to load user data.";
                         IsLoading = false;
                     });
                     return;
                 }
-
                 // Continue with rest of the method only if we successfully got a user
+
                 try
                 {
-                    // Get user profile (optional - can proceed without)
                     UserProfile userProfile = null;
                     try
                     {
+                        // Get user profile (optional - can proceed without)
                         userProfile = _userProfileRepository.GetUserProfileByUserId(currentUser.UserId);
-
                         Debug.WriteLine($"Retrieved profile ID: {userProfile?.ProfileId.ToString() ?? "null"}");
                     }
                     catch (Exception ex)
@@ -247,7 +255,10 @@ namespace SteamProfile.ViewModels
                         // Continue without profile info
                     }
 
+                    var currentUserId = _userService.GetCurrentUser().UserId;
+                    var isFriend = await Task.Run(() => _friendsService.AreUsersFriends(currentUserId, user_id));
                     // Get equipped features (safer direct call instead of Task.Run)
+
                     List<Feature> equippedFeatures = new List<Feature>();
                     try
                     {
@@ -260,89 +271,92 @@ namespace SteamProfile.ViewModels
                         // Continue with empty features list
                     }
 
-                    // Update UI with retrieved data
                     await _dispatcherQueue.EnqueueAsync(() =>
                     {
                         if (currentUser != null)
                         {
-                            IsOwner = user_id == _userService.GetCurrentUser().UserId;
-                        UserId = currentUser.UserId;
+                            IsOwner = user_id == currentUserId;
+                            // Basic user info from Users table
+                            UserId = currentUser.UserId;
                             Username = currentUser.Username ?? string.Empty;
                             Debug.WriteLine($"Current user {Username}; isOwner = {IsOwner}");
+                            // Update friend status
+                            IsFriend = isFriend;
+                            FriendButtonText = isFriend ? "Unfriend" : "Add Friend";
+                            FriendButtonStyle = "AccentButtonStyle";
 
-                        // Profile info from UserProfiles table
-                        if (userProfile != null)
-                        {
-                            Bio = userProfile.Bio ?? string.Empty;
-                            // Add ms-appx:/// prefix if it's not already there
-                            ProfilePicture = userProfile.ProfilePicture != null 
-                                ? (userProfile.ProfilePicture.StartsWith("ms-appx:///") 
-                                    ? userProfile.ProfilePicture 
-                                    : $"ms-appx:///{userProfile.ProfilePicture}")  // !!!
-                                : "ms-appx:///Assets/default-profile.png";
-                        }
-
+                            Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner} ; isFriend = {IsFriend}");
+                            // Profile info from UserProfiles table
+                            if (userProfile != null)
+                            {
+                                Bio = userProfile.Bio ?? string.Empty;
+                                // Add ms-appx:/// prefix if it's not already there
+                                ProfilePicture = userProfile.ProfilePicture != null
+                                    ? (userProfile.ProfilePicture.StartsWith("ms-appx:///")
+                                        ? userProfile.ProfilePicture
+                                        : $"ms-appx:///{userProfile.ProfilePicture}")
+                                    : "ms-appx:///Assets/default-profile.png";
+                            }
                             // Process equipped features
-                          ProcessEquippedFeatures(equippedFeatures);
 
-                        // Load friend count
+                            ProcessEquippedFeatures(equippedFeatures);
+                            // Load friend count
+
                             try
                             {
-                        FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
+                                FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
                             }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"Error getting friend count: {ex.Message}");
                                 FriendCount = 0;
                             }
-
                             // Set achievement values
-                        HasGameplayAchievement = true;
-                        HasCollectionAchievement = false;
-                        HasSocialAchievement = true;
-                        HasMarketAchievement = false;
-                        HasCustomizationAchievement = true;
-                        HasCommunityAchievement = false;
-                        HasEventAchievement = true;
-                        HasSpecialAchievement = false;
 
+                            HasGameplayAchievement = true;
+                            HasCollectionAchievement = false;
+                            HasSocialAchievement = true;
+                            HasMarketAchievement = false;
+                            HasCustomizationAchievement = true;
+                            HasCommunityAchievement = false;
+                            HasEventAchievement = true;
+                            HasSpecialAchievement = false;
                             // Default values
-                        Money = 0;
-                        Points = 0;
-                        CoverPhoto = "default_cover.png";
+                            Money = 0;
+                            Points = 0;
+                            CoverPhoto = "default_cover.png";
 
-                            // Load collections
                             try
                             {
-                        var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
-                        Collections.Clear();
-                        foreach (var collection in lastThreeCollections)
-                        {
-                            Collections.Add(collection);
-                        }
+                                var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
+                                Collections.Clear();
+                                foreach (var collection in lastThreeCollections)
+                                {
+                                    Collections.Add(collection);
+                                }
                             }
                             catch (Exception ex)
                             {
                                 Debug.WriteLine($"Error loading collections: {ex.Message}");
                             }
-                    }
-                    IsLoading = false;
-                });
-            }
-            catch (Exception ex)
-            {
-                    Debug.WriteLine($"Error in profile loading process: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                        }
+                        IsLoading = false;
+                    });
                 }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error in profile loading process: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                    }
                     Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
-                await _dispatcherQueue.EnqueueAsync(() =>
-                {
-                    ErrorMessage = "Failed to load profile data. Please try again later.";
-                    IsLoading = false;
-                });
+                    await _dispatcherQueue.EnqueueAsync(() =>
+                    {
+                        ErrorMessage = "Failed to load profile data. Please try again later.";
+                        IsLoading = false;
+                    });
                 }
             }
             catch (Exception ex)
@@ -355,7 +369,6 @@ namespace SteamProfile.ViewModels
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
-
         private void ProcessEquippedFeatures(List<Feature> equippedFeatures)
         {
             try
@@ -473,6 +486,38 @@ namespace SteamProfile.ViewModels
                 EquippedPetSource = DEFAULT_IMAGE;
                 EquippedEmojiSource = DEFAULT_IMAGE;
                 EquippedBackgroundSource = DEFAULT_IMAGE;
+            }
+        }
+        [RelayCommand]
+        private async Task ToggleFriendship()
+        {
+            try
+            {
+                if (IsFriend)
+                {
+                    // Remove friend
+                    var friendshipId = await Task.Run(() => _friendsService.GetFriendshipId(_userService.GetCurrentUser().UserId, UserId));
+                    if (friendshipId.HasValue)
+                    {
+                        await Task.Run(() => _friendsService.RemoveFriend(friendshipId.Value));
+                        IsFriend = false;
+                        FriendButtonText = "Add Friend";
+                        FriendCount = _friendsService.GetFriendshipCount(UserId);
+                    }
+                }
+                else
+                {
+                    // Add friend
+                    await Task.Run(() => _friendsService.AddFriend(_userService.GetCurrentUser().UserId, UserId));
+                    IsFriend = true;
+                    FriendButtonText = "Unfriend";
+                    FriendCount = _friendsService.GetFriendshipCount(UserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error toggling friendship: {ex.Message}");
+                ErrorMessage = "Failed to update friendship status. Please try again later.";
             }
         }
 

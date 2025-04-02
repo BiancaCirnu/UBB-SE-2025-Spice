@@ -144,12 +144,6 @@
                          Height="50"
                          HorizontalAlignment="Center"
                          VerticalAlignment="Center"/>
-
-            <TextBlock Text="{Binding ErrorMessage}"
-                      Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"
-                      Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </Grid>
     </Grid>
 </Page>
