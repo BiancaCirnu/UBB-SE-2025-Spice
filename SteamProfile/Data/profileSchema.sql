@@ -1395,43 +1395,6 @@ BEGIN
 	END;
 END;
 
-go
-CREATE or Alter PROCEDURE GetAchievementId
-	@type NVARCHAR(50),
-	@count int
-AS
-BEGIN
-	IF @type = 'Friendships'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP4';
-		ELSE IF @count = 100 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP5';
-	END
-	ELSE IF @type = 'Owned Games'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES3';		
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES4';
-	END
-	ELSE IF @type = 'Sold Games'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES4';
-	END
-	ELSE IF @type = 'Number of Reviews'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW4';
-	END
-END
-
 
 go
 CREATE PROCEDURE GetAllAchievements
@@ -1455,13 +1418,24 @@ END;
 
 
 go
-CREATE PROCEDURE GetNumberOfReviews
+CREATE OR ALTER PROCEDURE GetNumberOfReviewsGiven
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT COUNT(*) AS NumberOfOwnedGames
-    FROM Reviews
+    FROM ReviewsGiven
+    WHERE user_id = @user_id;
+END;
+
+go
+CREATE OR ALTER PROCEDURE GetNumberOfReviewsReceived
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT COUNT(*) AS NumberOfOwnedGames
+    FROM ReviewsReceived
     WHERE user_id = @user_id;
 END;
 
@@ -1473,6 +1447,17 @@ BEGIN
     SET NOCOUNT ON;
     SELECT COUNT(*) AS NumberOfSoldGames
     FROM SoldGames
+    WHERE user_id = @user_id;
+END;
+
+go
+CREATE PROCEDURE GetNumberOfPosts
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT COUNT(*) AS NumberOfPosts
+    FROM Posts
     WHERE user_id = @user_id;
 END;
 
@@ -1574,3 +1559,77 @@ BEGIN
 	('POSTS4', 'You have made 50 posts, you get 10 points', 'Number of Posts', 10, 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png')
 	;
 END;
+
+----------------------------- SOLD GAMES (mock table, should check OwnedGames team) --------------------------------
+CREATE TABLE SoldGames (
+    sold_game_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    game_id INT,
+    sold_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+----------------------------- REVIEWS GIVEN(mock table, should check Community team) --------------------------------
+CREATE TABLE ReviewsGiven (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_text NVARCHAR(MAX),
+    review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+	);
+----------------------------- REVIEWS Received(mock table, should check Community team) --------------------------------
+CREATE TABLE ReviewsReceived (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_comment NVARCHAR(MAX),
+	review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+	);
+----------------------------- POSTS Received(mock table, should check Community team) --------------------------------
+CREATE TABLE Posts (
+	post_id INT PRIMARY KEY IDENTITY,
+	user_id INT NOT NULL,
+	post_title NVARCHAR(MAX),
+	post_content NVARCHAR(MAX),
+	FOREIGN KEY (user_id) REFERENCES Users(user_id)
+)
+
+go
+CREATE PROCEDURE GetUserCreatedAt
+    @user_id INT
+AS
+BEGIN
+    SELECT created_at
+    FROM Users
+    WHERE user_id = @user_id;
+END;
+
+
+CREATE OR ALTER PROCEDURE IsAchievementUnlocked
+    @user_id INT,
+    @achievement_id INT
+AS
+BEGIN
+    SELECT COUNT(1) as IsUnlocked
+    FROM UserAchievements
+    WHERE user_id = @user_id
+    AND achievement_id = @achievement_id;
+END;
+
+
+CREATE PROCEDURE IsUserDeveloper
+    @user_id INT
+AS
+BEGIN
+    SELECT developer
+    FROM Users
+    WHERE user_id = @user_id;
+END;
+
+
+CREATE PROCEDURE IsAchievementsTableEmpty
+AS
+BEGIN
+	SELECT COUNT(1) FROM Achievements
+END
+

@@ -22,6 +22,45 @@ namespace SteamProfile.Repositories
             _dataLink = datalink ?? throw new ArgumentNullException(nameof(datalink));
         }
 
+        public void InsertAchievements()
+        {
+            try
+            {
+                _dataLink.ExecuteNonQuery("InsertAchievements");
+                System.Diagnostics.Debug.WriteLine("InsertAchievements stored procedure executed successfully.");
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while inserting achievements.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while inserting achievements.", ex);
+            }
+        }
+
+        public bool IsAchievementsTableEmpty()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Executing SQL query to check if achievements table is empty...");
+                var result = _dataLink.ExecuteScalar<int>("IsAchievementsTableEmpty");
+                System.Diagnostics.Debug.WriteLine($"Number of achievements in table: {result}");
+                return result == 0;
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error while checking if achievements table is empty: {ex.Message}");
+                throw new RepositoryException("Database error while checking if achievements table is empty.", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error while checking if achievements table is empty: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while checking if achievements table is empty.", ex);
+            }
+        }
+
+
         public List<Achievement> GetAllAchievements()
         {
             try
@@ -311,6 +350,36 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public int GetYearsOfAcftivity(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@user_id", userId)
+                };
+
+                var createdAt = _dataLink.ExecuteScalar<DateTime>("GetUserCreatedAt", parameters);
+                var yearsOfActivity = DateTime.Now.Year - createdAt.Year;
+
+                // Adjust for the case where the user hasn't completed the current year
+                if (DateTime.Now.DayOfYear < createdAt.DayOfYear)
+                {
+                    yearsOfActivity--;
+                }
+
+                return yearsOfActivity;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving years of activity.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving years of activity.", ex);
+            }
+        }
+
         public int? GetAchievementIdByName(string achievementName)
         {
             try
@@ -335,6 +404,29 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
             }
         }
+
+        public bool IsUserDeveloper(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<bool>("IsUserDeveloper", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving developer status.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving developer status.", ex);
+            }
+        }
+
 
         private static List<Achievement> MapDataTableToAchievements(DataTable dataTable)
         {
