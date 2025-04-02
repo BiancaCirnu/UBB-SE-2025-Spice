@@ -135,13 +135,5 @@ namespace SteamProfile.ViewModels
             public ServiceException(string message, Exception innerException)
                 : base(message, innerException) { }
         }
-
-        [RelayCommand]
-        private void BackToProfile()
-        {
-           
-            // Navigate back to the Profile page
-            NavigationService.Instance.Navigate(typeof(ProfilePage),_userService.GetCurrentUser().UserId);
-        }
     }
 }

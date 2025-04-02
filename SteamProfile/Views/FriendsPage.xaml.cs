@@ -14,6 +14,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using System.Diagnostics;
+using SteamProfile.Services;
 
 namespace SteamProfile.Views
 {
@@ -45,6 +46,11 @@ namespace SteamProfile.Views
             {
                 Frame.Navigate(typeof(ProfilePage), friendId);
             }
+        }
+
+        private void BackToProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            Frame.Navigate(typeof(ProfilePage), App.UserService.GetCurrentUser().UserId);
         }
     }
 }

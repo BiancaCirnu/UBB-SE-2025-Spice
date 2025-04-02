@@ -660,11 +660,13 @@ CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
 INSERT INTO Friendships (user_id, friend_id)
 VALUES 
     (1, 2),
-    (1, 3),
-    (1, 4),
-    (1, 5);
+    (2, 1);
+
+-- Verify the friendships data
+SELECT * FROM Friendships ORDER BY user_id, friend_id;
 
 GO
+
 
 CREATE OR ALTER PROCEDURE GetAllFriendships
 AS

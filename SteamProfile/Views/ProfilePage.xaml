@@ -76,17 +76,30 @@
                     <!-- Username and Friends Row -->
                     <StackPanel Grid.Row="1" 
                               HorizontalAlignment="Center"
-                              Spacing="10"
+                              Spacing="5"
                               Margin="0,0,0,20">
-                        <!-- Username with Emoji -->
+                        <!-- Username with Emoji and Unfriend Button -->
                         <StackPanel Orientation="Horizontal" 
                                   HorizontalAlignment="Center"
                                   Spacing="10">
-                            <TextBlock Text="{x:Bind ViewModel.Username, Mode=OneWay}"
-                                     Foreground="White"
-                                     FontSize="24"/>
-                            <Image Source="{x:Bind ViewModel.EquippedEmoji, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
-                                   Width="30" Height="30"/>
+                            <!-- Unfriend Button -->
+                            <Button Content="Unfriend"
+                                    Click="UnfriendButton_Click"
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    MinWidth="120"
+                                    VerticalAlignment="Center"
+                                    Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+
+                            <!-- Username and Emoji -->
+                            <StackPanel Orientation="Horizontal" 
+                                      HorizontalAlignment="Center"
+                                      Spacing="10">
+                                <TextBlock Text="{x:Bind ViewModel.Username, Mode=OneWay}"
+                                         Foreground="White"
+                                         FontSize="24"/>
+                                <Image Source="{x:Bind ViewModel.EquippedEmoji, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
+                                       Width="30" Height="30"/>
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- Friends Count -->
@@ -106,7 +119,6 @@
                                 </StackPanel>
                             </Border>
                         </Button>
-
                     </StackPanel>
                 </Grid>
 
@@ -198,7 +210,7 @@
 
             <!-- Back Button -->
             <Button Grid.Row="0"
-                    Content="Go Back to Profile Page"
+                    Content="Go Back to Your Profile"
                     Command="{x:Bind ViewModel.BackToProfileCommand}"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
@@ -210,42 +222,12 @@
                       Orientation="Horizontal" 
                       HorizontalAlignment="Right"
                       Margin="0,20,20,20">
-                <!-- Money display -->
-                <Button Style="{StaticResource TransparentButton}"
-                        Margin="0,0,10,0"
-                        Padding="0"
-                        Command="{x:Bind ViewModel.ShowMoneyCommand}"
-                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
-                    <Border Background="#E6D5B8" 
-                            Padding="15,5" 
-                            CornerRadius="5">
-                        <TextBlock Text="Money" 
-                                 FontSize="14"/>
-                    </Border>
-                </Button>
-
-                <!-- Points display -->
-                <Button Style="{StaticResource TransparentButton}"
-                        Margin="0,0,10,0"
-                        Padding="0"
-                        Command="{x:Bind ViewModel.ShowPointsCommand}"
-                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
-                    <Border Background="#E6D5B8" 
-                            Padding="15,5" 
-                            CornerRadius="5">
-                        <TextBlock Text="No. points" 
-                                 FontSize="14"/>
-                    </Border>
-                </Button>
-
-                <!-- Settings button -->
-                <Button Style="{StaticResource TransparentButton}"
+                <!-- Configuration Button -->
+                <Button Content="Configuration"
                         Command="{x:Bind ViewModel.ConfigurationCommand}"
-                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
-                    <FontIcon FontFamily="Segoe MDL2 Assets" 
-                             Glyph="&#xE713;"
-                             Foreground="White"/>
-                </Button>
+                        Style="{StaticResource AccentButtonStyle}"
+                        MinWidth="120"
+                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             </StackPanel>
 
             <!-- Collections Header -->

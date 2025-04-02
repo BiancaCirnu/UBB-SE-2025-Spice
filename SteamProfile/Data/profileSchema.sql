@@ -847,6 +847,7 @@ BEGIN
     ORDER BY f.user_id, f.friend_id;
 END
 go
+
 ----------------------------- COLLECTIONS --------------------------------
 CREATE TABLE Collections (
     collection_id INT PRIMARY KEY identity(1,1),
