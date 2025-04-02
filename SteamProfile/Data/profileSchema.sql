@@ -15,6 +15,44 @@ DROP TABLE IF EXISTS Users;
 
 
 DROP PROCEDURE IF EXISTS DeleteUser;
+DROP PROCEDURE IF EXISTS AddFriend;
+DROP PROCEDURE IF EXISTS AddGameToCollection;
+DROP PROCEDURE IF EXISTS AddMoney;
+DROP PROCEDURE IF EXISTS BuyPoints;
+DROP PROCEDURE IF EXISTS BuyWithMoney;
+DROP PROCEDURE IF EXISTS BuyWithPoints;
+DROP PROCEDURE IF EXISTS ChangeEmailForUserId;
+DROP PROCEDURE IF EXISTS ChangePassword;
+DROP PROCEDURE IF EXISTS ChangeUsername;
+DROP PROCEDURE IF EXISTS CreateCollection;
+DROP PROCEDURE IF EXISTS CreateUser;
+DROP PROCEDURE IF EXISTS CreateUserProfile;
+DROP PROCEDURE IF EXISTS CreateWallet;
+DROP PROCEDURE IF EXISTS DeleteCollection;
+DROP PROCEDURE IF EXISTS GetAchievementId;
+DROP PROCEDURE IF EXISTS GetAllCollections;
+DROP PROCEDURE IF EXISTS GetAllCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetAllFriendships;
+DROP PROCEDURE IF EXISTS GetAllOwnedGames;
+DROP PROCEDURE IF EXISTS GetAllPointsOffers;
+DROP PROCEDURE IF EXISTS GetFriendsForUser;
+DROP PROCEDURE IF EXISTS GetFriendshipCountForUser;
+DROP PROCEDURE IF EXISTS GetGamesInCollection;
+DROP PROCEDURE IF EXISTS GetOwnedGameById;
+DROP PROCEDURE IF EXISTS GetPointsOfferByID;
+DROP PROCEDURE IF EXISTS GetPrivateCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetPublicCollectionsForUser;
+DROP PROCEDURE IF EXISTS GetUserByEmail;
+DROP PROCEDURE IF EXISTS GetUserById;
+DROP PROCEDURE IF EXISTS GetUserByUsername;
+DROP PROCEDURE IF EXISTS GetUserProfileByUserId;
+DROP PROCEDURE IF EXISTS GetWalletById;
+DROP PROCEDURE IF EXISTS MakeCollectionPrivate;
+DROP PROCEDURE IF EXISTS MakeCollectionPublic;
+DROP PROCEDURE IF EXISTS RemoveFriend;
+DROP PROCEDURE IF EXISTS RemoveGameFromCollection;
+DROP PROCEDURE IF EXISTS UpdateCollection;
+DROP PROCEDURE IF EXISTS WinPoints;
 DROP PROCEDURE IF EXISTS GetAllUsers;
 DROP PROCEDURE IF EXISTS GetUserByEmailOrUsername;
 DROP PROCEDURE IF EXISTS CheckUserExists;
@@ -37,6 +75,7 @@ DROP PROCEDURE IF EXISTS GetGamesNotInCollection;
 DROP PROCEDURE IF EXISTS GetAllFeatures;
 DROP PROCEDURE IF EXISTS GetFeaturesByType;
 DROP PROCEDURE IF EXISTS CheckFeatureOwnership;
+DROP PROCEDURE IF EXISTS DeleteWallet;;
 DROP PROCEDURE IF EXISTS CheckFeaturePurchase;
 DROP PROCEDURE IF EXISTS EquipFeature;
 DROP PROCEDURE IF EXISTS GetAllFeatures;
@@ -53,8 +92,11 @@ DROP PROCEDURE IF EXISTS GetUnlockedAchievements;
 DROP PROCEDURE IF EXISTS GetUnlockedDataForAchievement;
 DROP PROCEDURE IF EXISTS IsAchievementUnlocked;
 DROP PROCEDURE IF EXISTS RemoveAchievement;
+DROP PROCEDURE IF EXISTS UpdateUserProfileBio;
+DROP PROCEDURE IF EXISTS UpdateUserProfilePicture;
 
 ----------------------------- USERS --------------------------------
+go
 CREATE TABLE Users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(50) COLLATE SQL_Latin1_General_CP1254_CS_AS NOT NULL UNIQUE, -- case sensitivity for usernames
@@ -202,7 +244,6 @@ BEGIN
 END 
 
 go
-go
 CREATE PROCEDURE UpdateUser
     @user_id INT,
     @email NVARCHAR(100),
@@ -247,7 +288,7 @@ create or alter procedure ChangeUsername @user_id int, @newUsername char(50) as
 begin
 	update Users set username = @newUsername where user_id=@user_id
 end
-
+go
 ----------------------------- USER SESSIONS --------------------------------
 CREATE TABLE UserSessions (
     session_id UNIQUEIDENTIFIER PRIMARY KEY,
@@ -369,12 +410,12 @@ END
 
 go
 CREATE PROCEDURE LogoutUser
-    @session_id INT
+    @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     DELETE FROM UserSessions WHERE session_id = @session_id;
 END;
-
+go
 ----------------------------- USER PROFILES --------------------------------
 CREATE TABLE UserProfiles (
     profile_id INT IDENTITY(1,1) PRIMARY KEY,
@@ -515,7 +556,16 @@ BEGIN
     SELECT @isValid AS isValid;
 END
 GO
-
+create or alter procedure UpdateUserProfileBio @user_id int, @bio NVARCHAR(1000) as
+begin
+	update UserProfiles set bio = @bio where user_id = @user_id
+end 
+go
+create or alter procedure UpdateUserProfilePicture @user_id int, @profile_picture NVARCHAR(255) as
+begin
+	update UserProfiles set profile_picture = @profile_picture where user_id = @user_id
+end 
+go
 
 CREATE PROCEDURE StorePasswordResetCode     
     @userId int,
@@ -717,6 +767,11 @@ begin
 	select numberOfPoints, value from PointsOffers where offerId = @offerId
 end
 go
+create or alter procedure DeleteWallet @user_id int as
+begin 
+	DELETE FROM Wallet WHERE @user_Id = user_id
+end 
+go
 
 ----------------------------- FRIENDSHIPS --------------------------------
 CREATE TABLE Friendships (
@@ -742,8 +797,6 @@ BEGIN
     INSERT INTO Friendships (user_id, friend_id)
     VALUES (@user_id, @friend_id);
 END
-GO 
-
 go
 CREATE OR ALTER PROCEDURE GetFriendsForUser
     @user_id INT
@@ -762,8 +815,6 @@ BEGIN
     ORDER BY u.username;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE GetFriendshipCountForUser
     @user_id INT
 AS
@@ -773,8 +824,6 @@ BEGIN
     WHERE user_id = @user_id;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE RemoveFriend
     @friendship_id INT
 AS
@@ -783,8 +832,6 @@ BEGIN
     WHERE friendship_id = @friendship_id;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE GetAllFriendships
 AS
 BEGIN
@@ -799,7 +846,7 @@ BEGIN
     JOIN Users u2 ON f.friend_id = u2.user_id
     ORDER BY f.user_id, f.friend_id;
 END
-
+go
 ----------------------------- COLLECTIONS --------------------------------
 CREATE TABLE Collections (
     collection_id INT PRIMARY KEY identity(1,1),
@@ -810,7 +857,6 @@ CREATE TABLE Collections (
     created_at DATE DEFAULT CAST(GETDATE() AS DATE),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
-
 GO
 CREATE OR ALTER PROCEDURE GetAllCollections
 AS
@@ -885,8 +931,6 @@ BEGIN
     WHERE collection_id = @collection_id AND user_id = @user_id;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE GetAllCollectionsForUser
     @user_id INT
 AS
@@ -897,8 +941,6 @@ BEGIN
     ORDER BY created_at ASC;
 END
 GO
-
-go
 CREATE PROCEDURE GetCollectionById
     @collectionId INT,
     @user_id INT
@@ -928,8 +970,6 @@ BEGIN
     ORDER BY name;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE GetPublicCollectionsForUser
     @user_id INT
 AS
@@ -940,8 +980,6 @@ BEGIN
     ORDER BY name;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE MakeCollectionPrivate
     @user_id INT,
     @collection_id INT
@@ -952,8 +990,6 @@ BEGIN
     WHERE collection_id = @collection_id AND user_id = @user_id;
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE MakeCollectionPublic
     @user_id INT,
     @collection_id INT
@@ -964,9 +1000,6 @@ BEGIN
     WHERE collection_id = @collection_id AND user_id = @user_id;
 END
 GO 
-
-
-go
 CREATE OR ALTER PROCEDURE UpdateCollection
     @collection_id INT,
     @user_id INT,
@@ -994,7 +1027,7 @@ CREATE TABLE OwnedGames (
     cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
+go
 ----------------------------- OWNEDGAMES_COLLECTION --------------------------------
 -- OwnedGames_Collection Table
 CREATE TABLE OwnedGames_Collection (
@@ -1004,7 +1037,6 @@ CREATE TABLE OwnedGames_Collection (
     FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 go
 CREATE OR ALTER PROCEDURE GetAllOwnedGames
 AS
@@ -1014,9 +1046,6 @@ BEGIN
     ORDER BY title;
 END
 GO
-
-
-go
 CREATE OR ALTER PROCEDURE AddGameToCollection
     @collection_id INT,
     @game_id INT
@@ -1058,9 +1087,6 @@ BEGIN
     ORDER BY title;
 END
 GO 
-
-
-go
 CREATE OR ALTER PROCEDURE GetGamesInCollection
     @collection_id INT
 AS
@@ -1097,8 +1123,6 @@ BEGIN
     END
 END
 GO 
-
-go
 CREATE PROCEDURE GetGamesNotInCollection
     @collection_id INT,
     @user_id INT
@@ -1134,8 +1158,6 @@ BEGIN
     WHERE game_id = @gameId
 END
 GO 
-
-go
 CREATE OR ALTER PROCEDURE RemoveGameFromCollection
     @collection_id INT,
     @game_id INT
@@ -1541,3 +1563,5 @@ values ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews'
 update Achievements 
 set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
 where achievement_id > 0
+go
+
