@@ -50,7 +50,30 @@ namespace SteamProfile.Repositories
                 Debug.WriteLine($"Unexpected Error: {ex.Message}");
                 Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
                 throw new RepositoryException("An unexpected error occurred while retrieving friendships.", ex);
+            }
         }
+
+        public void AddFriendship(int userId, int friendId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@friend_id", friendId)
+                };
+                _dataLink.ExecuteNonQuery("AddFriend", parameters);
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"SQL Error: {ex.Message}");
+                throw new RepositoryException("Database error while adding friendship.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected Error: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while adding friendship.", ex);
+            }
         }
 
         public Friendship GetFriendshipById(int friendshipId)
@@ -71,7 +94,7 @@ namespace SteamProfile.Repositories
             catch (Exception ex)
             {
                 throw new RepositoryException("An unexpected error occurred while retrieving friendship by ID.", ex);
-        }
+            }
         }
 
         public void RemoveFriendship(int friendshipId)
@@ -153,7 +176,7 @@ namespace SteamProfile.Repositories
                 FriendProfilePicture = row["friend_profile_picture"].ToString()
             };
         }
-        }
+    }
 
     public class RepositoryException : Exception
     {

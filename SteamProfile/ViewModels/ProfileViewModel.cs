@@ -96,6 +96,15 @@ namespace SteamProfile.ViewModels
         private string _equippedEmoji = string.Empty;
         private static CollectionsRepository _collectionsRepository;
 
+        [ObservableProperty]
+        private bool _isFriend = false;
+
+        [ObservableProperty]
+        private string _friendButtonText = "Add Friend";
+
+        [ObservableProperty]
+        private string _friendButtonStyle = "AccentButtonStyle";
+
         public static ProfileViewModel Instance
         {
             get
@@ -140,7 +149,6 @@ namespace SteamProfile.ViewModels
         {
             try
             {
-                
                 await _dispatcherQueue.EnqueueAsync(() => IsLoading = true);
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
@@ -149,12 +157,15 @@ namespace SteamProfile.ViewModels
                 var userProfile = await Task.Run(() => 
                     _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
 
+                // Check if the current user is a friend
+                var currentUserId = _userService.GetCurrentUser().UserId;
+                var isFriend = await Task.Run(() => _friendsService.AreUsersFriends(currentUserId, user_id));
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
                     if (currentUser != null)
                     {
-                        if (user_id == _userService.GetCurrentUser().UserId)
+                        if (user_id == currentUserId)
                             IsOwner = true;
                         else IsOwner = false;
 
@@ -162,7 +173,12 @@ namespace SteamProfile.ViewModels
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
 
-                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner}");
+                        // Update friend status
+                        IsFriend = isFriend;
+                        FriendButtonText = isFriend ? "Unfriend" : "Add Friend";
+                        FriendButtonStyle = isFriend ? "AccentButtonStyle" : "AccentButtonStyle";
+
+                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner} ; isFriend = {IsFriend}");
 
                         // Profile info from UserProfiles table
                         if (userProfile != null)
@@ -170,9 +186,6 @@ namespace SteamProfile.ViewModels
                             Bio = userProfile.Bio ?? string.Empty;
                             ProfilePicture = userProfile.ProfilePicture ?? string.Empty;
                         }
-
-                        // Set IsOwner based on the parameter
-                        //IsOwner = isOwner;
 
                         // Load friend count
                         FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
@@ -192,18 +205,14 @@ namespace SteamProfile.ViewModels
                         Points = 0;
                         CoverPhoto = "default_cover.png";
 
-
                         // Get the last three collections
                         var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
                         Collections.Clear();
 
-                        
-                       
                         foreach (var collection in lastThreeCollections)
                         {
                             Collections.Add(collection);
                         }
-
                     }
                     IsLoading = false;
                 });
@@ -224,22 +233,38 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        //private async Task LoadFriendCountAsync()
-        //{
-        //    try
-        //    {
-        //        var count = _friendsService.GetFriendshipCount(UserId);
-        //        await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Error loading friend count: {ex.Message}");
-        //        if (ex.InnerException != null)
-        //        {
-        //            Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-        //        }
-        //    }
-        //}
+        [RelayCommand]
+        private async Task ToggleFriendship()
+        {
+            try
+            {
+                if (IsFriend)
+                {
+                    // Remove friend
+                    var friendshipId = await Task.Run(() => _friendsService.GetFriendshipId(_userService.GetCurrentUser().UserId, UserId));
+                    if (friendshipId.HasValue)
+                    {
+                        await Task.Run(() => _friendsService.RemoveFriend(friendshipId.Value));
+                        IsFriend = false;
+                        FriendButtonText = "Add Friend";
+                        FriendCount = _friendsService.GetFriendshipCount(UserId);
+                    }
+                }
+                else
+                {
+                    // Add friend
+                    await Task.Run(() => _friendsService.AddFriend(_userService.GetCurrentUser().UserId, UserId));
+                    IsFriend = true;
+                    FriendButtonText = "Unfriend";
+                    FriendCount = _friendsService.GetFriendshipCount(UserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error toggling friendship: {ex.Message}");
+                ErrorMessage = "Failed to update friendship status. Please try again later.";
+            }
+        }
 
         [RelayCommand]
         private void Configuration()

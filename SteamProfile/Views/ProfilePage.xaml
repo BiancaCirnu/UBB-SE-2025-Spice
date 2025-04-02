@@ -78,13 +78,13 @@
                               HorizontalAlignment="Center"
                               Spacing="5"
                               Margin="0,0,0,20">
-                        <!-- Username with Emoji and Unfriend Button -->
+                        <!-- Username with Emoji and Friend Button -->
                         <StackPanel Orientation="Horizontal" 
                                   HorizontalAlignment="Center"
                                   Spacing="10">
-                            <!-- Unfriend Button -->
-                            <Button Content="Unfriend"
-                                    Click="UnfriendButton_Click"
+                            <!-- Friend Button -->
+                            <Button Content="{x:Bind ViewModel.FriendButtonText, Mode=OneWay}"
+                                    Command="{x:Bind ViewModel.ToggleFriendshipCommand}"
                                     Style="{StaticResource AccentButtonStyle}"
                                     MinWidth="120"
                                     VerticalAlignment="Center"
