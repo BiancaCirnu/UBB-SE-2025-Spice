@@ -359,12 +359,15 @@ namespace SteamProfile.ViewModels
         {
             try
             {
-                // Reset all equipped features
-                EquippedFrameSource = string.Empty;
-                EquippedHatSource = string.Empty;
-                EquippedPetSource = string.Empty;
-                EquippedEmojiSource = string.Empty;
-                EquippedBackgroundSource = string.Empty;
+                // Use a known-good image path that definitely exists in the project
+                const string DEFAULT_IMAGE = "ms-appx:///Assets/default-profile.png";
+                
+                // Reset all equipped features to a valid empty image
+                EquippedFrameSource = DEFAULT_IMAGE;
+                EquippedHatSource = DEFAULT_IMAGE;
+                EquippedPetSource = DEFAULT_IMAGE;
+                EquippedEmojiSource = DEFAULT_IMAGE;
+                EquippedBackgroundSource = DEFAULT_IMAGE;
                 
                 // Reset visibility flags
                 HasEquippedFrame = false;
@@ -451,22 +454,7 @@ namespace SteamProfile.ViewModels
                     }
                 }
                 
-                // Set default pet if none equipped
-                if (string.IsNullOrEmpty(EquippedPetSource))
-                {
-                    EquippedPetSource = "ms-appx:///Assets/100_achievement.jpeg";
-                    Debug.WriteLine("Using default pet image");
-                }
-
-                // For image display, ensure empty sources don't cause binding errors
-                if (string.IsNullOrEmpty(EquippedFrameSource))
-                    EquippedFrameSource = "ms-appx:///Assets/transparent.png";  // Create a 1x1 transparent PNG 
-                if (string.IsNullOrEmpty(EquippedHatSource))
-                    EquippedHatSource = "ms-appx:///Assets/transparent.png";
-                if (string.IsNullOrEmpty(EquippedEmojiSource))
-                    EquippedEmojiSource = "ms-appx:///Assets/transparent.png";
-                if (string.IsNullOrEmpty(EquippedBackgroundSource))
-                    EquippedBackgroundSource = "ms-appx:///Assets/transparent.png";
+                Debug.WriteLine($"Feature visibility - Frame: {HasEquippedFrame}, Hat: {HasEquippedHat}, Pet: {HasEquippedPet}, Emoji: {HasEquippedEmoji}, Background: {HasEquippedBackground}");
             }
             catch (Exception ex)
             {
@@ -477,8 +465,13 @@ namespace SteamProfile.ViewModels
                 }
                 Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 
-                // Set defaults in case of error
-                EquippedPetSource = "ms-appx:///Assets/100_achievement.jpeg";
+                // In case of error, ensure we have valid image sources
+                const string DEFAULT_IMAGE = "ms-appx:///Assets/default-profile.png";
+                EquippedFrameSource = DEFAULT_IMAGE;
+                EquippedHatSource = DEFAULT_IMAGE;
+                EquippedPetSource = DEFAULT_IMAGE;
+                EquippedEmojiSource = DEFAULT_IMAGE;
+                EquippedBackgroundSource = DEFAULT_IMAGE;
             }
         }
 
