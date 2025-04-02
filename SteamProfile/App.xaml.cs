@@ -68,6 +68,12 @@ namespace SteamProfile
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
             FeaturesService = new FeaturesService(featuresRepository, UserService);
 
+            InitializeAchievements();
+        }
+
+        private static void InitializeAchievements()
+        {
+            AchievementsService.InitializeAchievements();
         }
 
         private Window m_window;

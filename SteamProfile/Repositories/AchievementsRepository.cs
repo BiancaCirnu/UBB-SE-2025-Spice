@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,45 @@ namespace SteamProfile.Repositories
         {
             _dataLink = datalink ?? throw new ArgumentNullException(nameof(datalink));
         }
+
+        public void InsertAchievements()
+        {
+            try
+            {
+                _dataLink.ExecuteNonQuery("InsertAchievements");
+                System.Diagnostics.Debug.WriteLine("InsertAchievements stored procedure executed successfully.");
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while inserting achievements.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while inserting achievements.", ex);
+            }
+        }
+
+        public bool IsAchievementsTableEmpty()
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Executing SQL query to check if achievements table is empty...");
+                var result = _dataLink.ExecuteScalar<int>("IsAchievementsTableEmpty");
+                System.Diagnostics.Debug.WriteLine($"Number of achievements in table: {result}");
+                return result == 0;
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error while checking if achievements table is empty: {ex.Message}");
+                throw new RepositoryException("Database error while checking if achievements table is empty.", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error while checking if achievements table is empty: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while checking if achievements table is empty.", ex);
+            }
+        }
+
 
         public List<Achievement> GetAllAchievements()
         {
@@ -145,29 +185,6 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetAchievementByTypeAndCount(string type, int count)
-        {
-            try
-            {
-                var parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@type", type),
-                    new SqlParameter("@count", count)
-                };
-
-                var result = _dataLink.ExecuteScalar<int>("GetAchievementId", parameters);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                throw new RepositoryException("Database error while retrieving achievement ID.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
-            }
-        }
-
         public List<AchievementWithStatus> GetAchievementsWithStatusForUser(int userId)
         {
             try
@@ -223,25 +240,25 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetNumberOfFriends(int userId)
+        public int GetFriendshipCount(int userId)
         {
             try
             {
                 var parameters = new SqlParameter[]
                 {
-                new SqlParameter("@user_id", userId)
+                    new SqlParameter("@user_id", userId)
                 };
-
-                var result = _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
-                return result;
+                return _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
             }
             catch (SqlException ex)
             {
-                throw new RepositoryException("Database error while retrieving number of friends.", ex);
+                Debug.WriteLine($"SQL Error: {ex.Message}");
+                throw new RepositoryException("Database error while retrieving friendship count.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("An unexpected error occurred while retrieving number of friends.", ex);
+                Debug.WriteLine($"Unexpected Error: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving friendship count.", ex);
             }
         }
 
@@ -267,7 +284,7 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetNumberOfReviews(int userId)
+        public int GetNumberOfReviewsGiven(int userId)
         {
             try
             {
@@ -276,16 +293,137 @@ namespace SteamProfile.Repositories
                 new SqlParameter("@user_id", userId)
                 };
 
-                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviews", parameters);
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviewsGiven", parameters);
                 return result;
             }
             catch (SqlException ex)
             {
-                throw new RepositoryException("Database error while retrieving number of reviews.", ex);
+                throw new RepositoryException("Database error while retrieving number of reviews given.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews.", ex);
+                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews given.", ex);
+            }
+        }
+
+        public int GetNumberOfReviewsReceived(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviewsReceived", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of reviews received.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews received.", ex);
+            }
+        }
+
+        public int GetNumberOfPosts(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfPosts", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of posts.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of posts.", ex);
+            }
+        }
+
+        public int GetYearsOfAcftivity(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@user_id", userId)
+                };
+
+                var createdAt = _dataLink.ExecuteScalar<DateTime>("GetUserCreatedAt", parameters);
+                var yearsOfActivity = DateTime.Now.Year - createdAt.Year;
+
+                // Adjust for the case where the user hasn't completed the current year
+                if (DateTime.Now.DayOfYear < createdAt.DayOfYear)
+                {
+                    yearsOfActivity--;
+                }
+
+                return yearsOfActivity;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving years of activity.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving years of activity.", ex);
+            }
+        }
+
+        public int? GetAchievementIdByName(string achievementName)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@achievementName", achievementName)
+                };
+
+                var result = _dataLink.ExecuteScalar<int?>("GetAchievementIdByName", parameters);
+                System.Diagnostics.Debug.WriteLine($"Achievement ID for name {achievementName}: {result}");
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error while retrieving achievement ID: {ex.Message}");
+                throw new RepositoryException("Database error while retrieving achievement ID.", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error while retrieving achievement ID: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
+            }
+        }
+
+        public bool IsUserDeveloper(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<bool>("IsUserDeveloper", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving developer status.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving developer status.", ex);
             }
         }
 
