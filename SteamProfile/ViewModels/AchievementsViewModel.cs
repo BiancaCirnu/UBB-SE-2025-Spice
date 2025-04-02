@@ -7,6 +7,7 @@ using SteamProfile.Views;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SteamProfile.ViewModels
 {
@@ -59,18 +60,18 @@ namespace SteamProfile.ViewModels
         {
             _achievementsService = achievementsService ?? throw new ArgumentNullException(nameof(achievementsService));
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-            LoadAchievements();
+            BackToProfileCommand = new RelayCommand(BackToProfile);
         }
 
         [RelayCommand]
-        public void LoadAchievements()
+        public async Task LoadAchievementsAsync()
         {
-            _achievementsService.UnlockAchievementForUser(_userService.GetCurrentUser().UserId);
+            var userId = _userService.GetCurrentUser().UserId;
+            _achievementsService.UnlockAchievementForUser(userId);
 
-            var allAchievements = _achievementsService.GetAchievementsWithStatusForUser(_userService.GetCurrentUser().UserId); // Example userId
+            var allAchievements = await Task.Run(() => _achievementsService.GetAchievementsWithStatusForUser(userId));
 
             AllAchievements.Clear();
-
             foreach (var achievement in allAchievements)
             {
                 AllAchievements.Add(achievement);
@@ -96,13 +97,11 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        [RelayCommand]
+        public IRelayCommand BackToProfileCommand { get; }
+
         private void BackToProfile()
         {
-            // Get the current user's ID from the UserService
-            int currentUserId = _userService.GetCurrentUser().UserId; // Adjust this line based on your UserService implementation
-
-            // Navigate back to the Profile page with the current user ID
+            int currentUserId = _userService.GetCurrentUser().UserId;
             NavigationService.Instance.Navigate(typeof(ProfilePage), currentUserId);
         }
 

@@ -265,10 +265,10 @@
         </StackPanel>
 
         <Button Content="Back to Profile"
-                Command="{x:Bind ViewModel.BackToProfileCommand}"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Margin="10"/>
+            Command="{Binding BackToProfileCommand}"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="10"/>
 
     </Grid>
 </Page>

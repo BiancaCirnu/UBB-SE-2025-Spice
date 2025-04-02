@@ -245,7 +245,7 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetNumberOfReviews(int userId)
+        public int GetNumberOfReviewsGiven(int userId)
         {
             try
             {
@@ -254,16 +254,60 @@ namespace SteamProfile.Repositories
                 new SqlParameter("@user_id", userId)
                 };
 
-                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviews", parameters);
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviewsGiven", parameters);
                 return result;
             }
             catch (SqlException ex)
             {
-                throw new RepositoryException("Database error while retrieving number of reviews.", ex);
+                throw new RepositoryException("Database error while retrieving number of reviews given.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews.", ex);
+                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews given.", ex);
+            }
+        }
+
+        public int GetNumberOfReviewsReceived(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfReviewsReceived", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of reviews received.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of reviews received.", ex);
+            }
+        }
+
+        public int GetNumberOfPosts(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                new SqlParameter("@user_id", userId)
+                };
+
+                var result = _dataLink.ExecuteScalar<int>("GetNumberOfPosts", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                throw new RepositoryException("Database error while retrieving number of posts.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new RepositoryException("An unexpected error occurred while retrieving number of posts.", ex);
             }
         }
 
