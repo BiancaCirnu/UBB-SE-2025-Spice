@@ -34,6 +34,15 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private ObservableCollection<AchievementWithStatus> _numberOfPostsAchievements = new ObservableCollection<AchievementWithStatus>();
 
+        [ObservableProperty]
+        private ObservableCollection<AchievementWithStatus> _numberOfReviewsGivenAchievements = new ObservableCollection<AchievementWithStatus>();
+
+        [ObservableProperty]
+        private ObservableCollection<AchievementWithStatus> _numberOfReviewsReceivedAchievements = new ObservableCollection<AchievementWithStatus>();
+
+        [ObservableProperty]
+        private ObservableCollection<AchievementWithStatus> _developerAchievements = new ObservableCollection<AchievementWithStatus>();
+
         public static AchievementsViewModel Instance
         {
             get
@@ -70,7 +79,11 @@ namespace SteamProfile.ViewModels
             LoadCategoryAchievements(FriendshipsAchievements, "Friendships");
             LoadCategoryAchievements(OwnedGamesAchievements, "Owned Games");
             LoadCategoryAchievements(SoldGamesAchievements, "Sold Games");
-            LoadCategoryAchievements(NumberOfPostsAchievements, "Number of Reviews");
+            LoadCategoryAchievements(NumberOfPostsAchievements, "Number of Posts");
+            LoadCategoryAchievements(NumberOfReviewsGivenAchievements, "Number of Reviews Given");
+            LoadCategoryAchievements(NumberOfReviewsReceivedAchievements, "Number of Reviews Received");
+            LoadCategoryAchievements(YearsOfActivityAchievements, "Years of Activity");
+            LoadCategoryAchievements(DeveloperAchievements, "Developer");
         }
 
         private void LoadCategoryAchievements(ObservableCollection<AchievementWithStatus> collection, string category)

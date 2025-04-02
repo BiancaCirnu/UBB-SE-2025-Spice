@@ -36,40 +36,25 @@ namespace SteamProfile.Services
         {
             try
             {
-                int numberOfSoldGames = _achievementsRepository.GetNumberOfSoldGames(userId);
-                int numberOfFriends = _achievementsRepository.GetNumberOfFriends(userId);
-                int numberOfOwnedGames = _achievementsRepository.GetNumberOfOwnedGames(userId);
-                int numberOfReviews = _achievementsRepository.GetNumberOfReviews(userId);
-                if (numberOfSoldGames == 1 || numberOfSoldGames == 5 || numberOfSoldGames == 10 || numberOfSoldGames == 50)
+                int numberOfSoldGames = 0;
+                int numberOfFriends = 0;
+                int numberOfOwnedGames = 0;
+                int numberOfReviews = 0;
+
+                try
                 {
-                    int achievementId = _achievementsRepository.GetAchievementByTypeAndCount("Sold Games", numberOfSoldGames);
-                    if (!_achievementsRepository.IsAchievementUnlocked(userId, achievementId))
-                    {
-                        _achievementsRepository.UnlockAchievement(userId, achievementId);
-                    }
+                    numberOfFriends = _achievementsRepository.GetFriendshipCount(userId);
                 }
-                if(numberOfFriends == 1 || numberOfFriends == 5 || numberOfFriends == 10 || numberOfFriends == 50 || numberOfFriends == 100)
+                catch (RepositoryException ex)
                 {
-                    int achievementId = _achievementsRepository.GetAchievementByTypeAndCount("Friendships", numberOfFriends);
-                    if (!_achievementsRepository.IsAchievementUnlocked(userId, achievementId))
-                    {
-                        _achievementsRepository.UnlockAchievement(userId, achievementId);
-                    }
+                    System.Diagnostics.Debug.WriteLine($"Error retrieving friendship count: {ex.Message}");
                 }
-                if(numberOfOwnedGames == 1 || numberOfOwnedGames == 5 || numberOfOwnedGames == 10 || numberOfOwnedGames == 50)
+                if (numberOfFriends == 1 || numberOfFriends == 5 || numberOfFriends == 10 || numberOfFriends == 50 || numberOfFriends == 100)
                 {
-                    int achievementId = _achievementsRepository.GetAchievementByTypeAndCount("Owned Games", numberOfOwnedGames);
-                    if (!_achievementsRepository.IsAchievementUnlocked(userId, achievementId))
+                    int? achievementId = GetAchievementIdByTypeAndCount("Friendships", numberOfFriends);
+                    if (achievementId.HasValue && !_achievementsRepository.IsAchievementUnlocked(userId, achievementId.Value))
                     {
-                        _achievementsRepository.UnlockAchievement(userId, achievementId);
-                    }
-                }
-                if(numberOfReviews == 1 || numberOfReviews == 5 || numberOfReviews == 10 || numberOfReviews == 50)
-                {
-                    int achievementId = _achievementsRepository.GetAchievementByTypeAndCount("Number of Reviews", numberOfReviews);
-                    if (!_achievementsRepository.IsAchievementUnlocked(userId, achievementId))
-                    {
-                        _achievementsRepository.UnlockAchievement(userId, achievementId);
+                        _achievementsRepository.UnlockAchievement(userId, achievementId.Value);
                     }
                 }
 
@@ -79,6 +64,8 @@ namespace SteamProfile.Services
                 System.Diagnostics.Debug.WriteLine($"Error: {ex.Message}");
             }
         }
+
+
 
 
         public void RemoveAchievement(int userId, int achievementId)
@@ -141,17 +128,59 @@ namespace SteamProfile.Services
             }
         }
 
-        public int GetAchievementIdByTypeAndCount(string type, int count)
+        public int? GetAchievementIdByTypeAndCount(string type, int count)
         {
-            try
+            if (type == "Friendships")
             {
-                return _achievementsRepository.GetAchievementByTypeAndCount(type, count);
+                if (count == 1)
+                    return _achievementsRepository.GetAchievementIdByName("FRIENDSHIP1");
+                else if (count == 5)
+                    return _achievementsRepository.GetAchievementIdByName("FRIENDSHIP2");
+                else if (count == 10)
+                    return _achievementsRepository.GetAchievementIdByName("FRIENDSHIP3");
+                else if (count == 50)
+                    return _achievementsRepository.GetAchievementIdByName("FRIENDSHIP4");
+                else if (count == 100)
+                    return _achievementsRepository.GetAchievementIdByName("FRIENDSHIP5");
             }
-            catch (RepositoryException ex)
+            else if (type == "Owned Games")
             {
-                throw new ServiceException("Error retrieving achievement ID.", ex);
+                if (count == 1)
+                    return _achievementsRepository.GetAchievementIdByName("OWNEDGAMES1");
+                else if (count == 5)
+                    return _achievementsRepository.GetAchievementIdByName("OWNEDGAMES2");
+                else if (count == 10)
+                    return _achievementsRepository.GetAchievementIdByName("OWNEDGAMES3");
+                else if (count == 50)
+                    return _achievementsRepository.GetAchievementIdByName("OWNEDGAMES4");
             }
+            else if (type == "Sold Games")
+            {
+                if (count == 1)
+                    return _achievementsRepository.GetAchievementIdByName("SOLDGAMES1");
+                else if (count == 5)
+                    return _achievementsRepository.GetAchievementIdByName("SOLDGAMES2");
+                else if (count == 10)
+                    return _achievementsRepository.GetAchievementIdByName("SOLDGAMES3");
+                else if (count == 50)
+                    return _achievementsRepository.GetAchievementIdByName("SOLDGAMES4");
+            }
+            else if (type == "Number of Reviews Given")
+            {
+                if (count == 1)
+                    return _achievementsRepository.GetAchievementIdByName("REVIEW1");
+                else if (count == 5)
+                    return _achievementsRepository.GetAchievementIdByName("REVIEW2");
+                else if (count == 10)
+                    return _achievementsRepository.GetAchievementIdByName("REVIEW3");
+                else if (count == 50)
+                    return _achievementsRepository.GetAchievementIdByName("REVIEW4");
+            }
+
+            return null;
         }
+
+
 
         public int GetPointsForUnlockedAchievement(int userId, int achievementId)
         {

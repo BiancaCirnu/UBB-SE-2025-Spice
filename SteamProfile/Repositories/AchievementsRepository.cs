@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -145,29 +146,6 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetAchievementByTypeAndCount(string type, int count)
-        {
-            try
-            {
-                var parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@type", type),
-                    new SqlParameter("@count", count)
-                };
-
-                var result = _dataLink.ExecuteScalar<int>("GetAchievementId", parameters);
-                return result;
-            }
-            catch (SqlException ex)
-            {
-                throw new RepositoryException("Database error while retrieving achievement ID.", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
-            }
-        }
-
         public List<AchievementWithStatus> GetAchievementsWithStatusForUser(int userId)
         {
             try
@@ -223,25 +201,25 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public int GetNumberOfFriends(int userId)
+        public int GetFriendshipCount(int userId)
         {
             try
             {
                 var parameters = new SqlParameter[]
                 {
-                new SqlParameter("@user_id", userId)
+                    new SqlParameter("@user_id", userId)
                 };
-
-                var result = _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
-                return result;
+                return _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
             }
             catch (SqlException ex)
             {
-                throw new RepositoryException("Database error while retrieving number of friends.", ex);
+                Debug.WriteLine($"SQL Error: {ex.Message}");
+                throw new RepositoryException("Database error while retrieving friendship count.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("An unexpected error occurred while retrieving number of friends.", ex);
+                Debug.WriteLine($"Unexpected Error: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving friendship count.", ex);
             }
         }
 
@@ -289,6 +267,30 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public int? GetAchievementIdByName(string achievementName)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@achievementName", achievementName)
+                };
+
+                var result = _dataLink.ExecuteScalar<int?>("GetAchievementIdByName", parameters);
+                System.Diagnostics.Debug.WriteLine($"Achievement ID for name {achievementName}: {result}");
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error while retrieving achievement ID: {ex.Message}");
+                throw new RepositoryException("Database error while retrieving achievement ID.", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error while retrieving achievement ID: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving achievement ID.", ex);
+            }
+        }
 
         private static List<Achievement> MapDataTableToAchievements(DataTable dataTable)
         {
