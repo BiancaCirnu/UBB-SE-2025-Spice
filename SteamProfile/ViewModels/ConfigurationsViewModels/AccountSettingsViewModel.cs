@@ -29,6 +29,9 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
         private string _errorMessage = string.Empty;
 
         [ObservableProperty]
+        private string _successMessage = string.Empty;
+
+        [ObservableProperty]
         private string _passwordConfirmationError = string.Empty;
 
         [ObservableProperty]
@@ -42,6 +45,9 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
 
         [ObservableProperty]
         private Visibility _passwordConfirmationErrorVisibility = Visibility.Collapsed;
+
+        [ObservableProperty]
+        private Visibility _successMessageVisibility = Visibility.Collapsed;
 
         [ObservableProperty]
         private bool _updateEmailEnabled = false;
@@ -133,7 +139,7 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             {
                 if (_userService.UpdateUserUsername(Username, CurrentPassword))
                 {
-                    ShowSuccessMessageAsync("Username updated successfully!");
+                    ShowSuccessMessage("Username updated successfully!");
                 }
                 else
                 {
@@ -151,7 +157,7 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             {
                 if (_userService.UpdateUserEmail(Email, CurrentPassword))
                 {
-                    ShowSuccessMessageAsync("Email updated successfully!");
+                    ShowSuccessMessage("Email updated successfully!");
                 }
                 else
                 {
@@ -169,7 +175,7 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             {
                 if (_userService.UpdateUserPassword(Password, CurrentPassword))
                 {
-                    ShowSuccessMessageAsync("Password updated successfully!");
+                    ShowSuccessMessage("Password updated successfully!");
                     Password = string.Empty; // Clear the password field
                 }
                 else
@@ -189,30 +195,19 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
         }
 
         [RelayCommand]
-        private async Task DeleteAccount()
+        private void DeleteAccount()
         {
-            var dialog = new ContentDialog
+            _pendingAction = () =>
             {
-                Title = "Delete Account",
-                Content = "Are you sure you want to delete your account? This action cannot be undone.",
-                PrimaryButtonText = "Delete",
-                CloseButtonText = "Cancel"
+                _userService.DeleteUser(_userService.GetCurrentUser().UserId);
+
+                NavigationService.Instance.Navigate(typeof(LoginPage));
+
             };
 
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                _pendingAction = () =>
-                {
-                    _userService.DeleteUser(_userService.GetCurrentUser().UserId);
-                    NavigationService.Instance.Navigate(typeof(LoginPage));
-                };
-
-                RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
-            }
+            RequestPasswordConfirmation?.Invoke(this, EventArgs.Empty);
         }
 
-        
         private bool ValidateCurrentPassword()
         {
             if (string.IsNullOrWhiteSpace(CurrentPassword))
@@ -223,16 +218,17 @@ namespace SteamProfile.ViewModels.ConfigurationsViewModels
             return _userService.VerifyUserPassword(CurrentPassword);
         }
 
-        private async void ShowSuccessMessageAsync(string message)
+        private void ShowSuccessMessage(string message)
         {
-            ContentDialog dialog = new()
+            SuccessMessage = message;
+            SuccessMessageVisibility = Visibility.Visible;
+
+            // Hide success message after 3 seconds
+            Task.Delay(3000).ContinueWith(_ =>
             {
-                Title = "Success",
-                Content = message,
-                CloseButtonText = "OK"
-            };
-            //dialog.ShowAsync();
-            
+                SuccessMessageVisibility = Visibility.Collapsed;
+                SuccessMessage = string.Empty;
+            });
         }
 
         public bool VerifyPassword(string password)

@@ -110,12 +110,13 @@ namespace SteamProfile.Repositories
             {
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@user_Id", userId)
+                    new SqlParameter("@user_id", userId)
                 };
 
                 _dataLink.ExecuteNonQuery("DeleteWallet", parameters);
 
                 _dataLink.ExecuteNonQuery("DeleteUser", parameters);
+                // have to delete all their assigned data
             }
             catch (DatabaseOperationException ex)
             {
@@ -228,7 +229,7 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@user_id", userId),
                     new SqlParameter("@newEmail", newEmail)
                 };
-                _dataLink.ExecuteNonQuery("ChangeEmailForUser", parameters);
+                _dataLink.ExecuteNonQuery("ChangeEmailForUserId", parameters);
             }
             catch (DatabaseOperationException ex)
             {

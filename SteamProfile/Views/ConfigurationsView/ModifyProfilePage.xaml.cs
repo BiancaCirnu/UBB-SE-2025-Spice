@@ -14,16 +14,12 @@ namespace SteamProfile.Views.ConfigurationsView
         public ModifyProfilePage()
         {
             this.InitializeComponent();
-            this.Loaded += ModifyProfilePage_Loaded;
 
-        }
-
-        private void ModifyProfilePage_Loaded(object sender, RoutedEventArgs e)
-        {
-            //ViewModel = new ModifyProfileViewModel();
+            // Initialize the ViewModel with the Frame
+            ViewModel = new ModifyProfileViewModel(this.Frame);
             DataContext = ViewModel;
-
         }
+
         private void GoBack(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();

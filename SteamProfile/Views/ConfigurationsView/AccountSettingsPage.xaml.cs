@@ -21,27 +21,55 @@ namespace SteamProfile.Views.ConfigurationsView
 
         private async void ViewModel_RequestPasswordConfirmation(object sender, EventArgs e)
         {
-            // Create the password confirmation dialog
-            passwordConfirmationDialog = new ContentDialog
+            // Check if XamlRoot is available
+            if (this.XamlRoot == null)
             {
-                Title = "Confirm Password",
-                Content = CreatePasswordConfirmationContent(),
-                PrimaryButtonText = "Confirm",
-                CloseButtonText = "Cancel",
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
-            };
+                // Debug to see if this is the issue
+                System.Diagnostics.Debug.WriteLine("XamlRoot is null");
 
-            // Show the dialog and handle the result
-            var result = await passwordConfirmationDialog.ShowAsync();
-
-            if (result == ContentDialogResult.Primary)
-            {
-                ViewModel.ExecutePendingAction();
+                // Try to get XamlRoot from the window
+                var window = (Application.Current as App)?.MainWindow;
+                if (window != null)
+                {
+                    // Create the password confirmation dialog
+                    passwordConfirmationDialog = new ContentDialog
+                    {
+                        Title = "Confirm Password",
+                        Content = CreatePasswordConfirmationContent(),
+                        PrimaryButtonText = "Confirm",
+                        CloseButtonText = "Cancel",
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = window.Content.XamlRoot
+                    };
+                }
             }
             else
             {
-                ViewModel.CancelPendingAction();
+                // Create the dialog as before
+                passwordConfirmationDialog = new ContentDialog
+                {
+                    Title = "Confirm Password",
+                    Content = CreatePasswordConfirmationContent(),
+                    PrimaryButtonText = "Confirm",
+                    CloseButtonText = "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
+            }
+
+            // Make sure dialog was created before showing it
+            if (passwordConfirmationDialog != null)
+            {
+                // Show the dialog and handle the result
+                var result = await passwordConfirmationDialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    ViewModel.ExecutePendingAction();
+                }
+                else
+                {
+                    ViewModel.CancelPendingAction();
+                }
             }
         }
 

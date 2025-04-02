@@ -155,8 +155,15 @@ namespace SteamProfile.Services
 
         internal bool VerifyUserPassword(string password)
         {
-            if (PasswordHasher.VerifyPassword(password, this.GetCurrentUser().Password))
-                return true;
+            string email = this.GetCurrentUser().Email; 
+            var user = _usersRepository.VerifyCredentials(email);
+            if (user != null)
+            {
+                if (PasswordHasher.VerifyPassword(password, user.Password)) // Check the password against the hashed password
+                {
+                    return true;
+                }
+            }
             return false;
         }
     }

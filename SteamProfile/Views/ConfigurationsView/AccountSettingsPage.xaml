@@ -8,10 +8,18 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    
+
     <Grid Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Width="400" Spacing="15">
             <TextBlock Text="Account Settings" FontSize="30" FontWeight="Bold" Margin="0,0,0,20"/>
+
+            <!-- Success Message -->
+            <TextBlock Text="{x:Bind ViewModel.SuccessMessage, Mode=OneWay}" 
+                       Foreground="Green" 
+                       Visibility="{x:Bind ViewModel.SuccessMessageVisibility, Mode=OneWay}"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"
+                       FontWeight="SemiBold"/>
 
             <!-- Username Section -->
             <TextBlock Text="Modify Username" FontSize="18" FontWeight="SemiBold"/>
@@ -57,17 +65,17 @@
             <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
                        Foreground="Red" 
                        Visibility="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringLengthToVisibilityConverter}}"
-                       TextWrapping="Wrap"/>
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"/>
 
             <!-- Action Buttons -->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Spacing="20" Margin="0,30,0,0">
-                <!--<Button Content="Delete Account" Width="200" Height="40" 
+                <Button Content="Delete Account" Width="200" Height="40" 
                         Background="#E53935" Foreground="White"
-                        Command="{x:Bind ViewModel.DeleteAccountCommand}"/>-->
+                        Command="{x:Bind ViewModel.DeleteAccountCommand}"/>
                 <Button Content="Log out" Width="200" Height="40"
                         Command="{x:Bind ViewModel.LogoutCommand}"/>
                 <Button Content="Go Back" Click="GoBack" Width="200"/>
-
             </StackPanel>
         </StackPanel>
     </Grid>
