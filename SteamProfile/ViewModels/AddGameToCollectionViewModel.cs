@@ -14,6 +14,8 @@ namespace SteamProfile.ViewModels
     public class AddGameToCollectionViewModel : ObservableObject
     {
         private readonly CollectionsService _collectionsService;
+        private readonly UserService _userService;
+        private readonly int _userId;
         private ObservableCollection<OwnedGame> _availableGames;
         private bool _isLoading;
         private string _errorMessage;
@@ -57,7 +59,7 @@ namespace SteamProfile.ViewModels
                 ErrorMessage = null;
 
                 Debug.WriteLine($"Loading available games for collection {_collectionId}");
-                var games = _collectionsService.GetGamesNotInCollection(_collectionId, 1); // TODO: Get actual user ID
+                var games = _collectionsService.GetGamesNotInCollection(_collectionId, App.UserService.GetCurrentUser().UserId);
                 Debug.WriteLine($"Retrieved {games.Count} available games");
 
                 AvailableGames.Clear();
@@ -81,7 +83,7 @@ namespace SteamProfile.ViewModels
         {
             try
             {
-                _collectionsService.AddGameToCollection(_collectionId, game.GameId, 1); // TODO: Get actual user ID
+                _collectionsService.AddGameToCollection(_collectionId, game.GameId, App.UserService.GetCurrentUser().UserId);
                 AvailableGames.Remove(game);
             }
             catch (Exception ex)
