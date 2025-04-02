@@ -14,4 +14,3 @@ BEGIN
         created_at = @created_at
     WHERE collection_id = @collection_id AND user_id = @user_id;
 END
-GO

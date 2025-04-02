@@ -20,4 +20,3 @@ BEGIN
     FROM UserProfiles
     WHERE profile_id = SCOPE_IDENTITY();
 END;
-GO

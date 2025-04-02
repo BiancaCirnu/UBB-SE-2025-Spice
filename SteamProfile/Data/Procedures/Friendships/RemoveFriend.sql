@@ -5,4 +5,3 @@ BEGIN
     DELETE FROM Friendships
     WHERE friendship_id = @friendship_id;
 END
-GO 

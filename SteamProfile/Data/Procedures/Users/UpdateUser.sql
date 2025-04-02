@@ -1,4 +1,3 @@
-go
 CREATE PROCEDURE UpdateUser
     @user_id INT,
     @email NVARCHAR(100),
@@ -23,3 +22,4 @@ BEGIN
     FROM Users
     WHERE user_id = @user_id;
 END 
+

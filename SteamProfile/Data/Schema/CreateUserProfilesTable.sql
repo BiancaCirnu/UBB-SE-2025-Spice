@@ -8,5 +8,5 @@ CREATE TABLE UserProfiles (
     equipped_pet NVARCHAR(255),
     equipped_emoji NVARCHAR(255),
     last_modified DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );

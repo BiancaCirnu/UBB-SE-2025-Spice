@@ -5,5 +5,5 @@ CREATE TABLE Collections (
     cover_picture NVARCHAR(255) CHECK (cover_picture LIKE '%.svg' OR cover_picture LIKE '%.png' OR cover_picture LIKE '%.jpg'),
     is_public BIT DEFAULT 1,
     created_at DATE DEFAULT CAST(GETDATE() AS DATE),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );

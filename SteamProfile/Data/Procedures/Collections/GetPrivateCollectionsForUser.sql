@@ -7,4 +7,3 @@ BEGIN
     WHERE user_id = @user_id AND is_public = 0
     ORDER BY name;
 END
-GO 

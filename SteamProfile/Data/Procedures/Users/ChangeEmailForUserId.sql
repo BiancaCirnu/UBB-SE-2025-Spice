@@ -2,5 +2,5 @@
 begin
 	update Users
 	set email = @newEmail 
-	where user_id = @userId
+	where user_id = @user_id
 end

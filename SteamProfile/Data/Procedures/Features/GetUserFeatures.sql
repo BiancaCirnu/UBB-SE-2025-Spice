@@ -1,4 +1,4 @@
-CREATE PROCEDURE GetAllFeaturesWithOwnership
+CREATE PROCEDURE GetUserFeatures
     @userId INT
 AS
 BEGIN

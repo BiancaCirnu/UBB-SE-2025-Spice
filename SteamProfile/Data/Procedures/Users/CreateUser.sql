@@ -1,4 +1,3 @@
-go
 CREATE or alter PROCEDURE CreateUser
     @username NVARCHAR(50),
     @email NVARCHAR(100),

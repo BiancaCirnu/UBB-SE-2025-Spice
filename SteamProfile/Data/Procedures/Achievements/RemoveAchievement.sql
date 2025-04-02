@@ -1,4 +1,4 @@
-CREATE PROCEDURE RemoveAchievement
+CREATE or alter PROCEDURE RemoveAchievement
     @userId INT,
     @achievementId INT
 AS

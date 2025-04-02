@@ -8,6 +8,8 @@ CREATE TABLE Friendships (
     CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
 );
 
+
+go
 -- Add indexes for better query performance
 CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
 CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);

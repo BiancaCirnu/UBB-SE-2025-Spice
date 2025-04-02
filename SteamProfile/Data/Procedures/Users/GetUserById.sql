@@ -1,4 +1,3 @@
-go
 CREATE or alter PROCEDURE GetUserById
     @user_id INT
 AS

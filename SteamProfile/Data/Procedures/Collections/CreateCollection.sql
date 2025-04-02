@@ -40,5 +40,3 @@ BEGIN
 	FROM Collections
 	WHERE collection_id = SCOPE_IDENTITY()
 END
-
-SELECT * FROM Collections;

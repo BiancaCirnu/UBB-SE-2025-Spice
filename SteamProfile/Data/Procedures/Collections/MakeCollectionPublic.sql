@@ -7,4 +7,3 @@ BEGIN
     SET is_public = 1
     WHERE collection_id = @collection_id AND user_id = @user_id;
 END
-GO 

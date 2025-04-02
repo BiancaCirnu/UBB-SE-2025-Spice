@@ -1,7 +1,10 @@
-CREATE PROCEDURE DeleteUser
-    @userId INT
+CREATE or alter PROCEDURE DeleteUser
+    @user_id INT
 AS
 BEGIN
+
+	exec DeleteFriendshipsForUser @user_id =@user_id
     DELETE FROM Users
-    WHERE user_id = @userId;
+    WHERE user_id = @user_id;
 END 
+

@@ -33,4 +33,3 @@ BEGIN
         ORDER BY og.title
     END
 END
-GO 

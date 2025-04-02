@@ -18,4 +18,3 @@ BEGIN
         AND fu.user_id = @userId
     ORDER BY f.type, f.value DESC;
 END
-go

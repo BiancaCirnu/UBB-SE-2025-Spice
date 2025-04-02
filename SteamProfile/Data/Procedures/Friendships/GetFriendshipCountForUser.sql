@@ -6,5 +6,3 @@ BEGIN
     FROM Friendships
     WHERE user_id = @user_id;
 END
-GO 
-

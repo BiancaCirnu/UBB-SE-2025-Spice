@@ -6,4 +6,3 @@ BEGIN
     FROM OwnedGames
     WHERE game_id = @gameId
 END
-GO 

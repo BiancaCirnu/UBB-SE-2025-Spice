@@ -5,4 +5,3 @@ BEGIN
     FROM OwnedGames
     ORDER BY title;
 END
-GO 

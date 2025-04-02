@@ -5,5 +5,5 @@ CREATE TABLE PasswordResetCodes (
     expiration_time DATETIME NOT NULL,
     used BIT DEFAULT 0,
 	email nvarchar(255),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );

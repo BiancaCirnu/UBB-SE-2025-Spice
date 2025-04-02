@@ -7,11 +7,13 @@ CREATE TABLE OwnedGames (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+----------------------------- OWNEDGAMES_COLLECTION --------------------------------
 -- OwnedGames_Collection Table
 CREATE TABLE OwnedGames_Collection (
     collection_id INT NOT NULL,
     game_id INT NOT NULL,
     PRIMARY KEY (collection_id, game_id),
-    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (collection_id) REFERENCES Collections(collection_id),
+    FOREIGN KEY (game_id) REFERENCES OwnedGames(game_id) 
 );
+GO

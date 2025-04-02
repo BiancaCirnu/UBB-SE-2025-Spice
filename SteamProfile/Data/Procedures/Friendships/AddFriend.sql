@@ -6,4 +6,3 @@ BEGIN
     INSERT INTO Friendships (user_id, friend_id)
     VALUES (@user_id, @friend_id);
 END
-GO 
