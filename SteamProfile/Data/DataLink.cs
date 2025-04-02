@@ -29,15 +29,13 @@ namespace SteamProfile.Data
 
                 string? localDataSource = config["LocalDataSource"];
                 string? initialCatalog = config["InitialCatalog"];
-                string? userId = config["UserId"];
-                string? password = config["Password"];
 
                 if (string.IsNullOrWhiteSpace(localDataSource) || string.IsNullOrWhiteSpace(initialCatalog))
                 {
                     throw new ConfigurationErrorsException("Database connection settings are missing in appsettings.json");
                 }
 
-                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};TrustServerCertificate=True;";
+                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
 
                 // Test the connection immediately
                 using var testConnection = new SqlConnection(connectionString);
@@ -75,6 +73,8 @@ namespace SteamProfile.Data
             try
             {
                 using var connection = GetConnection();
+                connection.Open();
+
                 using var command = new SqlCommand(storedProcedure, connection)
                 {
                     CommandType = CommandType.StoredProcedure
@@ -85,35 +85,18 @@ namespace SteamProfile.Data
                     command.Parameters.AddRange(sqlParameters);
                 }
 
-                connection.Open();
                 var result = command.ExecuteScalar();
-
-                if (result == null || result == DBNull.Value)
-                {
-                    return default;
-                }
-
-                if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    return (T)Convert.ChangeType(result, Nullable.GetUnderlyingType(typeof(T))!);
-                }
-
-                return (T)Convert.ChangeType(result, typeof(T));
+                return result == DBNull.Value ? default : (T)Convert.ChangeType(result, typeof(T));
             }
             catch (SqlException ex)
             {
                 throw new DatabaseOperationException($"Database error during ExecuteScalar operation: {ex.Message}", ex);
             }
-            catch (InvalidCastException ex)
+            catch (Exception ex)
             {
                 throw new DatabaseOperationException($"Error during ExecuteScalar operation: {ex.Message}", ex);
             }
-            catch (Exception ex)
-            {
-                throw new DatabaseOperationException($"Unexpected error during ExecuteScalar operation: {ex.Message}", ex);
-            }
         }
-
 
         public DataTable ExecuteReader(string storedProcedure, SqlParameter[]? sqlParameters = null)
         {
