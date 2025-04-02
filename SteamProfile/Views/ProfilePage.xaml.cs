@@ -91,6 +91,12 @@ namespace SteamProfile.Views
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            // Unregister from property changed events to prevent memory leaks
+            if (ViewModel != null)
+            {
+                ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
+            }
+            
             base.OnNavigatedFrom(e);
             _isNavigatingAway = true;
             Debug.WriteLine("Navigated away from ProfilePage");
@@ -104,6 +110,9 @@ namespace SteamProfile.Views
             // Make sure we have a ViewModel instance
             ViewModel = ProfileViewModel.Instance;
             DataContext = ViewModel;
+
+            // Register for property changed events
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
 
             // If we receive a parameter, it indicates whose profile we're viewing
             if (e.Parameter != null)
@@ -128,6 +137,27 @@ namespace SteamProfile.Views
             else
             {
                 Debug.WriteLine("No user ID available - cannot load profile");
+            }
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            // Update the AdaptiveProfileControl when relevant properties change
+            if (e.PropertyName == nameof(ViewModel.Username) ||
+                e.PropertyName == nameof(ViewModel.Bio) ||
+                e.PropertyName == nameof(ViewModel.ProfilePicture) ||
+                e.PropertyName == nameof(ViewModel.EquippedHatSource) ||
+                e.PropertyName == nameof(ViewModel.EquippedPetSource) ||
+                e.PropertyName == nameof(ViewModel.EquippedEmojiSource) ||
+                e.PropertyName == nameof(ViewModel.EquippedFrameSource) ||
+                e.PropertyName == nameof(ViewModel.EquippedBackgroundSource) ||
+                e.PropertyName == nameof(ViewModel.HasEquippedHat) ||
+                e.PropertyName == nameof(ViewModel.HasEquippedPet) ||
+                e.PropertyName == nameof(ViewModel.HasEquippedEmoji) ||
+                e.PropertyName == nameof(ViewModel.HasEquippedFrame) ||
+                e.PropertyName == nameof(ViewModel.HasEquippedBackground))
+            {
+                UpdateProfileControl();
             }
         }
 
@@ -169,6 +199,37 @@ namespace SteamProfile.Views
             {
                 _ = ViewModel.LoadProfileAsync(_userId);
             }
+            
+            // Initial update of the profile control
+            UpdateProfileControl();
+        }
+        
+        private void UpdateProfileControl()
+        {
+            // Only update if the control exists
+            if (ProfileControl == null) return;
+            
+            // Get profile picture path with correct prefix
+            string profilePicture = ViewModel.ProfilePicture;
+            
+            // Get paths for all equipped items, but only if they are equipped (check visibility flags)
+            string hatPath = ViewModel.HasEquippedHat ? ViewModel.EquippedHatSource : null;
+            string petPath = ViewModel.HasEquippedPet ? ViewModel.EquippedPetSource : null;
+            string emojiPath = ViewModel.HasEquippedEmoji ? ViewModel.EquippedEmojiSource : null;
+            string framePath = ViewModel.HasEquippedFrame ? ViewModel.EquippedFrameSource : null;
+            string backgroundPath = ViewModel.HasEquippedBackground ? ViewModel.EquippedBackgroundSource : null;
+            
+            // Update the AdaptiveProfileControl
+            ProfileControl.UpdateProfile(
+                ViewModel.Username,
+                "", // We're displaying bio separately in the ProfilePage
+                profilePicture,
+                hatPath,
+                petPath,
+                emojiPath,
+                framePath,
+                backgroundPath
+            );
         }
     }
 

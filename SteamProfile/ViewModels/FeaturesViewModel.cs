@@ -316,52 +316,80 @@ namespace SteamProfile.ViewModels
             // Get the user profile to access bio and profile picture
             var userProfile = _userProfilesRepository.GetUserProfileByUserId(user.UserId);
             
-            // Create control and apply current features
-            var profileControl = new ProfileInfoControl();
-            profileControl.ApplyUserFeatures(user, userFeatures);
+            // Create adaptive profile control
+            var profileControl = new AdaptiveProfileControl();
             
-            // Set user bio
-            if (userProfile != null && !string.IsNullOrEmpty(userProfile.Bio))
-            {
-                profileControl.Description = userProfile.Bio;
-            }
-            else
-            {
-                profileControl.Description = "No bio available";
-            }
-            
-            // Set profile picture if available
+            // Get profile picture path
+            string profilePicturePath = "ms-appx:///Assets/default-profile.png";
             if (userProfile != null && !string.IsNullOrEmpty(userProfile.ProfilePicture))
             {
-                string picturePath = userProfile.ProfilePicture;
-                if (!picturePath.StartsWith("ms-appx:///"))
+                profilePicturePath = userProfile.ProfilePicture;
+                if (!profilePicturePath.StartsWith("ms-appx:///"))
                 {
-                    picturePath = $"ms-appx:///{picturePath}";
-                }
-                
-                try
-                {
-                    profileControl.ProfilePicture = new BitmapImage(new Uri(picturePath));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error loading profile picture: {ex.Message}");
-                    // Use default picture - already set in control
+                    profilePicturePath = $"ms-appx:///{profilePicturePath}";
                 }
             }
             
-            // Create a temporary feature object to preview
-            var previewFeature = new Feature
+            // Get bio text
+            string bioText = "No bio available";
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.Bio))
             {
-                FeatureId = featureDisplay.FeatureId,
-                Name = featureDisplay.Name,
-                Source = featureDisplay.Source.Replace("ms-appx:///", ""),
-                Type = featureDisplay.Type,
-                Equipped = true
-            };
+                bioText = userProfile.Bio;
+            }
+            
+            // Extract feature paths from equipped features
+            string hatPath = null;
+            string petPath = null;
+            string emojiPath = null;
+            string framePath = null;
+            string backgroundPath = null;
+            
+            foreach (var feature in userFeatures)
+            {
+                if (!feature.Equipped) continue;
+                
+                string path = feature.Source;
+                if (!path.StartsWith("ms-appx:///"))
+                {
+                    path = $"ms-appx:///{path}";
+                }
+                
+                switch (feature.Type.ToLower())
+                {
+                    case "hat": hatPath = path; break;
+                    case "pet": petPath = path; break;
+                    case "emoji": emojiPath = path; break;
+                    case "frame": framePath = path; break;
+                    case "background": backgroundPath = path; break;
+                }
+            }
             
             // Apply the preview feature
-            profileControl.ApplyFeature(previewFeature);
+            string previewPath = featureDisplay.Source;
+            switch (featureDisplay.Type.ToLower())
+            {
+                case "hat": hatPath = previewPath; break;
+                case "pet": petPath = previewPath; break;
+                case "emoji": emojiPath = previewPath; break;
+                case "frame": framePath = previewPath; break;
+                case "background": backgroundPath = previewPath; break;
+            }
+            
+            // Update the profile control with all the information
+            profileControl.UpdateProfile(
+                user.Username, 
+                bioText, 
+                profilePicturePath,
+                hatPath, 
+                petPath, 
+                emojiPath, 
+                framePath, 
+                backgroundPath
+            );
+            
+            // Adjust size for the dialog
+            profileControl.Width = 350;
+            profileControl.Height = 500;
             
             // Create and show preview dialog
             var previewDialog = new ContentDialog
