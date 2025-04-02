@@ -199,12 +199,42 @@
                       Orientation="Horizontal" 
                       HorizontalAlignment="Right"
                       Margin="0,20,20,20">
-                <!-- Configuration Button -->
-                <Button Content="Configuration"
+                <!-- Money display -->
+                <Button Style="{StaticResource TransparentButton}"
+                        Margin="0,0,10,0"
+                        Padding="0"
+                        Command="{x:Bind ViewModel.ShowMoneyCommand}"
+                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
+                    <Border Background="#E6D5B8" 
+                            Padding="15,5" 
+                            CornerRadius="5">
+                        <TextBlock Text="Money" 
+                                 FontSize="14"/>
+                    </Border>
+                </Button>
+
+                <!-- Points display -->
+                <Button Style="{StaticResource TransparentButton}"
+                        Margin="0,0,10,0"
+                        Padding="0"
+                        Command="{x:Bind ViewModel.ShowPointsCommand}"
+                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
+                    <Border Background="#E6D5B8" 
+                            Padding="15,5" 
+                            CornerRadius="5">
+                        <TextBlock Text="No. points" 
+                                 FontSize="14"/>
+                    </Border>
+                </Button>
+
+                <!-- Settings button -->
+                <Button Style="{StaticResource TransparentButton}"
                         Command="{x:Bind ViewModel.ConfigurationCommand}"
-                        Style="{StaticResource AccentButtonStyle}"
-                        MinWidth="120"
-                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        Visibility="{x:Bind ViewModel.IsOwner, Mode=OneWay}">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" 
+                             Glyph="&#xE713;"
+                             Foreground="White"/>
+                </Button>
             </StackPanel>
 
             <!-- Collections Header -->
@@ -252,7 +282,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-        </StackPanel>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>
