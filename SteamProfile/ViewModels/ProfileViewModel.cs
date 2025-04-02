@@ -238,6 +238,7 @@ namespace SteamProfile.ViewModels
                     try
                     {
                         userProfile = _userProfileRepository.GetUserProfileByUserId(currentUser.UserId);
+
                         Debug.WriteLine($"Retrieved profile ID: {userProfile?.ProfileId.ToString() ?? "null"}");
                     }
                     catch (Exception ex)
@@ -277,7 +278,7 @@ namespace SteamProfile.ViewModels
                             ProfilePicture = userProfile.ProfilePicture != null 
                                 ? (userProfile.ProfilePicture.StartsWith("ms-appx:///") 
                                     ? userProfile.ProfilePicture 
-                                    : $"ms-appx:///{userProfile.ProfilePicture}")
+                                    : $"ms-appx:///{userProfile.ProfilePicture}")  // !!!
                                 : "ms-appx:///Assets/default-profile.png";
                         }
 
@@ -519,7 +520,7 @@ namespace SteamProfile.ViewModels
         private void BackToProfile()
         {
             // Get the current user's ID from the UserService
-            int currentUserId = _userService.GetCurrentUser().UserId; // Adjust this line based on your UserService implementation
+            int currentUserId = _userService.GetCurrentUser().UserId;
 
             // Navigate back to the Profile page with the current user ID
             NavigationService.Instance.Navigate(typeof(ProfilePage), currentUserId);

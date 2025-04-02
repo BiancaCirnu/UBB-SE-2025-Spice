@@ -96,7 +96,9 @@ namespace SteamProfile.Views
             {
                 ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
             }
-            
+
+            Debug.WriteLine($"Navigated away from ProfilePage to {e.SourcePageType.Name}");
+
             base.OnNavigatedFrom(e);
             _isNavigatingAway = true;
             Debug.WriteLine("Navigated away from ProfilePage");
@@ -151,14 +153,26 @@ namespace SteamProfile.Views
                 // Use the user ID stored in the ViewModel
                 _userId = ViewModel.UserId;
                 Debug.WriteLine($"Using stored user ID from ViewModel: {_userId}");
-                
+
                 // Load the profile data
-                _ = ViewModel.LoadProfileAsync(_userId);
+                _ = LoadAndUpdateProfile(_userId);  /// VERY IMPORTANT
             }
             else
             {
                 Debug.WriteLine("No user ID available - cannot load profile");
             }
+
+            UpdateProfileControl();
+        }
+
+
+        private async Task LoadAndUpdateProfile(int userId)
+        {
+            await ViewModel.LoadProfileAsync(userId);
+
+            // Important: Call UpdateProfileControl explicitly after loading profile
+            UpdateProfileControl();
+            Debug.WriteLine($"Profile control updated after loading profile. Profile picture path: {ViewModel.ProfilePicture}");
         }
 
         private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -180,6 +194,36 @@ namespace SteamProfile.Views
             {
                 UpdateProfileControl();
             }
+        }
+
+        private void UpdateProfileControl()
+        {
+            // Only update if the control exists
+            if (ProfileControl == null) return;
+
+            // Always pass the profile picture as long as it's not null or empty
+            string profilePicture = !string.IsNullOrEmpty(ViewModel.ProfilePicture)
+                ? ViewModel.ProfilePicture
+                : "ms-appx:///Assets/default-profile.png";
+
+            // Get paths for all equipped items, but only if they are equipped (check visibility flags)
+            string hatPath = ViewModel.HasEquippedHat ? ViewModel.EquippedHatSource : null;
+            string petPath = ViewModel.HasEquippedPet ? ViewModel.EquippedPetSource : null;
+            string emojiPath = ViewModel.HasEquippedEmoji ? ViewModel.EquippedEmojiSource : null;
+            string framePath = ViewModel.HasEquippedFrame ? ViewModel.EquippedFrameSource : null;
+            string backgroundPath = ViewModel.HasEquippedBackground ? ViewModel.EquippedBackgroundSource : null;
+
+            // Update the AdaptiveProfileControl
+            ProfileControl.UpdateProfile(
+                ViewModel.Username,
+                "", // We're displaying bio separately in the ProfilePage
+                profilePicture,
+                hatPath,
+                petPath,
+                emojiPath,
+                framePath,
+                backgroundPath
+            );
         }
 
         private async void ShowErrorDialog(string message)
@@ -263,34 +307,6 @@ namespace SteamProfile.Views
             
             // Initial update of the profile control
             UpdateProfileControl();
-        }
-        
-        private void UpdateProfileControl()
-        {
-            // Only update if the control exists
-            if (ProfileControl == null) return;
-            
-            // Get profile picture path with correct prefix
-            string profilePicture = ViewModel.ProfilePicture;
-            
-            // Get paths for all equipped items, but only if they are equipped (check visibility flags)
-            string hatPath = ViewModel.HasEquippedHat ? ViewModel.EquippedHatSource : null;
-            string petPath = ViewModel.HasEquippedPet ? ViewModel.EquippedPetSource : null;
-            string emojiPath = ViewModel.HasEquippedEmoji ? ViewModel.EquippedEmojiSource : null;
-            string framePath = ViewModel.HasEquippedFrame ? ViewModel.EquippedFrameSource : null;
-            string backgroundPath = ViewModel.HasEquippedBackground ? ViewModel.EquippedBackgroundSource : null;
-            
-            // Update the AdaptiveProfileControl
-            ProfileControl.UpdateProfile(
-                ViewModel.Username,
-                "", // We're displaying bio separately in the ProfilePage
-                profilePicture,
-                hatPath,
-                petPath,
-                emojiPath,
-                framePath,
-                backgroundPath
-            );
         }
     }
 
