@@ -110,6 +110,9 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private AchievementWithStatus _numberOfReviewsAchievement;
 
+        [ObservableProperty]
+        private bool _isDeveloper;
+
         public static ProfileViewModel Instance
         {
             get
@@ -158,7 +161,6 @@ namespace SteamProfile.ViewModels
         {
             try
             {
-
                 await _dispatcherQueue.EnqueueAsync(() => IsLoading = true);
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
@@ -166,7 +168,6 @@ namespace SteamProfile.ViewModels
                 var currentUser = await Task.Run(() => _userService.GetUserById(user_id));
                 var userProfile = await Task.Run(() =>
                     _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
-
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
@@ -179,8 +180,9 @@ namespace SteamProfile.ViewModels
                         // Basic user info from Users table
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
+                        IsDeveloper = currentUser.IsDeveloper;
 
-                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner}");
+                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner} ; isDeveloper = {IsDeveloper}");
 
                         // Profile info from UserProfiles table
                         if (userProfile != null)

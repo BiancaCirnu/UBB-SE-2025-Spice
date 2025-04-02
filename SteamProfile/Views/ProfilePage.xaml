@@ -87,6 +87,16 @@
                                      FontSize="24"/>
                             <Image Source="{x:Bind ViewModel.EquippedEmoji, Mode=OneWay, Converter={StaticResource StringToImageSourceConverter}}"
                                    Width="30" Height="30"/>
+
+                            <Border Background="#FFD700" 
+                                    Padding="5,2" 
+                                    CornerRadius="3"
+                                    Visibility="{x:Bind ViewModel.IsDeveloper, Mode=OneWay}">
+                                <TextBlock Text="Developer"
+                                         Foreground="#000000"
+                                         FontSize="12"
+                                         FontWeight="SemiBold"/>
+                            </Border>
                         </StackPanel>
 
                         <!-- Friends Count -->
