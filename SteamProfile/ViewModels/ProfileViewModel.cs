@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using SteamProfile.Views;
 using Microsoft.UI.Xaml;
 using SteamProfile.Repositories;
+using System.Linq;
 
 namespace SteamProfile.ViewModels
 {
@@ -22,6 +23,7 @@ namespace SteamProfile.ViewModels
         private readonly FriendsService _friendsService;
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly UserProfilesRepository _userProfileRepository;
+        private readonly AchievementsService _achievementsService;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -96,6 +98,21 @@ namespace SteamProfile.ViewModels
         private string _equippedEmoji = string.Empty;
         private static CollectionsRepository _collectionsRepository;
 
+        [ObservableProperty]
+        private AchievementWithStatus _friendshipsAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _ownedGamesAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _soldGamesAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _numberOfReviewsAchievement;
+
+        [ObservableProperty]
+        private bool _isDeveloper;
+
         public static ProfileViewModel Instance
         {
             get
@@ -109,46 +126,48 @@ namespace SteamProfile.ViewModels
         }
 
         public static void Initialize(
-            UserService userService, 
-            FriendsService friendsService, 
+            UserService userService,
+            FriendsService friendsService,
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
-            CollectionsRepository collectionsRepository)
+            CollectionsRepository collectionsRepository,
+            AchievementsService achievementsService)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository, achievementsService);
         }
 
         public ProfileViewModel(
-            UserService userService, 
-            FriendsService friendsService, 
+            UserService userService,
+            FriendsService friendsService,
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
-            CollectionsRepository collectionsRepository)
+            CollectionsRepository collectionsRepository,
+            AchievementsService achievementsService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
             _dispatcherQueue = dispatcherQueue ?? throw new ArgumentNullException(nameof(dispatcherQueue));
             _userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
             _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
+            _achievementsService = achievementsService ?? throw new ArgumentNullException(nameof(achievementsService));
+
         }
 
         public async Task LoadProfileAsync(int user_id)
         {
             try
             {
-                
                 await _dispatcherQueue.EnqueueAsync(() => IsLoading = true);
                 await _dispatcherQueue.EnqueueAsync(() => ErrorMessage = string.Empty);
 
                 // Load both user and profile data on a background thread
                 var currentUser = await Task.Run(() => _userService.GetUserById(user_id));
-                var userProfile = await Task.Run(() => 
+                var userProfile = await Task.Run(() =>
                     _userProfileRepository.GetUserProfileByUserId(currentUser.UserId));
-
 
                 await _dispatcherQueue.EnqueueAsync(() =>
                 {
@@ -161,8 +180,9 @@ namespace SteamProfile.ViewModels
                         // Basic user info from Users table
                         UserId = currentUser.UserId;
                         Username = currentUser.Username;
+                        IsDeveloper = currentUser.IsDeveloper;
 
-                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner}");
+                        Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner} ; isDeveloper = {IsDeveloper}");
 
                         // Profile info from UserProfiles table
                         if (userProfile != null)
@@ -177,15 +197,20 @@ namespace SteamProfile.ViewModels
                         // Load friend count
                         FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
 
-                        // Set some test achievement values
-                        HasGameplayAchievement = true;
-                        HasCollectionAchievement = false;
-                        HasSocialAchievement = true;
-                        HasMarketAchievement = false;
-                        HasCustomizationAchievement = true;
-                        HasCommunityAchievement = false;
-                        HasEventAchievement = true;
-                        HasSpecialAchievement = false;
+                        // First unlock any achievements the user has earned
+                        _achievementsService.UnlockAchievementForUser(currentUser.UserId);
+
+                        // Then load achievements
+                        FriendshipsAchievement = GetTopAchievement(currentUser.UserId, "Friendships");
+                        OwnedGamesAchievement = GetTopAchievement(currentUser.UserId, "Owned Games");
+                        SoldGamesAchievement = GetTopAchievement(currentUser.UserId, "Sold Games");
+                        NumberOfReviewsAchievement = GetTopAchievement(currentUser.UserId, "Number of Reviews");
+
+                        Debug.WriteLine($"Loaded achievements for user {currentUser.UserId}:");
+                        Debug.WriteLine($"Friendships: {FriendshipsAchievement?.Achievement?.AchievementName}, Unlocked: {FriendshipsAchievement?.IsUnlocked}");
+                        Debug.WriteLine($"Owned Games: {OwnedGamesAchievement?.Achievement?.AchievementName}, Unlocked: {OwnedGamesAchievement?.IsUnlocked}");
+                        Debug.WriteLine($"Sold Games: {SoldGamesAchievement?.Achievement?.AchievementName}, Unlocked: {SoldGamesAchievement?.IsUnlocked}");
+                        Debug.WriteLine($"Reviews: {NumberOfReviewsAchievement?.Achievement?.AchievementName}, Unlocked: {NumberOfReviewsAchievement?.IsUnlocked}");
 
                         // TODO: Load these from their respective services
                         Money = 0;
@@ -197,8 +222,8 @@ namespace SteamProfile.ViewModels
                         var lastThreeCollections = _collectionsRepository.GetLastThreeCollectionsForUser(user_id);
                         Collections.Clear();
 
-                        
-                       
+
+
                         foreach (var collection in lastThreeCollections)
                         {
                             Collections.Add(collection);
@@ -224,22 +249,73 @@ namespace SteamProfile.ViewModels
             }
         }
 
-        //private async Task LoadFriendCountAsync()
-        //{
-        //    try
-        //    {
-        //        var count = _friendsService.GetFriendshipCount(UserId);
-        //        await _dispatcherQueue.EnqueueAsync(() => FriendCount = count);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Debug.WriteLine($"Error loading friend count: {ex.Message}");
-        //        if (ex.InnerException != null)
-        //        {
-        //            Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
-        //        }
-        //    }
-        //}
+        private AchievementWithStatus GetTopAchievement(int userId, string category)
+        {
+            try
+            {
+                // Get all achievements for this category
+                var achievements = _achievementsService.GetAchievementsWithStatusForUser(userId)
+                    .Where(a => a.Achievement.AchievementType == category)
+                    .ToList();
+
+                // First try to get the highest-points unlocked achievement
+                var topUnlockedAchievement = achievements
+                    .Where(a => a.IsUnlocked)
+                    .OrderByDescending(a => a.Achievement.Points)
+                    .FirstOrDefault();
+
+                // If we found an unlocked achievement, return it
+                if (topUnlockedAchievement != null)
+                {
+                    Debug.WriteLine($"Found top unlocked {category} achievement: {topUnlockedAchievement.Achievement.AchievementName}");
+                    return topUnlockedAchievement;
+                }
+
+                // If no unlocked achievements, get the lowest-points locked achievement
+                var lowestLockedAchievement = achievements
+                    .Where(a => !a.IsUnlocked)
+                    .OrderBy(a => a.Achievement.Points)
+                    .FirstOrDefault();
+
+                // If we found a locked achievement, return it
+                if (lowestLockedAchievement != null)
+                {
+                    Debug.WriteLine($"Found lowest locked {category} achievement: {lowestLockedAchievement.Achievement.AchievementName}");
+                    return lowestLockedAchievement;
+                }
+
+                // If no achievements found at all, return an empty achievement
+                Debug.WriteLine($"No achievements found for {category}, returning empty achievement");
+                return new AchievementWithStatus
+                {
+                    Achievement = new Achievement
+                    {
+                        AchievementName = $"No {category} Achievement",
+                        Description = "Complete tasks to unlock this achievement",
+                        AchievementType = category,
+                        Points = 0,
+                        Icon = "ms-appx:///Assets/empty_achievement.png" // Use a grayscale or empty icon
+                    },
+                    IsUnlocked = false
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting top achievement for {category}: {ex.Message}");
+                return new AchievementWithStatus
+                {
+                    Achievement = new Achievement
+                    {
+                        AchievementName = $"No {category} Achievement",
+                        Description = "Complete tasks to unlock this achievement",
+                        AchievementType = category,
+                        Points = 0,
+                        Icon = "ms-appx:///Assets/empty_achievement.png" // Use a grayscale or empty icon
+                    },
+                    IsUnlocked = false
+                };
+            }
+        }
 
         [RelayCommand]
         private void Configuration()
@@ -315,6 +391,6 @@ namespace SteamProfile.ViewModels
             return tcs.Task;
         }
     }
-          
 
-    }
+
+}

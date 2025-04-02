@@ -45,11 +45,8 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@profile_id", profile.ProfileId),
                     new SqlParameter("@user_id", profile.UserId),
                     new SqlParameter("@profile_picture", (object?)profile.ProfilePicture ?? DBNull.Value),
-                    new SqlParameter("@bio", (object?)profile.Bio ?? DBNull.Value),
-                    new SqlParameter("@equipped_frame", (object?)profile.EquippedFrame ?? DBNull.Value),
-                    new SqlParameter("@equipped_hat", (object?)profile.EquippedHat ?? DBNull.Value),
-                    new SqlParameter("@equipped_pet", (object?)profile.EquippedPet ?? DBNull.Value),
-                    new SqlParameter("@equipped_emoji", (object?)profile.EquippedEmoji ?? DBNull.Value)
+                    new SqlParameter("@bio", (object?)profile.Bio ?? DBNull.Value)
+                
                 };
 
                 var dataTable = _dataLink.ExecuteReader("UpdateUserProfile", parameters);
@@ -125,10 +122,7 @@ namespace SteamProfile.Repositories
                 UserId = Convert.ToInt32(row["user_id"]),
                 ProfilePicture = row["profile_picture"] != DBNull.Value ? row["profile_picture"] as string : null,
                 Bio = row["bio"] != DBNull.Value ? row["bio"] as string : null,
-                EquippedFrame = row["equipped_frame"] != DBNull.Value ? row["equipped_frame"] as string : null,
-                EquippedHat = row["equipped_hat"] != DBNull.Value ? row["equipped_hat"] as string : null,
-                EquippedPet = row["equipped_pet"] != DBNull.Value ? row["equipped_pet"] as string : null,
-                EquippedEmoji = row["equipped_emoji"] != DBNull.Value ? row["equipped_emoji"] as string : null,
+               
                 LastModified = row["last_modified"] != DBNull.Value ? Convert.ToDateTime(row["last_modified"]) : DateTime.MinValue
             };
         }

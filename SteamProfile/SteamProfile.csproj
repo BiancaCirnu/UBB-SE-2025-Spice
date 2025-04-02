@@ -34,6 +34,7 @@
     <None Remove="Views\ForgotPasswordPage.xaml" />
     <None Remove="Views\FriendsPage.xaml" />
     <None Remove="Views\LoginPage.xaml" />
+    <None Remove="Views\ProfilePage.xaml" />
     <None Remove="Views\RegisterPage.xaml" />
     <None Remove="Views\WalletViews\AddMoneyPage.xaml" />
     <None Remove="Views\WalletViews\AddPointsPage.xaml" />
@@ -237,6 +238,9 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<Page Update="Views\ProfilePage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -256,9 +260,6 @@
 
 	<ItemGroup>
 		<Page Update="Views\FriendsPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Views\ProfilePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<!-- Add other pages as needed -->

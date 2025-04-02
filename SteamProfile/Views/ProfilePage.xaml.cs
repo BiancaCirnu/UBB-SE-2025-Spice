@@ -52,11 +52,12 @@ namespace SteamProfile.Views
 
                 // Add the UserProfileRepository parameter
                 ProfileViewModel.Initialize(
-                    App.UserService, 
-                    friendsService, 
+                    App.UserService,
+                    friendsService,
                     Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
                     App.UserProfileRepository,
-                    App.CollectionsRepository
+                    App.CollectionsRepository,
+                    App.AchievementsService
                 );
                 Debug.WriteLine("ProfileViewModel initialized with services.");
 
@@ -68,7 +69,7 @@ namespace SteamProfile.Views
                 Debug.WriteLine("Assuming we're viewing someone else's profile.");
 
                 // Load the profile data
-               // _ = ViewModel.LoadProfileAsync(_isOwnProfile);
+                // _ = ViewModel.LoadProfileAsync(_isOwnProfile);
                 Debug.WriteLine("Profile data loading initiated.");
             }
             catch (Exception ex)
@@ -130,7 +131,7 @@ namespace SteamProfile.Views
         {
             Frame.Navigate(typeof(CollectionsPage));
         }
-        private void AchievementsButton_Click (object sender, RoutedEventArgs e)
+        private void AchievementsButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AchievementsPage));
         }

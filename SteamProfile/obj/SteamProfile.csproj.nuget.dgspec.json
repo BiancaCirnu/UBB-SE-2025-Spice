@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {}
+    "C:\\Users\\eciobanu\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {
+    "C:\\Users\\eciobanu\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
+        "projectUniqueName": "C:\\Users\\eciobanu\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
         "projectName": "SteamProfile",
-        "projectPath": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
-        "packagesPath": "C:\\Users\\Bianca\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Bianca\\Desktop\\ISS\\UBB-SE-2025-Spice\\SteamProfile\\obj\\",
+        "projectPath": "C:\\Users\\eciobanu\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\SteamProfile.csproj",
+        "packagesPath": "C:\\Users\\eciobanu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\eciobanu\\Source\\Repos\\UBB-SE-2025-Spice\\SteamProfile\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Bianca\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\eciobanu\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

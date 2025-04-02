@@ -72,21 +72,24 @@ namespace SteamProfile.Services
         public bool acceptChanges(int user_id, string givenPassword)
         {
             User user = _usersRepository.GetUserById(user_id);
-            
+
             if (PasswordHasher.VerifyPassword(givenPassword, user.Password))
-                {
+            {
                 return true;
-                }
+            }
             return false;
         }
 
-        public void updateUserEmail(int userId, string newEmail) {
+        public void updateUserEmail(int userId, string newEmail)
+        {
             _usersRepository.ChangeEmail(userId, newEmail);
         }
-        public void updateUserPassword(int userId, string newPassword) {
+        public void updateUserPassword(int userId, string newPassword)
+        {
             _usersRepository.ChangePassword(userId, newPassword);
         }
-        public void updateUserUsername(int userId, string newUsername) {
+        public void updateUserUsername(int userId, string newUsername)
+        {
             _usersRepository.ChangeUsername(userId, newUsername);
         }
 
@@ -155,7 +158,7 @@ namespace SteamProfile.Services
 
         internal bool VerifyUserPassword(string password)
         {
-            string email = this.GetCurrentUser().Email; 
+            string email = this.GetCurrentUser().Email;
             var user = _usersRepository.VerifyCredentials(email);
             if (user != null)
             {
