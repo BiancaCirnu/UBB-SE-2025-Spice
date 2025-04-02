@@ -15,6 +15,7 @@ namespace SteamProfile.Views
         private CollectionGamesViewModel _viewModel;
         private int _collectionId;
         private string _collectionName;
+        private readonly UserService _userService = App.UserService;
 
         public CollectionGamesPage()
         {
@@ -36,7 +37,8 @@ namespace SteamProfile.Views
             {
                 // Handle back navigation from AddGameToCollectionPage
                 _collectionId = backCollectionId;
-                var collection = App.CollectionsService.GetCollectionById(_collectionId);
+                var userId = _userService.GetCurrentUser().UserId;
+                var collection = App.CollectionsService.GetCollectionById(_collectionId, userId);
                 if (collection != null)
                 {
                     _collectionName = collection.Name;

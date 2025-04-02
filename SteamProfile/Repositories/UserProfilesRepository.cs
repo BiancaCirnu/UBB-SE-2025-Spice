@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Dapper;
+using Windows.System;
 
 namespace SteamProfile.Repositories
 {
@@ -73,6 +74,44 @@ namespace SteamProfile.Repositories
                 throw new RepositoryException($"Failed to create profile for user {userId}.", ex);
             }
         }
+
+        public void UpdateProfileBio(int user_id, string bio)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", user_id),
+                    new SqlParameter("@bio", bio)
+
+                };
+
+                var dataTable = _dataLink.ExecuteReader("UpdateUserProfileBio", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to update profile for user {user_id}.", ex);
+            }
+        }
+
+        public void UpdateProfilePicture(int user_id, string picture)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", user_id),
+                    new SqlParameter("@profile_picture", picture)
+                };
+
+                var dataTable = _dataLink.ExecuteReader("UpdateUserProfilePicture", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to update profile for user {user_id}.", ex);
+            }
+        }
+
 
         private static UserProfile MapDataRowToUserProfile(DataRow row)
         {

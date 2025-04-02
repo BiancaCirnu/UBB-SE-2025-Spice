@@ -34,10 +34,7 @@
                     Command="{Binding NavigateToProfileSettingsCommand}"
                     HorizontalAlignment="Center" 
                     Width="200"/>
-            <Button Content="Go to wallet"
-                    Command="{Binding NavigateToWalletCommand}"
-                    HorizontalAlignment="Center" 
-                    Width="200"/>
+           
             <Button Content="Back to Profile"
                     Command="{Binding NavigateToProfileCommand}"
                     Style="{ThemeResource TextBlockButtonStyle}"/>

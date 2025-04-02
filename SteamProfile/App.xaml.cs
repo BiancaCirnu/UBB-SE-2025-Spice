@@ -41,7 +41,7 @@ namespace SteamProfile
         static App()
         {
             var dataLink = DataLink.Instance;
-            var navigationService = NavigationService.Instance ;
+            var navigationService = NavigationService.Instance;
 
             var achievementsRepository = new AchievementsRepository(dataLink);
             var featuresRepository = new FeaturesRepository(dataLink);
@@ -65,8 +65,8 @@ namespace SteamProfile
             WalletService = new WalletService(walletRepository, UserService);
             FriendsService = new FriendsService(friendshipsRepository, UserService);
             OwnedGamesService = new OwnedGamesService(ownedGamesRepossitory);
-            FeaturesService = new FeaturesService(featuresRepository, UserService);
             PasswordResetService = new PasswordResetService(passwordResetRepo, UserService);
+            FeaturesService = new FeaturesService(featuresRepository, UserService);
 
         }
 

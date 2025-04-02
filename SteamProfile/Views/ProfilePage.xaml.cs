@@ -107,7 +107,28 @@ namespace SteamProfile.Views
             base.OnNavigatedTo(e);
             Debug.WriteLine("Navigated to ProfilePage.");
 
-            // Make sure we have a ViewModel instance
+            // Ensure ProfileViewModel is initialized
+            if (!ProfileViewModel.IsInitialized)
+            {
+                var dataLink = DataLink.Instance;
+                Debug.WriteLine("Initializing ProfileViewModel...");
+
+                var friendsService = App.FriendsService;
+                Debug.WriteLine("FriendsService obtained.");
+
+                // Initialize ProfileViewModel with all required services
+                ProfileViewModel.Initialize(
+                    App.UserService, 
+                    friendsService, 
+                    Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
+                    App.UserProfileRepository,
+                    App.CollectionsRepository,
+                    App.FeaturesService
+                );
+                Debug.WriteLine("ProfileViewModel initialized with services.");
+            }
+
+            // Get the ViewModel instance
             ViewModel = ProfileViewModel.Instance;
             DataContext = ViewModel;
 
@@ -180,6 +201,46 @@ namespace SteamProfile.Views
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error showing dialog: {ex.Message}");
+            }
+        }
+
+        private async void UnfriendButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ContentDialog confirmDialog = new ContentDialog
+                {
+                    Title = "Confirm Unfriend",
+                    Content = "Are you sure you want to unfriend this user?",
+                    PrimaryButtonText = "Yes",
+                    CloseButtonText = "No",
+                    DefaultButton = ContentDialogButton.Close,
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await confirmDialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Get the friendship ID for the current user and friend
+                    var friendships = App.FriendsService.GetAllFriendships();
+                    var friendship = friendships.FirstOrDefault(f => 
+                        (f.UserId == App.UserService.GetCurrentUser().UserId && f.FriendId == _userId) ||
+                        (f.UserId == _userId && f.FriendId == App.UserService.GetCurrentUser().UserId));
+
+                    if (friendship != null)
+                    {
+                        App.FriendsService.RemoveFriend(friendship.FriendshipId);
+                        Frame.Navigate(typeof(ProfilePage), App.UserService.GetCurrentUser().UserId);
+                    }
+                    else
+                    {
+                        ShowErrorDialog("Could not find friendship to remove.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowErrorDialog($"Error unfriending user: {ex.Message}");
             }
         }
 

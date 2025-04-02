@@ -190,9 +190,9 @@ namespace SteamProfile.Views
             }
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void BackToProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            Frame.Navigate(typeof(ProfilePage));
+            Frame.Navigate(typeof(ProfilePage), App.UserService.GetCurrentUser().UserId);
         }
     }
 }

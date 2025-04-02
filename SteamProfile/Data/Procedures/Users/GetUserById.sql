@@ -1,6 +1,6 @@
 go
-CREATE PROCEDURE GetUserById
-    @userId INT
+CREATE or alter PROCEDURE GetUserById
+    @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -13,5 +13,5 @@ BEGIN
         created_at,
         last_login
     FROM Users
-    WHERE user_id = @userId;
+    WHERE user_id = @user_id;
 END 

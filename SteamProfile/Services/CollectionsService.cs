@@ -46,12 +46,12 @@ namespace SteamProfile.Services
             }
         }
 
-        public Collection GetCollectionById(int collectionId)
+        public Collection GetCollectionById(int collectionId, int userId)
         {
             try
             {
                 Debug.WriteLine($"Getting collection {collectionId}");
-                var collection = _collectionsRepository.GetCollectionById(collectionId);
+                var collection = _collectionsRepository.GetCollectionById(collectionId, userId);
                 if (collection == null)
                 {
                     Debug.WriteLine($"No collection found with ID {collectionId}");

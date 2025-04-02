@@ -18,6 +18,7 @@ namespace SteamProfile.ViewModels
     {
         private readonly WalletService _walletService;
         private readonly UserService _userService;
+        private readonly UserProfilesRepository _userProfilesRepository;
         private readonly Frame _frame;
 
         [ObservableProperty]
@@ -43,6 +44,7 @@ namespace SteamProfile.ViewModels
         {
             _walletService = App.WalletService;
             _userService = App.UserService;
+            _userProfilesRepository = App.UserProfileRepository;
             _frame = frame;
         }
 
@@ -97,6 +99,7 @@ namespace SteamProfile.ViewModels
                 if (createdUser != null)
                 {
                     // Navigate to login page on successful registration
+                    _userProfilesRepository.CreateProfile(createdUser.UserId);
                     _walletService.CreateWallet(createdUser.UserId);
                     _frame.Navigate(typeof(LoginPage));
                 }
