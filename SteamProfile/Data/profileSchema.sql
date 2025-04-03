@@ -1316,41 +1316,16 @@ CREATE TABLE UserAchievements (
 );
 
 go
-CREATE or Alter PROCEDURE GetAchievementId
-	@type NVARCHAR(50),
-	@count int
+CREATE PROCEDURE UnlockAchievement
+    @userId INT,
+    @achievementId INT
 AS
 BEGIN
-	IF @type = 'Friendships'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP4';
-		ELSE IF @count = 100 SELECT achievement_id FROM Achievements WHERE achievement_name = 'FRIENDSHIP5';
-	END
-	ELSE IF @type = 'Owned Games'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES3';		
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'OWNEDGAMES4';
-	END
-	ELSE IF @type = 'Sold Games'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'SOLDGAMES4';
-	END
-	ELSE IF @type = 'Number of Reviews'
-	BEGIN
-		IF @count = 1 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW1';
-		ELSE IF @count = 5 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW2';
-		ELSE IF @count = 10 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW3';
-		ELSE IF @count = 50 SELECT achievement_id FROM Achievements WHERE achievement_name = 'REVIEW4';
-	END
-END
+    BEGIN
+		INSERT INTO UserAchievements (user_id, achievement_id, unlocked_at)
+		VALUES (@userId, @achievementId, GETDATE());
+	END;
+END;
 
 
 go
@@ -1375,13 +1350,24 @@ END;
 
 
 go
-CREATE PROCEDURE GetNumberOfReviews
+CREATE OR ALTER PROCEDURE GetNumberOfReviewsGiven
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT COUNT(*) AS NumberOfOwnedGames
-    FROM Reviews
+    FROM ReviewsGiven
+    WHERE user_id = @user_id;
+END;
+
+go
+CREATE OR ALTER PROCEDURE GetNumberOfReviewsReceived
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT COUNT(*) AS NumberOfOwnedGames
+    FROM ReviewsReceived
     WHERE user_id = @user_id;
 END;
 
@@ -1393,6 +1379,17 @@ BEGIN
     SET NOCOUNT ON;
     SELECT COUNT(*) AS NumberOfSoldGames
     FROM SoldGames
+    WHERE user_id = @user_id;
+END;
+
+go
+CREATE PROCEDURE GetNumberOfPosts
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT COUNT(*) AS NumberOfPosts
+    FROM Posts
     WHERE user_id = @user_id;
 END;
 
@@ -1445,61 +1442,139 @@ BEGIN
     WHERE user_id = @userId AND achievement_id = @achievementId;
 END;
 
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('FRIENDSHIP1', 'You made a friend, you get a point', 'Friendships', 1)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('FRIENDSHIP2', 'You made 5 friends, you get 3 points', 'Friendships', 3)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('FRIENDSHIP3', 'You made 10 friends, you get 5 points', 'Friendships', 5)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('FRIENDSHIP4', 'You made 50 friends, you get 10 points', 'Friendships', 10)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('FRIENDSHIP5', 'You made 100 friends, you get 15 points', 'Friendships', 15)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('OWNEDGAMES1', 'You own 1 game, you get 1 point', 'Owned Games', 1)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('OWNEDGAMES2', 'You own 5 games, you get 3 poinst', 'Owned Games', 3)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('OWNEDGAMES3', 'You own 10 games, you get 5 points', 'Owned Games', 5)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('OWNEDGAMES4', 'You own 50 games, you get 10 points', 'Owned Games', 10)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('SOLDGAMES1', 'You sold 1 game, you get 1 point', 'Sold Games', 1)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('SOLDGAMES2', 'You sold 5 games, you get 3 points', 'Sold Games', 3)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('SOLDGAMES3', 'You sold 10 games, you get 5 points', 'Sold Games', 5)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('SOLDGAMES4', 'You sold 50 games, you get 10 points', 'Sold Games', 10)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('REVIEW1', 'You gave 1 review, you get 1 point', 'Number of Reviews', 1)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('REVIEW2', 'You gave 5 reviews, you get 3 points', 'Number of Reviews', 3)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('REVIEW3', 'You gave 10 reviews, you get 5 points', 'Number of Reviews', 5)
-
-insert into Achievements(achievement_name, description, achievement_type, points) 
-values ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews', 10)
-
-update Achievements 
-set icon_url = 'https://cdn-icons-png.flaticon.com/512/5139/5139999.png'
-where achievement_id > 0
 go
+CREATE PROCEDURE GetAchievementIdByName
+    @achievementName NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT achievement_id FROM Achievements WHERE achievement_name = @achievementName;
+END;
+
+go
+CREATE OR ALTER PROCEDURE InsertAchievements
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    INSERT INTO Achievements (achievement_name, description, achievement_type, points) 
+    VALUES
+    ('FRIENDSHIP1', 'You made a friend, you get a point', 'Friendships', 1),
+    ('FRIENDSHIP2', 'You made 5 friends, you get 3 points', 'Friendships', 3),
+    ('FRIENDSHIP3', 'You made 10 friends, you get 5 points', 'Friendships', 5),
+    ('FRIENDSHIP4', 'You made 50 friends, you get 10 points', 'Friendships', 10),
+    ('FRIENDSHIP5', 'You made 100 friends, you get 15 points', 'Friendships', 15),
+    ('OWNEDGAMES1', 'You own 1 game, you get 1 point', 'Owned Games', 1),
+    ('OWNEDGAMES2', 'You own 5 games, you get 3 points', 'Owned Games', 3),
+    ('OWNEDGAMES3', 'You own 10 games, you get 5 points', 'Owned Games', 5),
+    ('OWNEDGAMES4', 'You own 50 games, you get 10 points', 'Owned Games', 10),
+    ('SOLDGAMES1', 'You sold 1 game, you get 1 point', 'Sold Games', 1),
+    ('SOLDGAMES2', 'You sold 5 games, you get 3 points', 'Sold Games', 3),
+    ('SOLDGAMES3', 'You sold 10 games, you get 5 points', 'Sold Games', 5),
+    ('SOLDGAMES4', 'You sold 50 games, you get 10 points', 'Sold Games', 10),
+    ('REVIEW1', 'You gave 1 review, you get 1 point', 'Number of Reviews Given', 1),
+    ('REVIEW2', 'You gave 5 reviews, you get 3 points', 'Number of Reviews Given', 3),
+    ('REVIEW3', 'You gave 10 reviews, you get 5 points', 'Number of Reviews Given', 5),
+    ('REVIEW4', 'You gave 50 reviews, you get 10 points', 'Number of Reviews Given', 10),
+    ('REVIEWR1', 'You got 1 review, you get 1 point', 'Number of Reviews Received', 1),
+    ('REVIEWR2', 'You got 5 reviews, you get 3 points', 'Number of Reviews Received', 3),
+    ('REVIEWR3', 'You got 10 reviews, you get 5 points', 'Number of Reviews Received', 5),
+    ('REVIEWR4', 'You got 50 reviews, you get 10 points', 'Number of Reviews Received', 10),
+	('DEVELOPER', 'You are a developer, you get 10 points', 'Developer', 10),
+	('ACTIVITY1', 'You have been active for 1 year, you get 1 point', 'Years of Activity', 1),
+	('ACTIVITY2', 'You have been active for 2 years, you get 3 points', 'Years of Activity', 3),
+	('ACTIVITY3', 'You have been active for 3 years, you get 5 points', 'Years of Activity', 5),
+	('ACTIVITY4', 'You have been active for 4 years, you get 10 points', 'Years of Activity', 10),
+	('POSTS1', 'You have made 1 post, you get 1 point', 'Number of Posts', 1),
+	('POSTS2', 'You have made 5 posts, you get 3 points', 'Number of Posts', 3),
+	('POSTS3', 'You have made 10 posts, you get 5 points', 'Number of Posts', 5),
+	('POSTS4', 'You have made 50 posts, you get 10 points', 'Number of Posts', 10)
+	;
+END;
+
+----------------------------- SOLD GAMES (mock table, should check OwnedGames team) --------------------------------
+CREATE TABLE SoldGames (
+    sold_game_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    game_id INT,
+    sold_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+----------------------------- REVIEWS GIVEN(mock table, should check Community team) --------------------------------
+CREATE TABLE ReviewsGiven (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_text NVARCHAR(MAX),
+    review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+	);
+----------------------------- REVIEWS Received(mock table, should check Community team) --------------------------------
+CREATE TABLE ReviewsReceived (
+    review_id INT PRIMARY KEY IDENTITY,
+    user_id INT NOT NULL,
+    review_comment NVARCHAR(MAX),
+	review_date DATETIME,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+	);
+----------------------------- POSTS Received(mock table, should check Community team) --------------------------------
+CREATE TABLE Posts (
+	post_id INT PRIMARY KEY IDENTITY,
+	user_id INT NOT NULL,
+	post_title NVARCHAR(MAX),
+	post_content NVARCHAR(MAX),
+	FOREIGN KEY (user_id) REFERENCES Users(user_id)
+)
+
+go
+CREATE PROCEDURE GetUserCreatedAt
+    @user_id INT
+AS
+BEGIN
+    SELECT created_at
+    FROM Users
+    WHERE user_id = @user_id;
+END;
+
+
+CREATE OR ALTER PROCEDURE IsAchievementUnlocked
+    @user_id INT,
+    @achievement_id INT
+AS
+BEGIN
+    SELECT COUNT(1) as IsUnlocked
+    FROM UserAchievements
+    WHERE user_id = @user_id
+    AND achievement_id = @achievement_id;
+END;
+
+
+CREATE PROCEDURE IsUserDeveloper
+    @user_id INT
+AS
+BEGIN
+    SELECT developer
+    FROM Users
+    WHERE user_id = @user_id;
+END;
+
+
+CREATE PROCEDURE IsAchievementsTableEmpty
+AS
+BEGIN
+	SELECT COUNT(1) FROM Achievements
+END
+
+CREATE PROCEDURE UpdateAchievementIcon
+	@points INT,
+	@iconUrl NVARCHAR(255)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	UPDATE Achievements
+	SET icon_url = @iconUrl
+	WHERE points = @points;
+END;
 
 
 select * from Users
