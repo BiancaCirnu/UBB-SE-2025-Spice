@@ -1,12 +1,13 @@
-CREATE PROCEDURE CheckFeaturePurchase
+
+CREATE PROCEDURE UpdateFeatureUserEquipStatus
     @userId INT,
-    @featureId INT
+    @featureId INT,
+    @equipped BIT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT COUNT(1)
-    FROM Feature_User
-    WHERE user_id = @userId 
-    AND feature_id = @featureId;
+    UPDATE Feature_User
+    SET equipped = @equipped
+    WHERE user_id = @userId AND feature_id = @featureId;
 END
+GO

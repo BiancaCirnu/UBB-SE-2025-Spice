@@ -138,10 +138,8 @@ select * from users;
 
 INSERT INTO Friendships (user_id, friend_id)
 VALUES 
-	(11, 2),
-	(11, 3),
-	(11, 4),
-	(11, 5);
+	(11, 12),
+	(12, 11);
 GO
 
 INSERT INTO Feature_User (user_id, feature_id, equipped) VALUES

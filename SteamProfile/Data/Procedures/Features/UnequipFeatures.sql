@@ -1,4 +1,3 @@
--- Procedure to unequip a feature
 CREATE PROCEDURE UnequipFeature
     @userId INT,
     @featureId INT

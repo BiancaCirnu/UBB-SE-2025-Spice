@@ -1,12 +1,11 @@
-CREATE PROCEDURE CheckFeaturePurchase
+CREATE PROCEDURE CreateFeatureUserRelationship
     @userId INT,
-    @featureId INT
+    @featureId INT,
+    @equipped BIT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT COUNT(1)
-    FROM Feature_User
-    WHERE user_id = @userId 
-    AND feature_id = @featureId;
+    INSERT INTO Feature_User (user_id, feature_id, equipped)
+    VALUES (@userId, @featureId, @equipped);
 END
+GO

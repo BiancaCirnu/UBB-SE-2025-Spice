@@ -136,6 +136,15 @@ DROP PROCEDURE IF EXISTS UpdateCollection;
 DROP PROCEDURE IF EXISTS UpdateUserProfileBio;
 DROP PROCEDURE IF EXISTS UpdateUserProfilePicture;
 DROP PROCEDURE IF EXISTS WinPoints;
+DROP PROCEDURE IF EXISTS DeleteUser;
+DROP PROCEDURE IF EXISTS DeleteFriendshipsForUser;
+DROP PROCEDURE IF EXISTS GetResetCodeData;
+DROP PROCEDURE IF EXISTS DeleteExistingResetCodes;
+DROP PROCEDURE IF EXISTS UpdatePasswordAndRemoveResetCode;
+DROP PROCEDURE IF EXISTS GetFeatureUserRelationship;
+DROP PROCEDURE IF EXISTS UpdateFeatureUserEquipStatus;
+DROP PROCEDURE IF EXISTS CreateFeatureUserRelationship;
+
 
 
 ----------------------------- USERS --------------------------------
@@ -558,46 +567,6 @@ CREATE TABLE PasswordResetCodes (
 );
 
 go
-CREATE PROCEDURE ValidateResetCode
-    @email NVARCHAR(255),
-    @reset_code NVARCHAR(6)
-AS
-BEGIN
-    DECLARE @isValid BIT = 0;
-    
-    -- Check if the code exists, is not used, and hasn't expired
-    IF EXISTS (
-        SELECT 1 
-        FROM PasswordResetCodes 
-        WHERE email = @email 
-        AND reset_code = @reset_code 
-        AND used = 0 
-        AND expiration_time > GETDATE()
-    )
-    BEGIN
-        -- Mark the code as used
-        UPDATE PasswordResetCodes 
-        SET used = 1 
-        WHERE email = @email 
-        AND reset_code = @reset_code;
-        
-        SET @isValid = 1;
-    END
-    
-    SELECT @isValid AS isValid;
-END
-GO
-create or alter procedure UpdateUserProfileBio @user_id int, @bio NVARCHAR(1000) as
-begin
-	update UserProfiles set bio = @bio where user_id = @user_id
-end 
-go
-create or alter procedure UpdateUserProfilePicture @user_id int, @profile_picture NVARCHAR(255) as
-begin
-	update UserProfiles set profile_picture = @profile_picture where user_id = @user_id
-end 
-go
-
 CREATE PROCEDURE StorePasswordResetCode     
     @userId int,
     @resetCode nvarchar(6),
@@ -608,8 +577,10 @@ BEGIN
     VALUES (@userId, @resetCode, @expirationTime)
 END
 
-go
-CREATE PROCEDURE VerifyResetCode
+
+GO
+
+CREATE PROCEDURE GetResetCodeData
     @email nvarchar(255),
     @resetCode nvarchar(6)
 AS
@@ -617,75 +588,67 @@ BEGIN
     DECLARE @userId int
     SELECT @userId = user_id FROM Users WHERE email = @email
 
-    IF EXISTS (
-        SELECT 1 
-        FROM PasswordResetCodes 
-        WHERE user_id = @userId 
-        AND reset_code = @resetCode 
-        AND expiration_time > GETUTCDATE()
-        AND used = 0
-    )
-        SELECT 1 as Result
-    ELSE
-        SELECT 0 as Result
+    SELECT 
+        user_id,
+        reset_code,
+        expiration_time,
+        used
+    FROM PasswordResetCodes
+    WHERE user_id = @userId AND reset_code = @resetCode
 END
-
---SELECT @result AS VerificationResult;
-
 go
 
-CREATE PROCEDURE ResetPassword
-    @email nvarchar(255),
+CREATE PROCEDURE DeleteExistingResetCodes
+    @userId int
+AS
+BEGIN
+    DELETE FROM PasswordResetCodes
+    WHERE user_id = @userId
+END
+go
+create or alter procedure UpdateUserProfileBio @user_id int, @bio NVARCHAR(1000) as
+begin
+	update UserProfiles set bio = @bio where user_id = @user_id
+end 
+go
+create or alter procedure UpdateUserProfilePicture @user_id int, @profile_picture NVARCHAR(255) as
+begin
+	update UserProfiles set profile_picture = @profile_picture where user_id = @user_id
+end 
+
+
+go 
+CREATE PROCEDURE CleanupResetCodes
+AS
+BEGIN
+    DELETE FROM PasswordResetCodes 
+    WHERE expiration_time < GETUTCDATE()
+END
+GO
+
+CREATE PROCEDURE UpdatePasswordAndRemoveResetCode
+    @userId int,
     @resetCode nvarchar(6),
     @newPassword nvarchar(max)
 AS
 BEGIN
     BEGIN TRANSACTION
     
-    DECLARE @userId int
-    SELECT @userId = user_id FROM Users WHERE email = @email
+    -- Update the password
+    UPDATE Users 
+    SET hashed_password = @newPassword 
+    WHERE user_id = @userId
 
-    IF EXISTS (
-        SELECT 1 
-        FROM PasswordResetCodes 
-        WHERE user_id = @userId 
-        AND reset_code = @resetCode 
-        AND expiration_time > GETUTCDATE()
-        AND used = 0
-    )
-    BEGIN
-        UPDATE Users 
-        SET hashed_password = @newPassword 
-        WHERE user_id = @userId
+    -- Delete the used reset code
+    DELETE FROM PasswordResetCodes
+    WHERE user_id = @userId
+    AND reset_code = @resetCode
 
-        --UPDATE PasswordResetCodes 
-       -- SET used = 1 
-       -- WHERE user_id = @userId 
-        --AND reset_code = @resetCode
-
-		-- Delete the used reset code
-        DELETE FROM PasswordResetCodes
-        WHERE user_id = @UserId
-        AND reset_code = @ResetCode
-
-        COMMIT
-        SELECT 1 as Result
-    END
-    ELSE
-    BEGIN
-        ROLLBACK
-        SELECT 0 as Result
-    END
+    COMMIT
+    -- Return success
+    SELECT 1 as Result
 END
-go 
-CREATE PROCEDURE CleanupResetCodes
-AS
-BEGIN
-    -- Delete expired codes
-    DELETE FROM PasswordResetCodes 
-    WHERE expiration_time < GETUTCDATE()
-END
-GO
+go
 
 ----------------------------- WALLET --------------------------------
 create TABLE Wallet (
@@ -1228,20 +1191,6 @@ END
 
 
 go
-CREATE PROCEDURE CheckFeatureOwnership
-    @userId INT,
-    @featureId INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    
-    SELECT COUNT(1)
-    FROM Feature_User
-    WHERE user_id = @userId 
-    AND feature_id = @featureId;
-END
-
-go
 CREATE PROCEDURE CheckFeaturePurchase
     @userId INT,
     @featureId INT
@@ -1255,53 +1204,45 @@ BEGIN
     AND feature_id = @featureId;
 END
 
+
 go
-CREATE PROCEDURE EquipFeature
+CREATE PROCEDURE GetFeatureUserRelationship
     @userId INT,
     @featureId INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    -- Check if the feature-user relationship exists
-    IF EXISTS (SELECT 1 FROM Feature_User WHERE user_id = @userId AND feature_id = @featureId)
-    BEGIN
-        -- Update existing relationship
-        UPDATE Feature_User
-        SET equipped = 1
-        WHERE user_id = @userId AND feature_id = @featureId;
-    END
-    ELSE
-    BEGIN
-        -- Create new relationship
-        INSERT INTO Feature_User (user_id, feature_id, equipped)
-        VALUES (@userId, @featureId, 1);
-    END
-    
-    RETURN 1;
+    SELECT * FROM Feature_User 
+    WHERE user_id = @userId AND feature_id = @featureId;
 END
+GO
 
-go
-CREATE PROCEDURE GetAllFeaturesWithOwnership
-    @userId INT
+CREATE PROCEDURE UpdateFeatureUserEquipStatus
+    @userId INT,
+    @featureId INT,
+    @equipped BIT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT 
-        f.feature_id,
-        f.name,
-        f.value,
-        f.description,
-        f.type,
-        f.source,
-        CASE WHEN fu.feature_id IS NOT NULL THEN 1 ELSE 0 END as is_owned,
-        ISNULL(fu.equipped, 0) as equipped
-    FROM Features f
-    LEFT JOIN Feature_User fu ON f.feature_id = fu.feature_id 
-        AND fu.user_id = @userId
-    ORDER BY f.type, f.value DESC;
+    UPDATE Feature_User
+    SET equipped = @equipped
+    WHERE user_id = @userId AND feature_id = @featureId;
 END
+GO
+
+CREATE PROCEDURE CreateFeatureUserRelationship
+    @userId INT,
+    @featureId INT,
+    @equipped BIT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO Feature_User (user_id, feature_id, equipped)
+    VALUES (@userId, @featureId, @equipped);
+END
+GO
+
+
 
 go
 -- Procedure to unequip a feature
