@@ -60,6 +60,30 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public void UpdateAchievementIconUrl(int points, string iconUrl)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@points", points),
+                    new SqlParameter("@iconUrl", iconUrl)
+                };
+                _dataLink.ExecuteNonQuery("UpdateAchievementIcon", parameters);
+            }
+            catch (SqlException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error while updating achievement icon URL: {ex.Message}");
+                throw new RepositoryException("Database error while updating achievement icon URL.", ex);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unexpected error while updating achievement icon URL: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while updating achievement icon URL.", ex);
+            }
+        }
+
+
 
         public List<Achievement> GetAllAchievements()
         {

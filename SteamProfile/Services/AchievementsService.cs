@@ -30,6 +30,7 @@ namespace SteamProfile.Services
                     System.Diagnostics.Debug.WriteLine("Achievements table is empty. Inserting achievements...");
                     _achievementsRepository.InsertAchievements();
                     System.Diagnostics.Debug.WriteLine("Achievements inserted successfully.");
+                    UpdateAchievementIconUrls();
                 }
                 else
                 {
@@ -39,6 +40,36 @@ namespace SteamProfile.Services
             catch (RepositoryException ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing achievements: {ex.Message}");
+            }
+        }
+
+        private void UpdateAchievementIconUrls()
+        {
+            try
+            {
+                var iconUrls = new Dictionary<int, string>
+                {
+                    {1, "https://t4.ftcdn.net/jpg/00/99/53/31/360_F_99533164_fpE2O6vEjnXgYhonMyYBGtGUFCLqfTWA.jpg" },
+                    {3, "https://png.pngtree.com/png-clipart/20200401/original/pngtree-gold-number-5-png-image_5330870.jpg" },
+                    {5, "https://t4.ftcdn.net/jpg/01/93/98/05/360_F_193980561_lymRkyDG6roPxmgA6x27fEaq3O3z3Mcf.jpg" },
+                    {10, "https://as1.ftcdn.net/v2/jpg/02/42/16/20/1000_F_242162042_Ve21lDSZQl3Ebb9laV1WAJrR0ls3RGAn.jpg" },
+                    {15, "https://t3.ftcdn.net/jpg/02/79/95/72/360_F_279957287_UsAVf2woGRBWekMX68LiiWpwrrVVy9bI.jpg" }
+                };
+                foreach (var iconUrl in iconUrls)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Updating icon URL for points: {iconUrl.Key}, URL: {iconUrl.Value}");
+                    _achievementsRepository.UpdateAchievementIconUrl(iconUrl.Key, iconUrl.Value);
+                }
+
+                System.Diagnostics.Debug.WriteLine("Achievement icon URLs updated successfully.");
+            }
+            catch (RepositoryException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating achievement icon URLs: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
             }
         }
 

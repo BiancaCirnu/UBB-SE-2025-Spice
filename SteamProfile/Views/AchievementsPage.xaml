@@ -28,7 +28,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
                                             <StackPanel>
@@ -58,7 +58,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -89,7 +89,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -120,7 +120,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -151,7 +151,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -182,7 +182,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -213,7 +213,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
@@ -244,7 +244,7 @@
                         <DataTemplate>
                             <Border Width="70" Height="70" CornerRadius="35" Background="LightGray">
                                 <Grid>
-                                    <Image Source="{Binding Achievement.Icon}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
+                                    <Image Source="{Binding Achievement.Icon, Converter={StaticResource ImagePathToImageSourceConverter}}" Stretch="UniformToFill" IsHitTestVisible="True" Opacity="{Binding Opacity}"/>
 
                                     <ToolTipService.ToolTip>
                                         <ToolTip>
