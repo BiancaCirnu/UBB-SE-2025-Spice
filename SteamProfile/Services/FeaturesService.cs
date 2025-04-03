@@ -36,18 +36,6 @@ namespace SteamProfile.Services
             }
         }
 
-        public List<Feature> GetUserFeatures(int userId)
-        {
-            try
-            {
-                return _featuresRepository.GetUserFeatures(userId);
-            }
-            catch (DatabaseOperationException ex)
-            {
-                throw new DatabaseOperationException($"Failed to retrieve features for user {userId}.", ex);
-            }
-        }
-
         public bool EquipFeature(int userId, int featureId)
         {
             try
@@ -115,6 +103,18 @@ namespace SteamProfile.Services
             }
         }
 
+        public List<Feature> GetUserFeatures(int userId)
+        {
+            try
+            {
+                return _featuresRepository.GetUserFeatures(userId);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new DatabaseOperationException($"Failed to retrieve features for user {userId}.", ex);
+            }
+        }
+
         public bool IsFeaturePurchased(int userId, int featureId)
         {
             try
@@ -149,4 +149,5 @@ namespace SteamProfile.Services
             }
         }
     }
+
 }

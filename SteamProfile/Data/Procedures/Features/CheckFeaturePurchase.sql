@@ -10,4 +10,3 @@ BEGIN
     WHERE user_id = @userId 
     AND feature_id = @featureId;
 END
-go

@@ -9,4 +9,3 @@ BEGIN
     WHERE type = @type
     ORDER BY value DESC;
 END
-go

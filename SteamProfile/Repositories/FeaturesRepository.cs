@@ -122,14 +122,41 @@ namespace SteamProfile.Repositories
         {
             try
             {
-                var parameters = new SqlParameter[]
+                // Check if the relationship exists
+                var checkParams = new SqlParameter[]
                 {
-                    new SqlParameter("@userId", userId),
-                    new SqlParameter("@featureId", featureId)
+            new SqlParameter("@userId", userId),
+            new SqlParameter("@featureId", featureId)
                 };
 
-                _dataLink.ExecuteNonQuery("EquipFeature", parameters);
-                return true;  // If no exception, consider it successful
+                var relationshipTable = _dataLink.ExecuteReader("GetFeatureUserRelationship", checkParams);
+
+                if (relationshipTable.Rows.Count > 0)
+                {
+                    // Update existing relationship
+                    var updateParams = new SqlParameter[]
+                    {
+                new SqlParameter("@userId", userId),
+                new SqlParameter("@featureId", featureId),
+                new SqlParameter("@equipped", 1)
+                    };
+
+                    _dataLink.ExecuteNonQuery("UpdateFeatureUserEquipStatus", updateParams);
+                }
+                else
+                {
+                    // Create new relationship
+                    var createParams = new SqlParameter[]
+                    {
+                new SqlParameter("@userId", userId),
+                new SqlParameter("@featureId", featureId),
+                new SqlParameter("@equipped", 1)
+                    };
+
+                    _dataLink.ExecuteNonQuery("CreateFeatureUserRelationship", createParams);
+                }
+
+                return true;
             }
             catch (DatabaseOperationException ex)
             {

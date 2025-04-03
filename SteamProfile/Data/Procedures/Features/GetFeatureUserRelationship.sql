@@ -1,13 +1,10 @@
-CREATE PROCEDURE UnequipFeature
+CREATE PROCEDURE GetFeatureUserRelationship
     @userId INT,
     @featureId INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    UPDATE Feature_User
-    SET equipped = 0
+    SELECT * FROM Feature_User 
     WHERE user_id = @userId AND feature_id = @featureId;
-    
-    RETURN 1;
 END
+GO

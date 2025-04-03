@@ -185,18 +185,6 @@ namespace SteamProfile.Repositories
             }
         }
 
-        public void CleanupExpiredResetCodes()
-        {
-            try
-            {
-                _dataLink.ExecuteNonQuery("CleanupResetCodes");
-            }
-            catch (DatabaseOperationException ex)
-            {
-                throw new RepositoryException("Failed to cleanup expired reset codes.", ex);
-            }
-        }
-
         public string CheckUserExists(string email, string username)
         {
             try
