@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace SteamProfile.Services
 {
@@ -51,12 +52,12 @@ namespace SteamProfile.Services
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine($"FeaturesService.EquipFeature: User {userId}, Feature {featureId}");
+                Debug.WriteLine($"FeaturesService.EquipFeature: User {userId}, Feature {featureId}");
                 
                 // First check if the feature is purchased
                 if (!IsFeaturePurchased(userId, featureId))
                 {
-                    System.Diagnostics.Debug.WriteLine("Feature is not purchased by this user");
+                    Debug.WriteLine("Feature is not purchased by this user");
                     return false;
                 }
 
@@ -66,24 +67,24 @@ namespace SteamProfile.Services
                 
                 if (featureToEquip == null)
                 {
-                    System.Diagnostics.Debug.WriteLine("Feature not found");
+                    Debug.WriteLine("Feature not found");
                     return false;
                 }
 
-                System.Diagnostics.Debug.WriteLine($"Unequipping features of type: {featureToEquip.Type}");
+                Debug.WriteLine($"Unequipping features of type: {featureToEquip.Type}");
                 // Unequip any existing features of the same type
                 bool unequipResult = UnequipFeaturesByType(userId, featureToEquip.Type);
-                System.Diagnostics.Debug.WriteLine($"Unequip result: {unequipResult}");
+                Debug.WriteLine($"Unequip result: {unequipResult}");
                 
                 // Now equip the selected feature
                 bool equipResult = _featuresRepository.EquipFeature(userId, featureId);
-                System.Diagnostics.Debug.WriteLine($"Equip result: {equipResult}");
+                Debug.WriteLine($"Equip result: {equipResult}");
                 
                 return equipResult;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error equipping feature: {ex.Message}");
+                Debug.WriteLine($"Error equipping feature: {ex.Message}");
                 return false;
             }
         }
@@ -96,7 +97,7 @@ namespace SteamProfile.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error unequipping feature: {ex.Message}");
+                Debug.WriteLine($"Error unequipping feature: {ex.Message}");
                 return false;
             }
         }
@@ -109,7 +110,7 @@ namespace SteamProfile.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error unequipping features by type: {ex.Message}");
+                Debug.WriteLine($"Error unequipping features by type: {ex.Message}");
                 return false;
             }
         }
@@ -122,7 +123,7 @@ namespace SteamProfile.Services
             }
             catch (DatabaseOperationException ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error checking feature purchase: {ex.Message}");
+                Debug.WriteLine($"Error checking feature purchase: {ex.Message}");
                 return false;
             }
         }
@@ -131,12 +132,19 @@ namespace SteamProfile.Services
         {
             try
             {
+                Debug.WriteLine($"Getting equipped features for user {userId}");
                 var features = _featuresRepository.GetUserFeatures(userId);
-                return features.Where(f => f.Equipped).ToList();
+                var equippedFeatures = features.Where(f => f.Equipped).ToList();
+                Debug.WriteLine($"Found {equippedFeatures.Count} equipped features");
+                return equippedFeatures;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting equipped features: {ex.Message}");
+                Debug.WriteLine($"Error getting equipped features: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Debug.WriteLine($"Inner exception: {ex.InnerException.Message}");
+                }
                 return new List<Feature>();
             }
         }
