@@ -20,16 +20,17 @@ namespace SteamProfile.Views
     public sealed partial class AchievementsPage : Page
     {
         private readonly AchievementsViewModel _viewModel;
-        private readonly UserService _userService;
-        public AchievementsViewModel ViewModel => _viewModel;
-
         public AchievementsPage()
         {
             this.InitializeComponent();
             _viewModel = AchievementsViewModel.Instance;
-            this.DataContext = _viewModel;
+            DataContext = _viewModel;
         }
 
-       
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            await _viewModel.LoadAchievementsAsync();
+        }
     }
 }

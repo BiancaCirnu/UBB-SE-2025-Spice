@@ -83,18 +83,35 @@ namespace SteamProfile.Data
                     command.Parameters.AddRange(sqlParameters);
                 }
 
+                connection.Open();
                 var result = command.ExecuteScalar();
-                return result == DBNull.Value ? default : (T)Convert.ChangeType(result, typeof(T));
+
+                if (result == null || result == DBNull.Value)
+                {
+                    return default;
+                }
+
+                if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    return (T)Convert.ChangeType(result, Nullable.GetUnderlyingType(typeof(T))!);
+                }
+
+                return (T)Convert.ChangeType(result, typeof(T));
             }
             catch (SqlException ex)
             {
                 throw new DatabaseOperationException($"Database error during ExecuteScalar operation: {ex.Message}", ex);
             }
-            catch (Exception ex)
+            catch (InvalidCastException ex)
             {
                 throw new DatabaseOperationException($"Error during ExecuteScalar operation: {ex.Message}", ex);
             }
+            catch (Exception ex)
+            {
+                throw new DatabaseOperationException($"Unexpected error during ExecuteScalar operation: {ex.Message}", ex);
+            }
         }
+
 
         public DataTable ExecuteReader(string storedProcedure, SqlParameter[]? sqlParameters = null)
         {

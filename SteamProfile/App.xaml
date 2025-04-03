@@ -24,8 +24,9 @@
             <converters:BoolToNextGridColumnConverter x:Key="BoolToNextGridColumnConverter"/>
             <converters:BoolToLastGridColumnConverter x:Key="BoolToLastGridColumnConverter"/>
             <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
-            
-          
+            <converters:StringToImageSourceConverter x:Key="StringToImageSourceConverter"/>
+            <converters:ImagePathToImageSourceConverter x:Key="ImagePathToImageSourceConverter"/>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

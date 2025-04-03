@@ -127,7 +127,7 @@ namespace SteamProfile.Repositories
                 {
                     new SqlParameter("@user_id", userId)
                 };
-                return _dataLink.ExecuteScalar<int>("GetFriendshipCount", parameters);
+                return _dataLink.ExecuteScalar<int>("GetFriendshipCountForUser", parameters);
             }
             catch (SqlException ex)
             {

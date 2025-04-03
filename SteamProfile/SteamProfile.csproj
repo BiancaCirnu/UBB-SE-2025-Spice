@@ -72,7 +72,11 @@
     <ProjectCapability Include="Msix" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Assets\Collections\IMG_0048.HEIC" />
+    <Content Remove="Assets\Achievements\10_points.svg" />
+    <Content Remove="Assets\Achievements\15_points.svg" />
+    <Content Remove="Assets\Achievements\1_point.svg" />
+    <Content Remove="Assets\Achievements\3_points.svg" />
+    <Content Remove="Assets\Achievements\5_points.svg" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
@@ -238,13 +242,24 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<Page Update="Views\ProfilePage.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
+		<None Update="Assets\Achievements\10_points.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\Achievements\15_points.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\Achievements\1_point.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\Achievements\3_points.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Assets\Achievements\5_points.svg">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Data\Procedures\Achievements\" />
 		<Folder Include="Data\Procedures\Features\" />
 		<Folder Include="Data\Procedures\Collections\" />
 		<Folder Include="Data\Procedures\Users\" />
