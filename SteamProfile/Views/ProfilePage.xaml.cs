@@ -66,7 +66,8 @@ namespace SteamProfile.Views
                         Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
                         App.UserProfileRepository,
                         App.CollectionsRepository,
-                        App.FeaturesService
+                        App.FeaturesService,
+                        App.AchievementsService
                     );
                     Debug.WriteLine("ProfileViewModel initialized with services.");
                     
@@ -125,7 +126,8 @@ namespace SteamProfile.Views
                     Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread(),
                     App.UserProfileRepository,
                     App.CollectionsRepository,
-                    App.FeaturesService
+                    App.FeaturesService,
+                    App.AchievementsService
                 );
                 Debug.WriteLine("ProfileViewModel initialized with services.");
             }
@@ -292,7 +294,7 @@ namespace SteamProfile.Views
         {
             Frame.Navigate(typeof(CollectionsPage));
         }
-        private void AchievementsButton_Click (object sender, RoutedEventArgs e)
+        private void AchievementsButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(AchievementsPage));
         }

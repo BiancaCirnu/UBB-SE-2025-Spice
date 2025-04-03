@@ -12,4 +12,4 @@ namespace SteamProfile.Models
         public string? Bio { get; set; }
         public DateTime LastModified { get; set; }
     }
-}
+} 

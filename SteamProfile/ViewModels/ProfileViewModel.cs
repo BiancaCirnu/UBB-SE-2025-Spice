@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using SteamProfile.Views;
 using Microsoft.UI.Xaml;
 using SteamProfile.Repositories;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace SteamProfile.ViewModels
@@ -24,6 +25,7 @@ namespace SteamProfile.ViewModels
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly UserProfilesRepository _userProfileRepository;
         private readonly FeaturesService _featuresService;
+        private readonly AchievementsService _achievementsService;
 
         [ObservableProperty]
         private string _username = string.Empty;
@@ -128,6 +130,21 @@ namespace SteamProfile.ViewModels
 
         public static bool IsInitialized => _instance != null;
 
+        [ObservableProperty]
+        private AchievementWithStatus _friendshipsAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _ownedGamesAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _soldGamesAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _numberOfReviewsAchievement;
+
+        [ObservableProperty]
+        private bool _isDeveloper;
+
         public static ProfileViewModel Instance
         {
             get
@@ -141,27 +158,29 @@ namespace SteamProfile.ViewModels
         }
 
         public static void Initialize(
-            UserService userService, 
-            FriendsService friendsService, 
+            UserService userService,
+            FriendsService friendsService,
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
             CollectionsRepository collectionsRepository,
-            FeaturesService featuresService)
+            FeaturesService featuresService,
+            AchievementsService achievementsService)
         {
             if (_instance != null)
             {
                 throw new InvalidOperationException("ProfileViewModel is already initialized");
             }
-            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository, featuresService);
+            _instance = new ProfileViewModel(userService, friendsService, dispatcherQueue, userProfileRepository, collectionsRepository, featuresService, achievementsService);
         }
 
         public ProfileViewModel(
-            UserService userService, 
-            FriendsService friendsService, 
+            UserService userService,
+            FriendsService friendsService,
             DispatcherQueue dispatcherQueue,
             UserProfilesRepository userProfileRepository,
             CollectionsRepository collectionsRepository,
-            FeaturesService featuresService)
+            FeaturesService featuresService,
+            AchievementsService achievementsService)
         {
             _userService = userService ?? throw new ArgumentNullException(nameof(userService));
             _friendsService = friendsService ?? throw new ArgumentNullException(nameof(friendsService));
@@ -169,7 +188,8 @@ namespace SteamProfile.ViewModels
             _userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
             _collectionsRepository = collectionsRepository ?? throw new ArgumentNullException(nameof(collectionsRepository));
             _featuresService = featuresService ?? throw new ArgumentNullException(nameof(featuresService));
-            
+            _achievementsService = achievementsService ?? throw new ArgumentNullException(nameof(achievementsService));
+
             // Register for feature equipped/unequipped events
             FeaturesViewModel.FeatureEquipStatusChanged += async (sender, userId) => 
             {
@@ -190,7 +210,6 @@ namespace SteamProfile.ViewModels
 
                 Debug.WriteLine($"Loading profile for user {user_id}");
 
-                // Added safety check for invalid user ID
 
                 if (user_id <= 0)
                 {
@@ -280,11 +299,12 @@ namespace SteamProfile.ViewModels
                             UserId = currentUser.UserId;
                             Username = currentUser.Username ?? string.Empty;
                             Debug.WriteLine($"Current user {Username}; isOwner = {IsOwner}");
+                            IsDeveloper = currentUser.IsDeveloper;
                             // Update friend status
                             IsFriend = isFriend;
                             FriendButtonText = isFriend ? "Unfriend" : "Add Friend";
                             FriendButtonStyle = "AccentButtonStyle";
-
+                            
                             Debug.WriteLine($"Current user {Username} ; isOwner = {IsOwner} ; isFriend = {IsFriend}");
                             // Profile info from UserProfiles table
                             if (userProfile != null)
@@ -298,10 +318,8 @@ namespace SteamProfile.ViewModels
                                     : "ms-appx:///Assets/default-profile.png";
                             }
                             // Process equipped features
-
                             ProcessEquippedFeatures(equippedFeatures);
                             // Load friend count
-
                             try
                             {
                                 FriendCount = _friendsService.GetFriendshipCount(currentUser.UserId);
@@ -312,16 +330,21 @@ namespace SteamProfile.ViewModels
                                 FriendCount = 0;
                             }
                             // Set achievement values
+                            // First unlock any achievements the user has earned
+                            _achievementsService.UnlockAchievementForUser(currentUser.UserId);
 
-                            HasGameplayAchievement = true;
-                            HasCollectionAchievement = false;
-                            HasSocialAchievement = true;
-                            HasMarketAchievement = false;
-                            HasCustomizationAchievement = true;
-                            HasCommunityAchievement = false;
-                            HasEventAchievement = true;
-                            HasSpecialAchievement = false;
-                            // Default values
+                            // Then load achievements
+                            FriendshipsAchievement = GetTopAchievement(currentUser.UserId, "Friendships");
+                            OwnedGamesAchievement = GetTopAchievement(currentUser.UserId, "Owned Games");
+                            SoldGamesAchievement = GetTopAchievement(currentUser.UserId, "Sold Games");
+                            NumberOfReviewsAchievement = GetTopAchievement(currentUser.UserId, "Number of Reviews");
+
+                            Debug.WriteLine($"Loaded achievements for user {currentUser.UserId}:");
+                            Debug.WriteLine($"Friendships: {FriendshipsAchievement?.Achievement?.AchievementName}, Unlocked: {FriendshipsAchievement?.IsUnlocked}");
+                            Debug.WriteLine($"Owned Games: {OwnedGamesAchievement?.Achievement?.AchievementName}, Unlocked: {OwnedGamesAchievement?.IsUnlocked}");
+                            Debug.WriteLine($"Sold Games: {SoldGamesAchievement?.Achievement?.AchievementName}, Unlocked: {SoldGamesAchievement?.IsUnlocked}");
+                            Debug.WriteLine($"Reviews: {NumberOfReviewsAchievement?.Achievement?.AchievementName}, Unlocked: {NumberOfReviewsAchievement?.IsUnlocked}");
+
                             Money = 0;
                             Points = 0;
                             CoverPhoto = "default_cover.png";
@@ -520,6 +543,73 @@ namespace SteamProfile.ViewModels
                 ErrorMessage = "Failed to update friendship status. Please try again later.";
             }
         }
+        private AchievementWithStatus GetTopAchievement(int userId, string category)
+        {
+            try
+            {
+                // Get all achievements for this category
+                var achievements = _achievementsService.GetAchievementsWithStatusForUser(userId)
+                    .Where(a => a.Achievement.AchievementType == category)
+                    .ToList();
+
+                // First try to get the highest-points unlocked achievement
+                var topUnlockedAchievement = achievements
+                    .Where(a => a.IsUnlocked)
+                    .OrderByDescending(a => a.Achievement.Points)
+                    .FirstOrDefault();
+
+                // If we found an unlocked achievement, return it
+                if (topUnlockedAchievement != null)
+                {
+                    Debug.WriteLine($"Found top unlocked {category} achievement: {topUnlockedAchievement.Achievement.AchievementName}");
+                    return topUnlockedAchievement;
+                }
+
+                // If no unlocked achievements, get the lowest-points locked achievement
+                var lowestLockedAchievement = achievements
+                    .Where(a => !a.IsUnlocked)
+                    .OrderBy(a => a.Achievement.Points)
+                    .FirstOrDefault();
+
+                // If we found a locked achievement, return it
+                if (lowestLockedAchievement != null)
+                {
+                    Debug.WriteLine($"Found lowest locked {category} achievement: {lowestLockedAchievement.Achievement.AchievementName}");
+                    return lowestLockedAchievement;
+                }
+
+                // If no achievements found at all, return an empty achievement
+                Debug.WriteLine($"No achievements found for {category}, returning empty achievement");
+                return new AchievementWithStatus
+                {
+                    Achievement = new Achievement
+                    {
+                        AchievementName = $"No {category} Achievement",
+                        Description = "Complete tasks to unlock this achievement",
+                        AchievementType = category,
+                        Points = 0,
+                        Icon = "ms-appx:///Assets/empty_achievement.png" // Use a grayscale or empty icon
+                    },
+                    IsUnlocked = false
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error getting top achievement for {category}: {ex.Message}");
+                return new AchievementWithStatus
+                {
+                    Achievement = new Achievement
+                    {
+                        AchievementName = $"No {category} Achievement",
+                        Description = "Complete tasks to unlock this achievement",
+                        AchievementType = category,
+                        Points = 0,
+                        Icon = "ms-appx:///Assets/empty_achievement.png" // Use a grayscale or empty icon
+                    },
+                    IsUnlocked = false
+                };
+            }
+        }
 
         [RelayCommand]
         private void Configuration()
@@ -618,6 +708,6 @@ namespace SteamProfile.ViewModels
             return tcs.Task;
         }
     }
-          
 
-    }
+
+}
