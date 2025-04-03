@@ -1535,6 +1535,7 @@ BEGIN
     FROM Users
     WHERE user_id = @user_id;
 END;
+go
 
 
 CREATE OR ALTER PROCEDURE IsAchievementUnlocked
@@ -1547,6 +1548,7 @@ BEGIN
     WHERE user_id = @user_id
     AND achievement_id = @achievement_id;
 END;
+go
 
 
 CREATE PROCEDURE IsUserDeveloper
@@ -1557,6 +1559,7 @@ BEGIN
     FROM Users
     WHERE user_id = @user_id;
 END;
+go
 
 
 CREATE PROCEDURE IsAchievementsTableEmpty
@@ -1564,6 +1567,7 @@ AS
 BEGIN
 	SELECT COUNT(1) FROM Achievements
 END
+go
 
 CREATE PROCEDURE UpdateAchievementIcon
 	@points INT,
@@ -1575,7 +1579,7 @@ BEGIN
 	SET icon_url = @iconUrl
 	WHERE points = @points;
 END;
-
+go
 
 select * from Users
 
