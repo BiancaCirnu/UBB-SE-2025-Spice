@@ -37,7 +37,7 @@ namespace SteamProfile.Data
                 }
 
                 //connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User Id={userId};Password={password};TrustServerCertificate=True;";
-                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
+                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User Id={userId};Password={password};TrustServerCertificate=True;";
 
 
                 // Test the connection immediately
