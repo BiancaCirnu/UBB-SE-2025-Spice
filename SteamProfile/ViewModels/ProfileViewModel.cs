@@ -145,6 +145,16 @@ namespace SteamProfile.ViewModels
         [ObservableProperty]
         private bool _isDeveloper;
 
+        [ObservableProperty]
+        private AchievementWithStatus _numberOfReviewsReceived;
+        [ObservableProperty]
+        private AchievementWithStatus _developerAchievement;
+
+        [ObservableProperty]
+        private AchievementWithStatus _yearsOfActivity;
+        [ObservableProperty]
+        private AchievementWithStatus _numberOfPostsGetTopAchievement;
+
         public static ProfileViewModel Instance
         {
             get
@@ -337,7 +347,11 @@ namespace SteamProfile.ViewModels
                             FriendshipsAchievement = GetTopAchievement(currentUser.UserId, "Friendships");
                             OwnedGamesAchievement = GetTopAchievement(currentUser.UserId, "Owned Games");
                             SoldGamesAchievement = GetTopAchievement(currentUser.UserId, "Sold Games");
-                            NumberOfReviewsAchievement = GetTopAchievement(currentUser.UserId, "Number of Reviews");
+                            NumberOfReviewsAchievement = GetTopAchievement(currentUser.UserId, "Number of Reviews Given");
+                            NumberOfReviewsReceived = GetTopAchievement(currentUser.UserId, "Number of Reviews Received");
+                            DeveloperAchievement = GetTopAchievement(currentUser.UserId, "Developer");
+                            YearsOfActivity = GetTopAchievement(currentUser.UserId, "Years of Activity");
+                            NumberOfPostsGetTopAchievement = GetTopAchievement(currentUser.UserId, "Number of Posts");
 
                             Debug.WriteLine($"Loaded achievements for user {currentUser.UserId}:");
                             Debug.WriteLine($"Friendships: {FriendshipsAchievement?.Achievement?.AchievementName}, Unlocked: {FriendshipsAchievement?.IsUnlocked}");
