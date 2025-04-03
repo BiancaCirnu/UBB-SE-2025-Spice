@@ -3,14 +3,10 @@ CREATE OR ALTER PROCEDURE GetFriendsForUser
 AS
 BEGIN
     SELECT 
-        f.friendship_id,
-        f.user_id,
-        f.friend_id,
-        u.username as friend_username,
-        u.profile_picture as friend_profile_picture
-    FROM Friendships f
-    JOIN Users u ON f.friend_id = u.user_id
-    WHERE f.user_id = @user_id
-    ORDER BY u.username;
+        friendship_id,
+        user_id,
+        friend_id
+    FROM Friendships
+    WHERE user_id = @user_id;
 END
 GO 

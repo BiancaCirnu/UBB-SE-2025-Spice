@@ -34,7 +34,42 @@ namespace SteamProfile.Repositories
                 var dataTable = _dataLink.ExecuteReader("GetFriendsForUser", parameters);
                 Debug.WriteLine($"Got {dataTable.Rows.Count} rows from database");
 
-                var friendships = MapDataTableToFriendships(dataTable);
+                var friendships = new List<Friendship>();
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    var friendship = new Friendship
+                    {
+                        FriendshipId = Convert.ToInt32(row["friendship_id"]),
+                        UserId = Convert.ToInt32(row["user_id"]),
+                        FriendId = Convert.ToInt32(row["friend_id"])
+                    };
+
+                    // Get friend's username and profile picture
+                    var friendParams = new SqlParameter[]
+                    {
+                        new SqlParameter("@user_id", friendship.FriendId)
+                    };
+                    var friendData = _dataLink.ExecuteReader("GetUserById", friendParams);
+                    if (friendData.Rows.Count > 0)
+                    {
+                        friendship.FriendUsername = friendData.Rows[0]["username"].ToString();
+                        // Get profile picture from UserProfiles
+                        var profileParams = new SqlParameter[]
+                        {
+                            new SqlParameter("@user_id", friendship.FriendId)
+                        };
+                        var profileData = _dataLink.ExecuteReader("GetUserProfileByUserId", profileParams);
+                        if (profileData.Rows.Count > 0)
+                        {
+                            friendship.FriendProfilePicture = profileData.Rows[0]["profile_picture"].ToString();
+                        }
+                    }
+
+                    friendships.Add(friendship);
+                }
+
+                // Sort by username
+                friendships = friendships.OrderBy(f => f.FriendUsername).ToList();
                 Debug.WriteLine($"Mapped {friendships.Count} friendships");
                 return friendships;
             }
@@ -57,6 +92,24 @@ namespace SteamProfile.Repositories
         {
             try
             {
+                // Validate that users exist
+                var userParams = new SqlParameter[] { new SqlParameter("@user_id", userId) };
+                var friendParams = new SqlParameter[] { new SqlParameter("@user_id", friendId) };
+                
+                var userData = _dataLink.ExecuteReader("GetUserById", userParams);
+                var friendData = _dataLink.ExecuteReader("GetUserById", friendParams);
+
+                if (userData.Rows.Count == 0)
+                    throw new RepositoryException($"User with ID {userId} does not exist.");
+                if (friendData.Rows.Count == 0)
+                    throw new RepositoryException($"User with ID {friendId} does not exist.");
+
+                // Check if friendship already exists in either direction
+                var existingFriendships = GetAllFriendships(userId);
+                if (existingFriendships.Any(f => f.FriendId == friendId))
+                    throw new RepositoryException("Friendship already exists.");
+
+                // Add the friendship (both directions will be handled by the stored procedure)
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@user_id", userId),
@@ -141,6 +194,30 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public int? GetFriendshipId(int userId, int friendId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@user_id", userId),
+                    new SqlParameter("@friend_id", friendId)
+                };
+                var result = _dataLink.ExecuteScalar<int?>("GetFriendshipId", parameters);
+                return result;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"SQL Error: {ex.Message}");
+                throw new RepositoryException("Database error while retrieving friendship ID.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Unexpected Error: {ex.Message}");
+                throw new RepositoryException("An unexpected error occurred while retrieving friendship ID.", ex);
+            }
+        }
+
         private static List<Friendship> MapDataTableToFriendships(DataTable dataTable)
         {
             try
@@ -150,9 +227,7 @@ namespace SteamProfile.Repositories
                 {
                     FriendshipId = Convert.ToInt32(row["friendship_id"]),
                     UserId = Convert.ToInt32(row["user_id"]),
-                    FriendId = Convert.ToInt32(row["friend_id"]),
-                    FriendUsername = row["friend_username"].ToString(),
-                    FriendProfilePicture = row["friend_profile_picture"].ToString()
+                    FriendId = Convert.ToInt32(row["friend_id"])
                 }).ToList();
                 Debug.WriteLine($"Successfully mapped {friendships.Count} friendships");
                 return friendships;
@@ -171,9 +246,7 @@ namespace SteamProfile.Repositories
             {
                 FriendshipId = Convert.ToInt32(row["friendship_id"]),
                 UserId = Convert.ToInt32(row["user_id"]),
-                FriendId = Convert.ToInt32(row["friend_id"]),
-                FriendUsername = row["friend_username"].ToString(),
-                FriendProfilePicture = row["friend_profile_picture"].ToString()
+                FriendId = Convert.ToInt32(row["friend_id"])
             };
         }
     }

@@ -59,7 +59,7 @@ namespace SteamProfile.Services
                 }
 
                 // Load games for the collection
-                collection.Games = _collectionsRepository.GetGamesInCollection(collectionId);
+                collection.Games = _collectionsRepository.GetGamesInCollection(collectionId, userId);
                 Debug.WriteLine($"Successfully retrieved collection {collectionId} with {collection.Games.Count} games");
                 return collection;
             }
