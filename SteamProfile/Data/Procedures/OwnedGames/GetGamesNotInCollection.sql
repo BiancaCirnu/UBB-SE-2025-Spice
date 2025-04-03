@@ -4,13 +4,7 @@ CREATE PROCEDURE GetGamesNotInCollection
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Get all games owned by the user that are not in the specified collection
-    SELECT og.game_id,
-           og.user_id,
-           og.title,
-           og.description,
-           og.cover_picture
+    SELECT og.game_id, og.user_id, og.title, og.description, og.cover_picture
     FROM OwnedGames og
     WHERE og.user_id = @user_id
     AND NOT EXISTS (
@@ -20,4 +14,5 @@ BEGIN
         AND ogc.collection_id = @collection_id
     )
     ORDER BY og.title;
-END 
+END
+GO

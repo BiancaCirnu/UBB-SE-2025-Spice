@@ -175,6 +175,62 @@ namespace SteamProfile.Repositories
             }
         }
 
+        public List<OwnedGame> GetGamesInCollection(int collectionId, int userId)
+        {
+            try
+            {
+                Debug.WriteLine($"Repository: Getting games for collection {collectionId}");
+                
+                // If collectionId is 1, get all games for the user
+                if (collectionId == 1)
+                {
+                    var parameters = new SqlParameter[]
+                    {
+                        new SqlParameter("@user_id", userId)
+                    };
+                    Debug.WriteLine("Repository: Executing GetAllGamesForUser stored procedure");
+                    var dataTable = _dataLink.ExecuteReader("GetAllGamesForUser", parameters);
+                    Debug.WriteLine($"Repository: Got {dataTable?.Rows?.Count ?? 0} rows from database");
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                    {
+                        Debug.WriteLine("Repository: No games found for user");
+                        return new List<OwnedGame>();
+                    }
+
+                    var games = dataTable.AsEnumerable().Select(row => new OwnedGame
+                    {
+                        GameId = Convert.ToInt32(row["game_id"]),
+                        UserId = Convert.ToInt32(row["user_id"]),
+                        Title = row["title"].ToString(),
+                        Description = row["description"].ToString(),
+                        CoverPicture = row["cover_picture"]?.ToString()
+                    }).ToList();
+
+                    Debug.WriteLine($"Repository: Mapped {games.Count} games");
+                    return games;
+                }
+                else
+                {
+                    // For other collections, use the existing GetGamesInCollection method
+                    return GetGamesInCollection(collectionId);
+                }
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"Repository: SQL Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Error Number: {ex.Number}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("Database error while retrieving games in collection.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Repository: Unexpected Error: {ex.Message}");
+                Debug.WriteLine($"Repository: Stack Trace: {ex.StackTrace}");
+                throw new RepositoryException("An unexpected error occurred while retrieving games in collection.", ex);
+            }
+        }
+
         public void AddGameToCollection(int collectionId, int gameId, int userId)
         {
             try
