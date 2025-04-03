@@ -13,24 +13,28 @@
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- Back to Profile Button -->
-        <Button Content="Back to Profile"
-                Command="{x:Bind ViewModel.BackToProfileCommand}"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
-                Margin="10"/>
+        <Button Grid.Row="0"
+        Content="Back to Profile"
+        Click="BackToProfileButton_Click"
+        Style="{StaticResource AccentButtonStyle}"
+        HorizontalAlignment="Left"
+        Margin="20"/>
         <!-- Title -->
-        <TextBlock Text="FRIENDS" 
+        <TextBlock Grid.Row="1" 
+                  Text="FRIENDS" 
                   FontSize="30" 
                   FontWeight="Bold" 
                   TextAlignment="Center"
                   Margin="20"/>
 
         <!-- Scrollable Content -->
-        <ScrollViewer Grid.Row="1" 
+        <ScrollViewer Grid.Row="2" 
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Orientation="Vertical" 

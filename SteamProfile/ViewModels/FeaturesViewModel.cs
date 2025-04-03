@@ -14,6 +14,9 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using CommunityToolkit.Mvvm.Input;
 using SteamProfile.Views;
+using System.Diagnostics;
+using Microsoft.UI.Xaml.Media.Imaging;
+using SteamProfile.Repositories;
 
 namespace SteamProfile.ViewModels
 {
@@ -64,6 +67,7 @@ namespace SteamProfile.ViewModels
     {
         private readonly FeaturesService _featuresService;
         private readonly UserService _userService;
+        private readonly UserProfilesRepository _userProfilesRepository;
         private string _statusMessage = string.Empty;
         private Brush _statusColor;
         private FeatureDisplay _selectedFeature;
@@ -110,10 +114,13 @@ namespace SteamProfile.ViewModels
             }
         }
 
+        public static event EventHandler<int> FeatureEquipStatusChanged;
+
         public FeaturesViewModel(FeaturesService featuresService, Frame frame)
         {
             _featuresService = featuresService;
             _userService = featuresService.UserService;
+            _userProfilesRepository = App.UserProfileRepository;
             _frame = frame;
             _statusColor = new SolidColorBrush(Colors.Black);
             ShowOptionsCommand = new RelayCommand<FeatureDisplay>(ShowOptions);
@@ -306,22 +313,83 @@ namespace SteamProfile.ViewModels
             var user = _userService.GetCurrentUser();
             var userFeatures = _featuresService.GetUserEquippedFeatures(user.UserId);
             
-            // Create control and apply current features
-            var profileControl = new ProfileInfoControl();
-            profileControl.ApplyUserFeatures(user, userFeatures);
+            // Get the user profile to access bio and profile picture
+            var userProfile = _userProfilesRepository.GetUserProfileByUserId(user.UserId);
             
-            // Create a temporary feature object to preview
-            var previewFeature = new Feature
+            // Create adaptive profile control
+            var profileControl = new AdaptiveProfileControl();
+            
+            // Get profile picture path
+            string profilePicturePath = "ms-appx:///Assets/default-profile.png";
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.ProfilePicture))
             {
-                FeatureId = featureDisplay.FeatureId,
-                Name = featureDisplay.Name,
-                Source = featureDisplay.Source.Replace("ms-appx:///", ""),
-                Type = featureDisplay.Type,
-                Equipped = true
-            };
+                profilePicturePath = userProfile.ProfilePicture;
+                if (!profilePicturePath.StartsWith("ms-appx:///"))
+                {
+                    profilePicturePath = $"ms-appx:///{profilePicturePath}";
+                }
+            }
+            
+            // Get bio text
+            string bioText = "No bio available";
+            if (userProfile != null && !string.IsNullOrEmpty(userProfile.Bio))
+            {
+                bioText = userProfile.Bio;
+            }
+            
+            // Extract feature paths from equipped features
+            string hatPath = null;
+            string petPath = null;
+            string emojiPath = null;
+            string framePath = null;
+            string backgroundPath = null;
+            
+            foreach (var feature in userFeatures)
+            {
+                if (!feature.Equipped) continue;
+                
+                string path = feature.Source;
+                if (!path.StartsWith("ms-appx:///"))
+                {
+                    path = $"ms-appx:///{path}";
+                }
+                
+                switch (feature.Type.ToLower())
+                {
+                    case "hat": hatPath = path; break;
+                    case "pet": petPath = path; break;
+                    case "emoji": emojiPath = path; break;
+                    case "frame": framePath = path; break;
+                    case "background": backgroundPath = path; break;
+                }
+            }
             
             // Apply the preview feature
-            profileControl.ApplyFeature(previewFeature);
+            string previewPath = featureDisplay.Source;
+            switch (featureDisplay.Type.ToLower())
+            {
+                case "hat": hatPath = previewPath; break;
+                case "pet": petPath = previewPath; break;
+                case "emoji": emojiPath = previewPath; break;
+                case "frame": framePath = previewPath; break;
+                case "background": backgroundPath = previewPath; break;
+            }
+            
+            // Update the profile control with all the information
+            profileControl.UpdateProfile(
+                user.Username, 
+                bioText, 
+                profilePicturePath,
+                hatPath, 
+                petPath, 
+                emojiPath, 
+                framePath, 
+                backgroundPath
+            );
+            
+            // Adjust size for the dialog
+            profileControl.Width = 350;
+            profileControl.Height = 500;
             
             // Create and show preview dialog
             var previewDialog = new ContentDialog
@@ -361,6 +429,9 @@ namespace SteamProfile.ViewModels
                 
                 if (success)
                 {
+                    // Notify that a feature was equipped
+                    FeatureEquipStatusChanged?.Invoke(this, _userService.GetCurrentUser().UserId);
+                    
                     StatusMessage = "Feature equipped successfully";
                     StatusColor = new SolidColorBrush(Colors.Green);
                     

@@ -46,7 +46,6 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@user_id", profile.UserId),
                     new SqlParameter("@profile_picture", (object?)profile.ProfilePicture ?? DBNull.Value),
                     new SqlParameter("@bio", (object?)profile.Bio ?? DBNull.Value)
-                
                 };
 
                 var dataTable = _dataLink.ExecuteReader("UpdateUserProfile", parameters);
@@ -120,10 +119,9 @@ namespace SteamProfile.Repositories
             {
                 ProfileId = Convert.ToInt32(row["profile_id"]),
                 UserId = Convert.ToInt32(row["user_id"]),
-                ProfilePicture = row["profile_picture"] != DBNull.Value ? row["profile_picture"] as string : null,
-                Bio = row["bio"] != DBNull.Value ? row["bio"] as string : null,
-               
-                LastModified = row["last_modified"] != DBNull.Value ? Convert.ToDateTime(row["last_modified"]) : DateTime.MinValue
+                ProfilePicture = row["profile_picture"] as string,
+                Bio = row["bio"] as string,
+                LastModified = Convert.ToDateTime(row["last_modified"])
             };
         }
     }

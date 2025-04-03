@@ -31,12 +31,14 @@ namespace SteamProfile.Services
 
         internal decimal GetBalance()
         {
-            return _walletRepository.GetMoneyFromWallet(_userService.GetCurrentUser().UserId);
+            return _walletRepository.GetMoneyFromWallet(_walletRepository.GetWalletIdByUserId(_userService.GetCurrentUser().UserId));
         }
 
         internal int GetPoints()
         {
-           return (_walletRepository.GetPointsFromWallet(_userService.GetCurrentUser().UserId));
+            int userId = _userService.GetCurrentUser().UserId;
+            int walletId = _walletRepository.GetWalletIdByUserId(userId);
+            return _walletRepository.GetPointsFromWallet(walletId);
         }
 
         public void CreateWallet(int userId)

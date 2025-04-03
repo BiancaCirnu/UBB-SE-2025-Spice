@@ -37,6 +37,31 @@ namespace SteamProfile.Repositories
             }
         }
 
+        // ... existing code ...
+
+        public int GetWalletIdByUserId(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+            new SqlParameter("@user_id", userId)
+                };
+                var dataTable = _dataLink.ExecuteReader("GetWalletIdByUserId", parameters);
+                if (dataTable.Rows.Count > 0)
+                {
+                    return Convert.ToInt32(dataTable.Rows[0]["wallet_id"]);
+                }
+                throw new RepositoryException($"No wallet found for user ID {userId}.");
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to retrieve wallet ID for user ID {userId} from the database.", ex);
+            }
+        }
+
+        // ... existing code ...
+
         private Wallet MapDataRowToWallet(DataRow dataRow) => new Wallet
         {
             WalletId = Convert.ToInt32(dataRow["wallet_id"]),

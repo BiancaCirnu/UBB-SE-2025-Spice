@@ -36,7 +36,9 @@ namespace SteamProfile.Data
                     throw new ConfigurationErrorsException("Database connection settings are missing in appsettings.json");
                 }
 
-                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User Id={userId};Password={password};TrustServerCertificate=True;";
+                //connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};User Id={userId};Password={password};TrustServerCertificate=True;";
+                connectionString = $"Data Source={localDataSource};Initial Catalog={initialCatalog};Integrated Security=True;TrustServerCertificate=True;";
+
 
                 // Test the connection immediately
                 using var testConnection = new SqlConnection(connectionString);

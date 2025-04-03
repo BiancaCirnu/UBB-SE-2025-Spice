@@ -53,6 +53,45 @@ namespace SteamProfile.Services
             }
         }
 
+        public bool AreUsersFriends(int userId1, int userId2)
+        {
+            try
+            {
+                var friendships = _friendshipsRepository.GetAllFriendships(userId1);
+                return friendships.Any(f => f.FriendId == userId2);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error checking friendship status.", ex);
+            }
+        }
+
+        public int? GetFriendshipId(int userId1, int userId2)
+        {
+            try
+            {
+                var friendships = _friendshipsRepository.GetAllFriendships(userId1);
+                var friendship = friendships.FirstOrDefault(f => f.FriendId == userId2);
+                return friendship?.FriendshipId;
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error retrieving friendship ID.", ex);
+            }
+        }
+
+        public void AddFriend(int userId, int friendId)
+        {
+            try
+            {
+                _friendshipsRepository.AddFriendship(userId, friendId);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new ServiceException("Error adding friend.", ex);
+            }
+        }
+
         public class ServiceException : Exception
         {
             public ServiceException(string message) : base(message) { }
