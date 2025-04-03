@@ -1,5 +1,6 @@
 using SteamProfile.Data;
 using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace SteamProfile.Repositories
@@ -25,6 +26,10 @@ namespace SteamProfile.Repositories
         {
             try
             {
+                // First, delete any existing reset codes for this user
+                DeleteExistingResetCodes(userId);
+
+                // Then store the new reset code
                 var parameters = new SqlParameter[]
                 {
                     new SqlParameter("@userId", userId),
@@ -40,6 +45,25 @@ namespace SteamProfile.Repositories
             }
         }
 
+        private void DeleteExistingResetCodes(int userId)
+        {
+            try
+            {
+                var parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@userId", userId)
+                };
+
+                _dataLink.ExecuteNonQuery("DeleteExistingResetCodes", parameters);
+            }
+            catch (DatabaseOperationException ex)
+            {
+                throw new RepositoryException($"Failed to delete existing reset codes for user {userId}.", ex);
+            }
+        }
+
+
+
         public bool VerifyResetCode(string email, string code)
         {
             try
@@ -50,8 +74,21 @@ namespace SteamProfile.Repositories
                     new SqlParameter("@resetCode", code)
                 };
 
-                var result = _dataLink.ExecuteScalar<int>("VerifyResetCode", parameters);
-                return result == 1;
+                // Get the reset code data from database
+                DataTable result = _dataLink.ExecuteReader("GetResetCodeData", parameters);
+
+                // Implement business logic in the application layer
+                if (result.Rows.Count > 0)
+                {
+                    DataRow row = result.Rows[0];
+                    DateTime expirationTime = (DateTime)row["expiration_time"];
+                    bool used = (bool)row["used"];
+
+                    // Check if code is valid, unexpired, and unused
+                    return !used && expirationTime > DateTime.UtcNow;
+                }
+
+                return false;
             }
             catch (DatabaseOperationException ex)
             {
@@ -63,14 +100,35 @@ namespace SteamProfile.Repositories
         {
             try
             {
+                // First verify the reset code is valid
+                if (!VerifyResetCode(email, code))
+                {
+                    return false;
+                }
+
+                // Get the user ID for the email
+                var userIdParams = new SqlParameter[]
+                {
+                    new SqlParameter("@email", email)
+                };
+                var userTable = _dataLink.ExecuteReader("GetUserByEmail", userIdParams);
+
+                if (userTable.Rows.Count == 0)
+                {
+                    return false;
+                }
+
+                int userId = (int)userTable.Rows[0]["user_id"];
+
+                // Update the password and remove the reset code
                 var parameters = new SqlParameter[]
                 {
-                    new SqlParameter("@email", email),
+                    new SqlParameter("@userId", userId),
                     new SqlParameter("@resetCode", code),
                     new SqlParameter("@newPassword", hashedPassword)
                 };
 
-                var result = _dataLink.ExecuteScalar<int>("ResetPassword", parameters);
+                var result = _dataLink.ExecuteScalar<int>("UpdatePasswordAndRemoveResetCode", parameters);
                 return result == 1;
             }
             catch (DatabaseOperationException ex)

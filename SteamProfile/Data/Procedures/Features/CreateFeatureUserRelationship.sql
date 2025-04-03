@@ -1,4 +1,4 @@
-CREATE PROCEDURE CheckFeatureOwnership
+CREATE PROCEDURE CheckFeaturePurchase
     @userId INT,
     @featureId INT
 AS
@@ -10,4 +10,3 @@ BEGIN
     WHERE user_id = @userId 
     AND feature_id = @featureId;
 END
-go

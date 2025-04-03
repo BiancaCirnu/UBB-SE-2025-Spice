@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using SteamProfile.Views;
 using SteamProfile.Services;
 using Microsoft.UI;
+using System.Data.SqlClient;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
