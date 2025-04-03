@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Documents;
+﻿using Azure.Core.Extensions;
+using Microsoft.UI.Xaml.Documents;
 using SteamProfile.Data;
 using SteamProfile.Models;
 using System;
@@ -199,7 +200,7 @@ namespace SteamProfile.Repositories
                 new SqlParameter("@achievement_id", achievementId)
             };
 
-                var result = _dataLink.ExecuteScalar<int>("IsAchievementUnlocked", parameters);
+                int? result = _dataLink.ExecuteScalar<int>("IsAchievementUnlocked", parameters);
                 return result > 0;
             }
             catch (Exception ex)

@@ -71,8 +71,6 @@ namespace SteamProfile.Data
             try
             {
                 using var connection = CreateConnection();
-                connection.Open();
-
                 using var command = new SqlCommand(storedProcedure, connection)
                 {
                     CommandType = CommandType.StoredProcedure
