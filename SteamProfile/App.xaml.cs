@@ -61,7 +61,7 @@ namespace SteamProfile
             AchievementsService = new AchievementsService(achievementsRepository);
             CollectionsService = new CollectionsService(collectionsRepository);
             AuthenticationService = new AuthenticationService(usersRepository);
-            SessionService = new SessionService(sessionRepository);
+            SessionService = new SessionService(sessionRepository, usersRepository);
             UserService = new UserService(usersRepository, SessionService);
             WalletService = new WalletService(walletRepository, UserService);
             FriendsService = new FriendsService(friendshipsRepository, UserService);

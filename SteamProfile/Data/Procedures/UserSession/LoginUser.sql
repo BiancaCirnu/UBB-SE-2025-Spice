@@ -4,7 +4,6 @@ CREATE PROCEDURE LoginUser
 AS
 BEGIN
     SET NOCOUNT ON;
-
     -- Get user data including password hash
     SELECT user_id,
         username,
@@ -16,3 +15,4 @@ BEGIN
     FROM Users
     WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
 END 
+go

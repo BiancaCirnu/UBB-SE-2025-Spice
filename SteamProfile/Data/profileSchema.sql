@@ -13,7 +13,8 @@ DROP TABLE IF exists PasswordResetCodes;
 DROP TABLE IF EXISTS UserSessions;
 DROP TABLE IF EXISTS Users;
 
-
+DROP PROCEDURE IF EXISTS DeleteUserSessions;
+DROP PROCEDURE IF EXISTS GetExpiredSessions;
 DROP PROCEDURE IF EXISTS DeleteUser;
 DROP PROCEDURE IF EXISTS AddFriend;
 DROP PROCEDURE IF EXISTS AddGameToCollection;
@@ -334,6 +335,7 @@ begin
 end
 go
 ----------------------------- USER SESSIONS --------------------------------
+
 CREATE TABLE UserSessions (
     session_id UNIQUEIDENTIFIER PRIMARY KEY,
     user_id INT NOT NULL,
@@ -341,26 +343,23 @@ CREATE TABLE UserSessions (
     expires_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
-
 go
 CREATE PROCEDURE CreateSession
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Delete any existing sessions for this user
-    DELETE FROM UserSessions WHERE user_id = @user_id;
-
     -- Create new session with 2-hour expiration
+    DECLARE @new_session_id UNIQUEIDENTIFIER = NEWID();
+    
     INSERT INTO UserSessions (user_id, session_id, created_at, expires_at)
     VALUES (
         @user_id,
-        NEWID(),
+        @new_session_id,
         GETDATE(),
         DATEADD(HOUR, 2, GETDATE())
     );
-
+    
     -- Return the session details
     SELECT 
         us.session_id,
@@ -374,10 +373,20 @@ BEGIN
         u.last_login
     FROM UserSessions us
     JOIN Users u ON us.user_id = u.user_id
-    WHERE us.user_id = @user_id;
+    WHERE us.session_id = @new_session_id;
 END; 
-
 go
+
+-- Procedure to handle deleting all sessions for a user
+CREATE PROCEDURE DeleteUserSessions
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM UserSessions WHERE user_id = @user_id;
+END;
+go
+
 CREATE PROCEDURE DeleteSession
     @session_id UNIQUEIDENTIFIER
 AS
@@ -385,61 +394,58 @@ BEGIN
     SET NOCOUNT ON;
     DELETE FROM UserSessions WHERE session_id = @session_id;
 END; 
-
 go
+
 CREATE PROCEDURE GetSessionById
     @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
-
     SELECT session_id, user_id, created_at, expires_at
     FROM UserSessions
     WHERE session_id = @session_id;
 END 
-
 go
+
 CREATE PROCEDURE GetUserFromSession
     @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Check if session exists and is not expired
-    IF EXISTS (
-        SELECT 1 
-        FROM UserSessions 
-        WHERE session_id = @session_id 
-        AND expires_at > GETDATE()
-    )
-    BEGIN
-        -- Return user details
-        SELECT 
-            u.user_id,
-            u.username,
-            u.email,
-            u.developer,
-            u.created_at,
-            u.last_login
-        FROM UserSessions us
-        JOIN Users u ON us.user_id = u.user_id
-        WHERE us.session_id = @session_id;
-    END
-    ELSE
-    BEGIN
-        -- If session is expired or doesn't exist, delete it
-        DELETE FROM UserSessions WHERE session_id = @session_id;
-    END
+    -- Return session and user details without expiration logic
+    SELECT 
+        us.session_id,
+        us.created_at,
+        us.expires_at,
+        u.user_id,
+        u.username,
+        u.email,
+        u.developer,
+        u.created_at,
+        u.last_login
+    FROM UserSessions us
+    JOIN Users u ON us.user_id = u.user_id
+    WHERE us.session_id = @session_id;
 END; 
-
 go
+
+-- Procedure to get expired sessions
+CREATE PROCEDURE GetExpiredSessions
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT session_id
+    FROM UserSessions
+    WHERE expires_at <= GETDATE();
+END;
+go
+
 CREATE PROCEDURE LoginUser
     @EmailOrUsername NVARCHAR(100),
     @Password NVARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
-
     -- Get user data including password hash
     SELECT user_id,
         username,
@@ -451,8 +457,8 @@ BEGIN
     FROM Users
     WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
 END 
-
 go
+
 CREATE PROCEDURE LogoutUser
     @session_id UNIQUEIDENTIFIER
 AS
