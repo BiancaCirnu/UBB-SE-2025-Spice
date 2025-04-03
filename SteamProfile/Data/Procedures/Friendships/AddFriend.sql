@@ -4,6 +4,8 @@ CREATE OR ALTER PROCEDURE AddFriend
 AS
 BEGIN
     INSERT INTO Friendships (user_id, friend_id)
-    VALUES (@user_id, @friend_id);
+    SELECT @user_id, @friend_id
+    UNION ALL
+    SELECT @friend_id, @user_id;
 END
 GO 

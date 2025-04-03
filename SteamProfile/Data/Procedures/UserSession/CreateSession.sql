@@ -3,19 +3,17 @@ CREATE PROCEDURE CreateSession
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Delete any existing sessions for this user
-    DELETE FROM UserSessions WHERE user_id = @user_id;
-
     -- Create new session with 2-hour expiration
+    DECLARE @new_session_id UNIQUEIDENTIFIER = NEWID();
+    
     INSERT INTO UserSessions (user_id, session_id, created_at, expires_at)
     VALUES (
         @user_id,
-        NEWID(),
+        @new_session_id,
         GETDATE(),
         DATEADD(HOUR, 2, GETDATE())
     );
-
+    
     -- Return the session details
     SELECT 
         us.session_id,
@@ -29,5 +27,5 @@ BEGIN
         u.last_login
     FROM UserSessions us
     JOIN Users u ON us.user_id = u.user_id
-    WHERE us.user_id = @user_id;
+    WHERE us.session_id = @new_session_id;
 END; 

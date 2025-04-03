@@ -13,7 +13,8 @@ DROP TABLE IF exists PasswordResetCodes;
 DROP TABLE IF EXISTS UserSessions;
 DROP TABLE IF EXISTS Users;
 
-
+DROP PROCEDURE IF EXISTS DeleteUserSessions;
+DROP PROCEDURE IF EXISTS GetExpiredSessions;
 DROP PROCEDURE IF EXISTS DeleteUser;
 DROP PROCEDURE IF EXISTS AddFriend;
 DROP PROCEDURE IF EXISTS AddGameToCollection;
@@ -334,6 +335,7 @@ begin
 end
 go
 ----------------------------- USER SESSIONS --------------------------------
+
 CREATE TABLE UserSessions (
     session_id UNIQUEIDENTIFIER PRIMARY KEY,
     user_id INT NOT NULL,
@@ -341,26 +343,23 @@ CREATE TABLE UserSessions (
     expires_at DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
 );
-
 go
 CREATE PROCEDURE CreateSession
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Delete any existing sessions for this user
-    DELETE FROM UserSessions WHERE user_id = @user_id;
-
     -- Create new session with 2-hour expiration
+    DECLARE @new_session_id UNIQUEIDENTIFIER = NEWID();
+    
     INSERT INTO UserSessions (user_id, session_id, created_at, expires_at)
     VALUES (
         @user_id,
-        NEWID(),
+        @new_session_id,
         GETDATE(),
         DATEADD(HOUR, 2, GETDATE())
     );
-
+    
     -- Return the session details
     SELECT 
         us.session_id,
@@ -374,10 +373,20 @@ BEGIN
         u.last_login
     FROM UserSessions us
     JOIN Users u ON us.user_id = u.user_id
-    WHERE us.user_id = @user_id;
+    WHERE us.session_id = @new_session_id;
 END; 
-
 go
+
+-- Procedure to handle deleting all sessions for a user
+CREATE PROCEDURE DeleteUserSessions
+    @user_id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM UserSessions WHERE user_id = @user_id;
+END;
+go
+
 CREATE PROCEDURE DeleteSession
     @session_id UNIQUEIDENTIFIER
 AS
@@ -385,61 +394,58 @@ BEGIN
     SET NOCOUNT ON;
     DELETE FROM UserSessions WHERE session_id = @session_id;
 END; 
-
 go
+
 CREATE PROCEDURE GetSessionById
     @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
-
     SELECT session_id, user_id, created_at, expires_at
     FROM UserSessions
     WHERE session_id = @session_id;
 END 
-
 go
+
 CREATE PROCEDURE GetUserFromSession
     @session_id UNIQUEIDENTIFIER
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Check if session exists and is not expired
-    IF EXISTS (
-        SELECT 1 
-        FROM UserSessions 
-        WHERE session_id = @session_id 
-        AND expires_at > GETDATE()
-    )
-    BEGIN
-        -- Return user details
-        SELECT 
-            u.user_id,
-            u.username,
-            u.email,
-            u.developer,
-            u.created_at,
-            u.last_login
-        FROM UserSessions us
-        JOIN Users u ON us.user_id = u.user_id
-        WHERE us.session_id = @session_id;
-    END
-    ELSE
-    BEGIN
-        -- If session is expired or doesn't exist, delete it
-        DELETE FROM UserSessions WHERE session_id = @session_id;
-    END
+    -- Return session and user details without expiration logic
+    SELECT 
+        us.session_id,
+        us.created_at,
+        us.expires_at,
+        u.user_id,
+        u.username,
+        u.email,
+        u.developer,
+        u.created_at,
+        u.last_login
+    FROM UserSessions us
+    JOIN Users u ON us.user_id = u.user_id
+    WHERE us.session_id = @session_id;
 END; 
-
 go
+
+-- Procedure to get expired sessions
+CREATE PROCEDURE GetExpiredSessions
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT session_id
+    FROM UserSessions
+    WHERE expires_at <= GETDATE();
+END;
+go
+
 CREATE PROCEDURE LoginUser
     @EmailOrUsername NVARCHAR(100),
     @Password NVARCHAR(100)
 AS
 BEGIN
     SET NOCOUNT ON;
-
     -- Get user data including password hash
     SELECT user_id,
         username,
@@ -451,8 +457,8 @@ BEGIN
     FROM Users
     WHERE username = @EmailOrUsername OR email = @EmailOrUsername;
 END 
-
 go
+
 CREATE PROCEDURE LogoutUser
     @session_id UNIQUEIDENTIFIER
 AS
@@ -809,8 +815,6 @@ CREATE TABLE Friendships (
     CONSTRAINT CHK_FriendshipUsers CHECK (user_id != friend_id)
 );
 
-
-go
 -- Add indexes for better query performance
 CREATE INDEX IX_Friendships_UserId ON Friendships(user_id);
 CREATE INDEX IX_Friendships_FriendId ON Friendships(friend_id);
@@ -822,64 +826,83 @@ CREATE OR ALTER PROCEDURE AddFriend
 AS
 BEGIN
     INSERT INTO Friendships (user_id, friend_id)
-    VALUES (@user_id, @friend_id);
+    SELECT @user_id, @friend_id
+    UNION ALL
+    SELECT @friend_id, @user_id;
 END
 GO 
+
 create or alter procedure DeleteFriendshipsForUser @user_id int as 
 begin
-	delete from Friendships where @user_id = user_id or @user_id = friend_id
+    delete from Friendships where @user_id = user_id or @user_id = friend_id
 end
-
 go
+
 CREATE OR ALTER PROCEDURE GetFriendsForUser
     @user_id INT
 AS
 BEGIN
     SELECT 
-        f.friendship_id,
-        f.user_id,
-        f.friend_id,
-        u.username as friend_username,
-        p.profile_picture as friend_profile_picture
-    FROM Friendships f
-    JOIN Users u ON f.friend_id = u.user_id
-	JOIN UserProfiles p ON p.user_id = f.friend_id
-    WHERE f.user_id = @user_id
-    ORDER BY u.username;
-END
-GO 
-CREATE OR ALTER PROCEDURE GetFriendshipCountForUser
-    @user_id INT
-AS
-BEGIN
-    SELECT COUNT(*) as friend_count
+        friendship_id,
+        user_id,
+        friend_id
     FROM Friendships
     WHERE user_id = @user_id;
 END
 GO 
+
+CREATE OR ALTER PROCEDURE GetFriendshipCount
+    @user_id INT
+AS
+BEGIN
+    SELECT COUNT(*) as count
+    FROM Friendships
+    WHERE user_id = @user_id;
+END
+GO 
+
+CREATE OR ALTER PROCEDURE GetFriendshipId
+    @user_id INT,
+    @friend_id INT
+AS
+BEGIN
+    SELECT friendship_id
+    FROM Friendships
+    WHERE (user_id = @user_id AND friend_id = @friend_id)
+          OR (user_id = @friend_id AND friend_id = @user_id);
+END
+GO
+
 CREATE OR ALTER PROCEDURE RemoveFriend
     @friendship_id INT
 AS
 BEGIN
-    DELETE FROM Friendships
+    DECLARE @user_id INT;
+    DECLARE @friend_id INT;
+
+    -- Get the user_id and friend_id from the friendship
+    SELECT @user_id = user_id, @friend_id = friend_id
+    FROM Friendships
     WHERE friendship_id = @friendship_id;
+
+    -- Delete both directions of the friendship
+    DELETE FROM Friendships
+    WHERE (user_id = @user_id AND friend_id = @friend_id)
+       OR (user_id = @friend_id AND friend_id = @user_id);
 END
-GO 
+GO
+
 CREATE OR ALTER PROCEDURE GetAllFriendships
 AS
 BEGIN
     SELECT 
-        f.friendship_id,
-        f.user_id,
-        u1.username as user_username,
-        f.friend_id,
-        u2.username as friend_username
-    FROM Friendships f
-    JOIN Users u1 ON f.user_id = u1.user_id
-    JOIN Users u2 ON f.friend_id = u2.user_id
-    ORDER BY f.user_id, f.friend_id;
+        friendship_id,
+        user_id,
+        friend_id
+    FROM Friendships
+    ORDER BY user_id, friend_id;
 END
-go
+GO
 
 ----------------------------- COLLECTIONS --------------------------------
 CREATE TABLE Collections (
@@ -910,14 +933,6 @@ CREATE OR ALTER PROCEDURE CreateCollection
 	@created_at DATE
 AS
 BEGIN
-	-- Check if user exists
-	IF NOT EXISTS (SELECT 1 FROM Users WHERE user_id = @user_id)
-	BEGIN
-		RAISERROR('User not found', 16, 1)
-		RETURN
-	END
-
-	-- Insert new collection
 	INSERT INTO Collections (
 		user_id,
 		name,
@@ -944,6 +959,7 @@ BEGIN
 	FROM Collections
 	WHERE collection_id = SCOPE_IDENTITY()
 END
+GO
 
 SELECT * FROM Collections;
 go
@@ -953,11 +969,6 @@ CREATE OR ALTER PROCEDURE DeleteCollection
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Delete associated records first (avoid foreign key constraint errors)
-    DELETE FROM OwnedGames_Collection WHERE collection_id = @collection_id;
-
-    -- Now delete the collection
     DELETE FROM Collections WHERE collection_id = @collection_id AND user_id = @user_id;
 END
 GO
@@ -973,7 +984,7 @@ BEGIN
     ORDER BY created_at ASC;
 END
 GO
-CREATE PROCEDURE GetCollectionById
+CREATE or alter PROCEDURE GetCollectionById
     @collectionId INT,
     @user_id INT
 AS
@@ -1083,31 +1094,10 @@ CREATE OR ALTER PROCEDURE AddGameToCollection
     @game_id INT
 AS
 BEGIN
-    -- Check if collection exists
-    IF NOT EXISTS (SELECT 1 FROM Collections WHERE collection_id = @collection_id)
-    BEGIN
-        RAISERROR('Collection not found', 16, 1)
-        RETURN
-    END
-
-    -- Check if game exists
-    IF NOT EXISTS (SELECT 1 FROM OwnedGames WHERE game_id = @game_id)
-    BEGIN
-        RAISERROR('Game not found', 16, 1)
-        RETURN
-    END
-
-    -- Check if game is already in collection
-    IF EXISTS (SELECT 1 FROM OwnedGames_Collection WHERE collection_id = @collection_id AND game_id = @game_id)
-    BEGIN
-        RAISERROR('Game is already in collection', 16, 1)
-        RETURN
-    END
-
-    -- Add game to collection
     INSERT INTO OwnedGames_Collection (collection_id, game_id)
     VALUES (@collection_id, @game_id)
-END 
+END
+GO
 
 
 go
@@ -1123,51 +1113,24 @@ CREATE OR ALTER PROCEDURE GetGamesInCollection
     @collection_id INT
 AS
 BEGIN
-    -- Check if collection exists
-    IF NOT EXISTS (SELECT 1 FROM Collections WHERE collection_id = @collection_id)
-    BEGIN
-        RAISERROR('Collection not found', 16, 1)
-        RETURN
-    END
-
-    -- Get the user_id who owns this collection
     DECLARE @user_id INT
     SELECT @user_id = user_id FROM Collections WHERE collection_id = @collection_id
 
-    -- If this is the "All Owned Games" collection (collection_id = 1)
-    IF @collection_id = 1
-    BEGIN
-        -- Return all games owned by the user (without duplicates)
-        SELECT DISTINCT og.game_id, og.user_id, og.title, og.description, og.cover_picture
-        FROM OwnedGames og
-        WHERE og.user_id = @user_id
-        ORDER BY og.title
-    END
-    ELSE
-    BEGIN
-        -- For other collections, return games from the collection that belong to the user
-        SELECT og.game_id, og.user_id, og.title, og.description, og.cover_picture
-        FROM OwnedGames og
-        INNER JOIN OwnedGames_Collection ogc ON og.game_id = ogc.game_id
-        WHERE ogc.collection_id = @collection_id
-        AND og.user_id = @user_id
-        ORDER BY og.title
-    END
+    SELECT og.game_id, og.user_id, og.title, og.description, og.cover_picture
+    FROM OwnedGames og
+    INNER JOIN OwnedGames_Collection ogc ON og.game_id = ogc.game_id
+    WHERE ogc.collection_id = @collection_id
+    AND og.user_id = @user_id
+    ORDER BY og.title;
 END
 GO 
-CREATE PROCEDURE GetGamesNotInCollection
+CREATE or alter PROCEDURE GetGamesNotInCollection
     @collection_id INT,
     @user_id INT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    -- Get all games owned by the user that are not in the specified collection
-    SELECT og.game_id,
-           og.user_id,
-           og.title,
-           og.description,
-           og.cover_picture
+    SELECT og.game_id, og.user_id, og.title, og.description, og.cover_picture
     FROM OwnedGames og
     WHERE og.user_id = @user_id
     AND NOT EXISTS (
@@ -1177,7 +1140,8 @@ BEGIN
         AND ogc.collection_id = @collection_id
     )
     ORDER BY og.title;
-END 
+END
+GO 
 
 
 go
@@ -1199,6 +1163,18 @@ BEGIN
     DELETE FROM OwnedGames_Collection WHERE collection_id = @collection_id AND game_id = @game_id;
 END
 GO
+
+CREATE OR ALTER PROCEDURE GetAllGamesForUser
+    @user_id INT
+AS
+BEGIN
+    SELECT game_id, user_id, title, description, cover_picture
+    FROM OwnedGames
+    WHERE user_id = @user_id
+    ORDER BY title;
+END
+GO
+
 
 GO 
 
@@ -1594,3 +1570,4 @@ select * from Friendships;
 select * from wallet;
 
 select * from UserProfiles;
+go
